@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 import mechinterfabric
+import averageQuaternions
 
 
 def test_average_quaternion():
@@ -14,7 +15,7 @@ def test_average_quaternion():
 
     weights = np.array([1, 1]) / 2
 
-    quat_av_ref = mechinterfabric.external.weightedAverageQuaternions(
+    quat_av_ref = averageQuaternions.weightedAverageQuaternions(
         Q=bunch, w=weights
     )
 
