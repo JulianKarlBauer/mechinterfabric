@@ -11,14 +11,6 @@ directory = os.path.join("output")
 os.makedirs(directory, exist_ok=True)
 
 
-def xyzw_to_wxyz(inp):
-    # return np.einsum("ijkl->lijk", inp)
-    inp[[0, 1, 2, 3]] = inp[[3, 0, 1, 2]]
-    return inp
-
-
-assert np.allclose(xyzw_to_wxyz(np.array([1, 2, 3, 4])), np.array([4, 1, 2, 3]))
-
 rot_1 = Rotation.from_rotvec(0 * np.array([1, 0, 0]))
 rot_2 = Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0]))
 
