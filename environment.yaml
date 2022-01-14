@@ -56,4 +56,16 @@ dependencies:
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.5=h7b6447c_0
   - zlib=1.2.11=h7f8727e_4
+  - pip:
+    - cycler==0.11.0
+    - fiberoripy==1.0.11
+    - fonttools==4.28.5
+    - kiwisolver==1.3.2
+    - matplotlib==3.5.1
+    - mechkit==0.3.4
+    - mpmath==1.2.1
+    - networkx==2.6.3
+    - pillow==9.0.0
+    - python-dateutil==2.8.2
+    - sympy==1.9
 prefix: /home/julian/miniconda3/envs/mechinterfabric
