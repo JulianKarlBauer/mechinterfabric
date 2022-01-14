@@ -1,8 +1,13 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
-import mechinterfabric
+from mechinterfabric.visualization import plot_bunch_along_x
+import os
+import matplotlib.pyplot as plt
 
 np.set_printoptions(linewidth=100000)
+
+directory = os.path.join("output")
+os.makedirs(directory, exist_ok=True)
 
 
 def xyzw_to_wxyz(inp):
@@ -28,15 +33,12 @@ bunch = [quat_1, quat_2]
 bunch = np.vstack(bunch)
 
 ###################################
-
-import matplotlib.pyplot as plt
-
+# Plot bunch of rotations
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
-ax.cos3D(
-    origin=[1 / 2, 1 / 2, 1 / 2],
-    length=0.3,
-    rotation=Rotation.from_rotvec(np.pi/4 * np.array([1, 0, 0])),
-)
+plot_bunch_along_x(ax=ax, bunch=[rot_1, rot_2, rot_1, rot_2])
+
+path_picture = os.path.join(directory, "coords" + ".png")
+plt.savefig(path_picture)

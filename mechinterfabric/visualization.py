@@ -90,3 +90,28 @@ def _cos3D(ax, origin, length, rotation, *args, **kwargs):
 
 
 setattr(Axes3D, "cos3D", _cos3D)
+
+########################
+# Application
+
+
+def plot_bunch_along_x(ax, bunch):
+
+    origins = np.linspace(0, 1, len(bunch))
+
+    factor = 5.0
+    length = factor / (len(bunch) - 1) / (1.0 + 2 * factor)
+
+    offset = length / factor
+    ax.set_xlim(0 - offset, 1 + offset)
+    ax.set_ylim(-0.5 - offset, 0.5 + offset)
+    ax.set_zlim(-0.5 - offset, 0.5 + offset)
+
+    for index, rot in enumerate(bunch):
+        ax.cos3D(
+            origin=[origins[index], 0, 0],
+            length=length,
+            rotation=rot,
+        )
+
+    return ax
