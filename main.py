@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
+import mechinterfabric
 
 np.set_printoptions(linewidth=100000)
 
@@ -25,3 +26,16 @@ bunch = [quat_1, quat_2]
 # # Adjust notation
 # bunch = list(map(xyzw_to_wxyz, bunch))
 bunch = np.vstack(bunch)
+
+###################################
+
+import matplotlib.pyplot as plt
+
+
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+ax.arrow3D(0,0,0,
+           1/2,1/2,1/2,
+           )
