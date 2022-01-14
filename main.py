@@ -29,8 +29,6 @@ quat_1 = rot_1.as_quat()
 quat_2 = rot_2.as_quat()
 
 bunch = [quat_1, quat_2]
-# # Adjust notation
-# bunch = list(map(xyzw_to_wxyz, bunch))
 bunch = np.vstack(bunch)
 
 
