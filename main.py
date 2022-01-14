@@ -10,21 +10,15 @@ np.set_printoptions(linewidth=100000)
 directory = os.path.join("output")
 os.makedirs(directory, exist_ok=True)
 
-
 rot_1 = Rotation.from_rotvec(0 * np.array([1, 0, 0]))
 rot_2 = Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0]))
-
-# print(rot_1.as_matrix())
-# print(rot_2.as_matrix())
 
 quat_1 = rot_1.as_quat()
 quat_2 = rot_2.as_quat()
 
-bunch = [quat_1, quat_2]
-bunch = np.vstack(bunch)
-
-
-quat_av = mechinterfabric.external.weightedAverageQuaternions(Q=bunch, w=[1, 0])
+quat_av = mechinterfabric.rotation.average_quaternion(
+    quaternions=np.vstack([quat_1, quat_2]), weights=np.ones(2) / 2
+)
 
 rot_av = Rotation.from_quat(quat_av)
 mat_av = rot_av.as_matrix()
