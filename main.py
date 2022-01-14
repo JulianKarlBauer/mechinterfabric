@@ -32,10 +32,11 @@ bunch = np.vstack(bunch)
 import matplotlib.pyplot as plt
 
 
-
 fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
+ax = fig.add_subplot(111, projection="3d")
 
-ax.arrow3D(0,0,0,
-           1/2,1/2,1/2,
-           )
+ax.cos3D(
+    origin=[1 / 2, 1 / 2, 1 / 2],
+    length=0.3,
+    rotation=Rotation.from_rotvec(np.pi/4 * np.array([1, 0, 0])),
+)

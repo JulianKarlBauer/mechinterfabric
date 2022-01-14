@@ -2,6 +2,9 @@ from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d.proj3d import proj_transform
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 
+from scipy.spatial.transform import Rotation
+import numpy as np
+
 
 class Arrow3D(FancyArrowPatch):
     def __init__(self, x, y, z, dx, dy, dz, *args, **kwargs):
@@ -27,3 +30,63 @@ def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
 
 
 setattr(Axes3D, "arrow3D", _arrow3D)
+
+#################################
+
+
+def _cos3D(ax, origin, length, rotation, *args, **kwargs):
+    # origin = np.array([x, y, z])
+
+    matrix = rotation.as_matrix()
+
+    arrow_x = np.array([1.0, 0, 0]) * length
+    arrow_y = np.array([0, 1.0, 0]) * length
+    arrow_z = np.array([0.0, 0, 1.0]) * length
+
+    dx_x, dy_x, dz_x = np.einsum("ij, j->i", matrix, arrow_x)
+    dx_y, dy_y, dz_y = np.einsum("ij, j->i", matrix, arrow_y)
+    dx_z, dy_z, dz_z = np.einsum("ij, j->i", matrix, arrow_z)
+
+    arrow_x = Arrow3D(
+        origin[0],
+        origin[1],
+        origin[2],
+        dx_x,
+        dy_x,
+        dz_x,
+        *args,
+        ec="red",
+        fc="red",
+        **kwargs
+    )
+    arrow_y = Arrow3D(
+        origin[0],
+        origin[1],
+        origin[2],
+        dx_y,
+        dy_y,
+        dz_y,
+        *args,
+        ec="green",
+        fc="green",
+        **kwargs
+    )
+    arrow_z = Arrow3D(
+        origin[0],
+        origin[1],
+        origin[2],
+        dx_z,
+        dy_z,
+        dz_z,
+        *args,
+        ec="blue",
+        fc="blue",
+        **kwargs
+    )
+
+    ax.add_artist(arrow_x)
+    ax.add_artist(arrow_y)
+    ax.add_artist(arrow_z)
+
+
+setattr(Axes3D, "cos3D", _cos3D)
