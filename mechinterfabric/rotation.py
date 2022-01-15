@@ -7,7 +7,7 @@ def average_quaternion(quaternions, weights):
     See https://arc.aiaa.org/doi/abs/10.2514/1.28949
     and https://github.com/christophhagen/averaging-quaternions
     """
-    assert quaternions.shape == (len(quaternions), 4)
+    assert quaternions.shape == (len(weights), 4)
 
     matrix = np.einsum("ij,ik,i->jk", quaternions, quaternions, weights)
 
