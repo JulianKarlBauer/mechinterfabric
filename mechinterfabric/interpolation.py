@@ -23,4 +23,4 @@ def average_N2(N2s, weights):
 
     N2_av = np.einsum("mi, nj, mn->ij", rotation_av, rotation_av, N2_av_in_eigen)
 
-    return N2_av
+    return N2_av, N2_av_in_eigen, rotation_av
