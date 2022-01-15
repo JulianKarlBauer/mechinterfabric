@@ -10,23 +10,29 @@ np.set_printoptions(linewidth=100000)
 directory = os.path.join("output")
 os.makedirs(directory, exist_ok=True)
 
-quat_1 = Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat()
-quat_2 = Rotation.from_rotvec(np.pi / 2 * np.array([1, 0, 0])).as_quat()
 
-quat_av = mechinterfabric.rotation.average_quaternion(
-    quaternions=np.vstack([quat_1, quat_2]), weights=np.ones(2) / 2
-)
+quat_pairs = {
+    "quarter_z": (
+        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0])).as_quat(),
+    )
+}
 
-###################################
-# Plot bunch of rotations
+for key, (quat_1, quat_2) in quat_pairs.items():
+    quat_av = mechinterfabric.rotation.average_quaternion(
+        quaternions=np.vstack([quat_1, quat_2]), weights=np.ones(2) / 2
+    )
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
+    ###################################
+    # Plot bunch of rotations
 
-plot_bunch_of_cos3D_along_x(
-    ax=ax,
-    bunch=list(map(lambda x: Rotation.from_quat(x), [quat_1, quat_2, quat_av])),
-)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
 
-path_picture = os.path.join(directory, "coords" + ".png")
-plt.savefig(path_picture)
+    plot_bunch_of_cos3D_along_x(
+        ax=ax,
+        bunch=list(map(lambda x: Rotation.from_quat(x), [quat_1, quat_2, quat_av])),
+    )
+
+    path_picture = os.path.join(directory, "coords" + "_" + key + ".png")
+    plt.savefig(path_picture)
