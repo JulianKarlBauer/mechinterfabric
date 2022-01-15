@@ -115,4 +115,39 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
     return ax
 
 
+def plot_ellipsoid(
+    ax,
+    origin,
+    radii,
+    rotation_matrix,
+    *args,
+    nbr_points=40,
+    homogeneous_axes=False,
+    **kwargs
+):
 
+    phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
+    theta = np.linspace(0.0, np.pi, nbr_points)
+    x = radii[0] * np.outer(np.cos(phi), np.sin(theta))
+    y = radii[1] * np.outer(np.sin(phi), np.sin(theta))
+    z = radii[2] * np.outer(np.ones_like(phi), np.cos(theta))
+
+    vectors = np.array([x, y, z])
+
+    # Transform
+    vectors = (
+        np.einsum("ij, j...->i...", rotation_matrix, vectors)
+        + np.array(origin)[:, np.newaxis, np.newaxis]
+    )
+
+    ax.plot_surface(
+        *vectors, rstride=3, cstride=3, linewidth=0.1, alpha=0.5, shade=True, **kwargs
+    )
+
+    if homogeneous_axes:
+        # Homogeneous axes
+        bbox_min = np.min([x, y, z])
+        bbox_max = np.max([x, y, z])
+        ax.auto_scale_xyz(
+            [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
+        )
