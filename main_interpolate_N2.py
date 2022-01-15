@@ -5,15 +5,7 @@ from scipy.spatial.transform import Rotation
 
 
 N1 = np.diag([0.95, 0.05, 0])
-N2 = np.diag([0.3, 0.3, 0.3])
-
-N1_eigenvals, N1_rotations = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(
-    N1
-)
-
-N2_eigenvals, N2_rotations = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(
-    N2
-)
+N2 = np.diag([0, 0.95, 0.05])
 
 bunch = np.array([N1, N2])
 
@@ -35,16 +27,16 @@ ax.set_zlabel("z")
 mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[0, 0, 0],
-    radii=N1_eigenvals,
-    rotation_matrix=N2_rotations,
+    radii=np.diag(N1),
+    rotation_matrix=np.eye(3),
     color="red",
 )
 
 mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[1, 0, 0],
-    radii=N2_eigenvals,
-    rotation_matrix=N2_rotations,
+    radii=np.diag(N2),
+    rotation_matrix=np.eye(3),
     color="green",
 )
 
@@ -55,6 +47,10 @@ mechinterfabric.visualization.plot_ellipsoid(
     rotation_matrix=av_rotation,
     color="blue",
 )
+
+bbox_min = -2
+bbox_max = 2
+ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
 
 
 # radii = np.array([0.5, 0.4, 0.1])
