@@ -24,6 +24,18 @@ quat_pairs = {
         Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
         Rotation.from_rotvec(np.pi / 4 * np.array([0, 0, 1])).as_quat(),
     ),
+    "half_x": (
+        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_rotvec(np.pi / 2 * np.array([1, 0, 0])).as_quat(),
+    ),
+    "half_y": (
+        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_rotvec(np.pi / 2 * np.array([0, 1, 0])).as_quat(),
+    ),
+    "half_z": (
+        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_rotvec(np.pi / 2 * np.array([0, 0, 1])).as_quat(),
+    ),
 }
 
 for key, (quat_1, quat_2) in quat_pairs.items():
