@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 import mechinterfabric
-from mechinterfabric.visualization import plot_bunch_along_x
+from mechinterfabric.visualization import plot_bunch_of_cos3D_along_x
 import os
 import matplotlib.pyplot as plt
 
@@ -31,7 +31,7 @@ print(mat_av)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
-plot_bunch_along_x(ax=ax, bunch=[rot_1, rot_2, rot_av])
+plot_bunch_of_cos3D_along_x(ax=ax, bunch=[rot_1, rot_2, rot_av])
 
 path_picture = os.path.join(directory, "coords" + ".png")
 plt.savefig(path_picture)

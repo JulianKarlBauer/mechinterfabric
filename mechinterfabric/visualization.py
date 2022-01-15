@@ -93,7 +93,7 @@ setattr(Axes3D, "cos3D", _cos3D)
 # Application
 
 
-def plot_bunch_along_x(ax, bunch):
+def plot_bunch_of_cos3D_along_x(ax, bunch):
 
     origins = np.linspace(0, 1, len(bunch))
 
@@ -113,3 +113,6 @@ def plot_bunch_along_x(ax, bunch):
         )
 
     return ax
+
+
+
