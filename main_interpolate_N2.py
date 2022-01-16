@@ -2,10 +2,14 @@ import numpy as np
 import mechinterfabric
 import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation
+import os
+
+directory = os.path.join("output")
+os.makedirs(directory, exist_ok=True)
 
 
 N1 = np.diag([0.95, 0.05, 0])
-N2 = np.diag([0, 0.95, 0.05])
+N2 = np.diag([0.0, 0.95, 0.05])
 
 bunch = np.array([N1, N2])
 
@@ -51,6 +55,9 @@ mechinterfabric.visualization.plot_ellipsoid(
 bbox_min = -2
 bbox_max = 2
 ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+path_picture = os.path.join(directory, "interpolation_N2" + ".png")
+plt.savefig(path_picture)
 
 
 # radii = np.array([0.5, 0.4, 0.1])
