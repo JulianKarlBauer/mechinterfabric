@@ -144,7 +144,14 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
 
 
 def plot_stepwise_interpolation_rotations_along_x(
-    ax, quat_1, quat_2, nbr_points=5, scale=1, color="green", verbose=False
+    ax,
+    quat_1,
+    quat_2,
+    nbr_points=5,
+    scale=1,
+    color="green",
+    verbose=False,
+    homebreu=False,
 ):
 
     offset = 0.3
@@ -160,9 +167,20 @@ def plot_stepwise_interpolation_rotations_along_x(
     ).T
 
     for index in range(nbr_points):
-        av_rotation = Rotation.from_quat(np.vstack([quat_1, quat_2])).mean(
-            weights=weights[index]
-        )
+        if not homebreu:
+            av_rotation = Rotation.from_quat(np.vstack([quat_1, quat_2])).mean(
+                weights=weights[index]
+            )
+        elif homebreu:
+            av_quat = mechinterfabric.rotation.average_quaternion(
+                quaternions=np.vstack([quat_1, quat_2]),
+                weights=weights[index],
+                verbose=True,
+            )
+            av_rotation = Rotation.from_quat(av_quat)
+        else:
+            raise Exception("Select averagign schemes")
+
         if verbose:
             print(av_rotation.as_quat())
 

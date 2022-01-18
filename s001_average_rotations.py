@@ -48,7 +48,7 @@ quat_pairs = {
         ).as_quat(),
     ),
     "Exchange x and y axes without signs": (
-        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_rotvec(np.pi / 10 * np.array([1, 0, 0])).as_quat(),
         Rotation.from_matrix(
             np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]])
         ).as_quat(),
@@ -59,6 +59,9 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     print("##########")
     print(key)
     print(quat_1, quat_2)
+    print(Rotation.from_quat(quat_1).as_matrix())
+    print(Rotation.from_quat(quat_2).as_matrix())
+
     print()
 
     quat_av = mechinterfabric.rotation.average_quaternion(
@@ -85,7 +88,7 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     elif True:
         # Plot granularly
         plot_stepwise_interpolation_rotations_along_x(
-            ax, quat_1, quat_2, nbr_points=7, scale=1, color="green", verbose=True
+            ax, quat_1, quat_2, nbr_points=17, scale=1, color="green", verbose=False
         )
 
     ax.set_title(key)
