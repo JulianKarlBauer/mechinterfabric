@@ -70,7 +70,7 @@ def get_rotation_matrix_into_eigensystem(tensor, verbose=False):
         print("det=", np.linalg.det(eigen_vectors.T))
         raise Exception("reflection")
 
-    matrix_into_eigen = eigen_vectors.T
+    matrix_into_eigen = eigen_vectors
 
     assert_ortho_normal_right_handed(matrix=matrix_into_eigen)
 

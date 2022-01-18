@@ -13,7 +13,7 @@ N1 = np.diag([0.5, 0.3, 0.2])
 direction = np.array([1, 0, 0])
 rot_vec = 1 / 8 * np.pi * direction / np.linalg.norm(direction)
 rotation = Rotation.from_rotvec(rot_vec)
-transform = rotation.as_matrix().T
+transform = rotation.as_matrix()
 
 N2 = np.einsum("ki, lj, ij->kl", transform, transform, N1)
 
