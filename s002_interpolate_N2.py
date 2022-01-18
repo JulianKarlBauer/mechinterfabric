@@ -27,30 +27,34 @@ ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
 
+if False:
+    mechinterfabric.visualization.plot_ellipsoid(
+        ax=ax,
+        origin=[0, 0, 0],
+        radii_in_eigen=np.diag(N1),
+        matrix_into_eigen=np.eye(3),
+        color="red",
+    )
 
-mechinterfabric.visualization.plot_ellipsoid(
-    ax=ax,
-    origin=[0, 0, 0],
-    radii_in_eigen=np.diag(N1),
-    matrix_into_eigen=np.eye(3),
-    color="red",
-)
+    mechinterfabric.visualization.plot_ellipsoid(
+        ax=ax,
+        origin=[1, 0, 0],
+        radii_in_eigen=np.diag(N2),
+        matrix_into_eigen=np.eye(3),
+        color="green",
+    )
 
-mechinterfabric.visualization.plot_ellipsoid(
-    ax=ax,
-    origin=[1, 0, 0],
-    radii_in_eigen=np.diag(N2),
-    matrix_into_eigen=np.eye(3),
-    color="green",
-)
-
-mechinterfabric.visualization.plot_ellipsoid(
-    ax=ax,
-    origin=[2, 0, 0],
-    radii_in_eigen=np.diag(av_in_eigen),
-    matrix_into_eigen=av_rotation,
-    color="blue",
-)
+    mechinterfabric.visualization.plot_ellipsoid(
+        ax=ax,
+        origin=[2, 0, 0],
+        radii_in_eigen=np.diag(av_in_eigen),
+        matrix_into_eigen=av_rotation,
+        color="blue",
+    )
+elif True:
+    mechinterfabric.visualization.plot_stepwise_interpolation_along_x(
+        ax, N1, N2, nbr_points=5, scale=4, colors=None
+    )
 
 bbox_min = -2
 bbox_max = 2
