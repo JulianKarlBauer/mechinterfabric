@@ -32,54 +32,32 @@ setattr(Axes3D, "arrow3D", _arrow3D)
 #################################
 
 
-def _cos3D(ax, origin, length, rotation, *args, **kwargs):
+def _cos3D(ax, origin, length, matrix, *args, **kwargs):
     # origin = np.array([x, y, z])
-
-    matrix = rotation.as_matrix()
 
     arrow_x = np.array([1.0, 0, 0]) * length
     arrow_y = np.array([0, 1.0, 0]) * length
     arrow_z = np.array([0.0, 0, 1.0]) * length
 
-    dx_x, dy_x, dz_x = np.einsum("ij, j->i", matrix, arrow_x)
-    dx_y, dy_y, dz_y = np.einsum("ij, j->i", matrix, arrow_y)
-    dx_z, dy_z, dz_z = np.einsum("ij, j->i", matrix, arrow_z)
+    diff_x = np.einsum("ij, j->i", matrix, arrow_x)
+    diff_y = np.einsum("ij, j->i", matrix, arrow_y)
+    diff_z = np.einsum("ij, j->i", matrix, arrow_z)
 
     arrow_x = Arrow3D(
-        origin[0],
-        origin[1],
-        origin[2],
-        dx_x,
-        dy_x,
-        dz_x,
-        *args,
-        ec="red",
-        fc="red",
-        **kwargs
+        origin[0], origin[1], origin[2], *diff_x, *args, ec="red", fc="red", **kwargs
     )
     arrow_y = Arrow3D(
         origin[0],
         origin[1],
         origin[2],
-        dx_y,
-        dy_y,
-        dz_y,
+        *diff_y,
         *args,
         ec="green",
         fc="green",
         **kwargs
     )
     arrow_z = Arrow3D(
-        origin[0],
-        origin[1],
-        origin[2],
-        dx_z,
-        dy_z,
-        dz_z,
-        *args,
-        ec="blue",
-        fc="blue",
-        **kwargs
+        origin[0], origin[1], origin[2], *diff_z, *args, ec="blue", fc="blue", **kwargs
     )
 
     ax.add_artist(arrow_x)
@@ -118,8 +96,8 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
 def plot_ellipsoid(
     ax,
     origin,
-    radii,
-    rotation_matrix,
+    radii_in_eigen,
+    matrix_into_eigen,
     *args,
     nbr_points=40,
     homogeneous_axes=False,
@@ -128,15 +106,15 @@ def plot_ellipsoid(
 
     phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
     theta = np.linspace(0.0, np.pi, nbr_points)
-    x = radii[0] * np.outer(np.cos(phi), np.sin(theta))
-    y = radii[1] * np.outer(np.sin(phi), np.sin(theta))
-    z = radii[2] * np.outer(np.ones_like(phi), np.cos(theta))
+    x = radii_in_eigen[0] * np.outer(np.cos(phi), np.sin(theta))
+    y = radii_in_eigen[1] * np.outer(np.sin(phi), np.sin(theta))
+    z = radii_in_eigen[2] * np.outer(np.ones_like(phi), np.cos(theta))
 
     vectors = np.array([x, y, z])
 
     # Transform
     vectors = (
-        np.einsum("ij, j...->i...", rotation_matrix, vectors)
+        np.einsum("ij, j...->i...", matrix_into_eigen, vectors)
         + np.array(origin)[:, np.newaxis, np.newaxis]
     )
 
