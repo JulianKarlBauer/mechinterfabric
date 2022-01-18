@@ -17,8 +17,11 @@ if False:
     rotation = Rotation.from_rotvec(rot_vec)
 
 elif True:
+    # N2_matrix from s002 with
+    # N1 = np.diag([0.95, 0.05, 0])
+    # N2 = np.diag([0, 0.95, 0.05])
     rotation = Rotation.from_matrix(
-        np.array([[0.0, 1.0, -0.0], [1.0, 0.0, -0.0], [0.0, 0.0, -1.0]])
+        np.array([[0.0, 0.0, 1.0], [1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
     )
 
 transform = rotation.as_matrix()
