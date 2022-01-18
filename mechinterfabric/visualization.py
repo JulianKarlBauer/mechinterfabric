@@ -2,6 +2,8 @@ from matplotlib.patches import FancyArrowPatch
 from mpl_toolkits.mplot3d.proj3d import proj_transform
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy as np
+import mechinterfabric
+import matplotlib
 
 #################################
 # Line / Arrow without head
@@ -135,6 +137,40 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
             origin=[origins[index], 0, 0],
             length=length,
             matrix=rot,
+        )
+
+    return ax
+
+
+def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1, colors=None):
+
+    # if colors is None:
+    #     norm = matplotlib.colors.Normalize(vmin=0, vmax=nbr_points)
+    #     colors = list(map(lambda x: cm.jet(norm(x), bytes=True)))
+
+    offset = 0.3
+    ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
+    ax.set_ylim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+    ax.set_zlim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+
+    weights_N2 = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - weights_N2, weights_N2]).T
+
+    origins = np.vstack(
+        [np.linspace(0, scale, nbr_points), np.zeros((2, nbr_points))]
+    ).T
+
+    for index in range(nbr_points):
+        av, av_in_eigen, av_rotation = mechinterfabric.interpolation.average_N2(
+            N2s=np.array([N1, N2]), weights=weights[index]
+        )
+
+        mechinterfabric.visualization.plot_ellipsoid(
+            ax=ax,
+            origin=origins[index],
+            radii_in_eigen=np.diag(av_in_eigen),
+            matrix_into_eigen=av_rotation,
+            color="green",
         )
 
     return ax
