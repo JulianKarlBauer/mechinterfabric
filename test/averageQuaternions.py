@@ -57,7 +57,8 @@ def averageQuaternions(Q):
     # scale
     A = (1.0 / M) * A
     # compute eigenvalues and -vectors
-    eigenValues, eigenVectors = numpy.linalg.eig(A)
+    # JKB: use eigh instead of eig
+    eigenValues, eigenVectors = numpy.linalg.eigh(A)
     # Sort by largest eigenvalue
     eigenVectors = eigenVectors[:, eigenValues.argsort()[::-1]]
     # return the real part of the largest eigenvector (has only real part)
@@ -82,7 +83,8 @@ def weightedAverageQuaternions(Q, w):
     A = (1.0 / weightSum) * A
 
     # compute eigenvalues and -vectors
-    eigenValues, eigenVectors = numpy.linalg.eig(A)
+    # JKB: use eigh instead of eig
+    eigenValues, eigenVectors = numpy.linalg.eigh(A)
 
     # Sort by largest eigenvalue
     eigenVectors = eigenVectors[:, eigenValues.argsort()[::-1]]
