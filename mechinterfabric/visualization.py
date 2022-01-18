@@ -4,6 +4,7 @@ from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy as np
 import mechinterfabric
 import matplotlib
+from scipy.spatial.transform import Rotation
 
 #################################
 # Line / Arrow without head
@@ -137,6 +138,38 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
             origin=[origins[index], 0, 0],
             length=length,
             matrix=rot,
+        )
+
+    return ax
+
+
+def plot_stepwise_interpolation_rotations_along_x(
+    ax, quat_1, quat_2, nbr_points=5, scale=1, color="green"
+):
+
+    offset = 0.3
+    ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
+    ax.set_ylim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+    ax.set_zlim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+
+    weights_N2 = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - weights_N2, weights_N2]).T
+
+    origins = np.vstack(
+        [np.linspace(0, scale, nbr_points), np.zeros((2, nbr_points))]
+    ).T
+
+    for index in range(nbr_points):
+        av_matrix = (
+            Rotation.from_quat(np.vstack([quat_1, quat_2]))
+            .mean(weights=weights[index])
+            .as_matrix()
+        )
+
+        ax.cos3D(
+            origin=origins[index],
+            length=0.3 * scale,
+            matrix=av_matrix,
         )
 
     return ax
