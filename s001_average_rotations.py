@@ -40,6 +40,12 @@ quat_pairs = {
         Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
         Rotation.from_rotvec(np.pi / 4 * np.array([1, 1, 0])).as_quat(),
     ),
+    "Exchange x and y axes": (
+        Rotation.from_rotvec(0 * np.array([1, 0, 0])).as_quat(),
+        Rotation.from_matrix(
+            np.array([[0.0, 1.0, -0.0], [1.0, 0.0, -0.0], [0.0, 0.0, -1.0]])
+        ).as_quat(),
+    ),
 }
 
 for key, (quat_1, quat_2) in quat_pairs.items():
