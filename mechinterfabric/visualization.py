@@ -142,11 +142,7 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
     return ax
 
 
-def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1, colors=None):
-
-    # if colors is None:
-    #     norm = matplotlib.colors.Normalize(vmin=0, vmax=nbr_points)
-    #     colors = list(map(lambda x: cm.jet(norm(x), bytes=True)))
+def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1):
 
     offset = 0.3
     ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
@@ -175,7 +171,7 @@ def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1, color
 
         ax.cos3D(
             origin=origins[index],
-            length=0.3*scale,
+            length=0.3 * scale,
             matrix=av_rotation,
         )
 
