@@ -31,24 +31,24 @@ ax.set_zlabel("z")
 mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[0, 0, 0],
-    radii=np.diag(N1),
-    rotation_matrix=np.eye(3),
+    radii_in_eigen=np.diag(N1),
+    matrix_into_eigen=np.eye(3),
     color="red",
 )
 
 mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[1, 0, 0],
-    radii=np.diag(N2),
-    rotation_matrix=np.eye(3),
+    radii_in_eigen=np.diag(N2),
+    matrix_into_eigen=np.eye(3),
     color="green",
 )
 
 mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[2, 0, 0],
-    radii=np.diag(av_in_eigen),
-    rotation_matrix=av_rotation,
+    radii_in_eigen=np.diag(av_in_eigen),
+    matrix_into_eigen=av_rotation,
     color="blue",
 )
 
@@ -60,8 +60,8 @@ path_picture = os.path.join(directory, "interpolation_N2" + ".png")
 plt.savefig(path_picture)
 
 
-# radii = np.array([0.5, 0.4, 0.1])
+# radii_in_eigen = np.array([0.5, 0.4, 0.1])
 # rot_mat = Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0])).as_matrix()
 # mechinterfabric.visualization.plot_ellipsoid(
-#     ax=ax, origin=[2, 2, 2], radii=radii, rotation_matrix=rot_mat, color="blue"
+#     ax=ax, origin=[2, 2, 2], radii_in_eigen=radii_in_eigen, matrix_into_eigen=rot_mat, color="blue"
 # )
