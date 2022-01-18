@@ -142,7 +142,9 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
     return ax
 
 
-def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1):
+def plot_stepwise_interpolation_along_x(
+    ax, N1, N2, nbr_points=5, scale=1, color="green"
+):
 
     offset = 0.3
     ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
@@ -166,7 +168,7 @@ def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1):
             origin=origins[index],
             radii_in_eigen=np.diag(av_in_eigen),
             matrix_into_eigen=av_rotation,
-            color="green",
+            color=color,
         )
 
         ax.cos3D(
