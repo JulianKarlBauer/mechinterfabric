@@ -28,8 +28,7 @@ def average_N2(N2s, weights):
         rotation_av = Rotation.from_quat(quat_av).as_matrix()
     else:
         # Average with scipy.spatila.transform.Rotation().mean()
-        rotations = Rotation.from_matrix(rotations)
-        rotation_av = rotations.mean().as_matrix()
+        rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
 
     N2_av = np.einsum("mi, nj, mn->ij", rotation_av, rotation_av, N2_av_in_eigen)
 
