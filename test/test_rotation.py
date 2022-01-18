@@ -2,11 +2,24 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 import mechinterfabric
 import averageQuaternions
+import pytest
 
 
-def test_average_quaternion():
-    rot_1 = Rotation.from_rotvec(0 * np.random.rand(3))
-    rot_2 = Rotation.from_rotvec(np.pi / 4 * np.random.rand(3))
+def some_random_orientations(nbr=10):
+    randoms = Rotation.random(nbr)
+    for item in randoms:
+        yield item
+
+
+def some_random_orientation_pairs(nbr=10):
+
+    for index in range(10):
+        yield Rotation.random(2)
+
+
+@pytest.mark.parametrize("rot_2", some_random_orientations())
+def test_average_quaternion(rot_2):
+    rot_1 = Rotation.from_rotvec(np.zeros((3)))
 
     quat_1 = rot_1.as_quat()
     quat_2 = rot_2.as_quat()
@@ -21,13 +34,11 @@ def test_average_quaternion():
         quaternions=bunch, weights=weights
     )
 
-    assert np.allclose(quat_av_ref, quat_av)
+    assert np.allclose(quat_av_ref, quat_av) or np.allclose(quat_av_ref, -quat_av)
 
 
-def test_average_quaternions_scipy_rotation_mean():
-    rotations = Rotation.from_rotvec(
-        np.array([0 * np.random.rand(3), np.pi / 4 * np.random.rand(3)])
-    )
+@pytest.mark.parametrize("rotations", some_random_orientation_pairs())
+def test_average_quaternions_scipy_rotation_mean(rotations):
 
     weights = np.ones((len(rotations))) / len(rotations)
 
@@ -42,9 +53,7 @@ def test_average_quaternions_scipy_rotation_mean():
     print(quat_av)
     print(quat_av_ref)
 
-    assert np.allclose(quat_av, quat_av_ref)
-
-    print("asd")
+    assert np.allclose(quat_av_ref, quat_av) or np.allclose(quat_av_ref, -quat_av)
 
 
 if __name__ == "__main__":
