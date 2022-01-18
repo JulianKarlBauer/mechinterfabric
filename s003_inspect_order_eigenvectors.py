@@ -9,10 +9,10 @@ N2 = np.diag([0, 0.95, 0.05])
 
 N1_eigenvals, N1_matrix = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(N1)
 
-N2_eigenvals, N2_rotations = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(
+N2_eigenvals, N2_matrix = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(
     N2
 )
-print(f"N2_eigenvals=\n{N2_eigenvals}\n N2_rotations=\n{N2_rotations}")
+print(f"N2_eigenvals=\n{N2_eigenvals}\n N2_matrix=\n{N2_matrix}")
 
 u1, s1, vh1 = np.linalg.svd(N1)
 u2, s2, vh2 = np.linalg.svd(N2)
@@ -47,14 +47,14 @@ mechinterfabric.visualization.plot_ellipsoid(
     ax=ax,
     origin=[1, 0, 0],
     radii_in_eigen=N2_eigenvals,
-    matrix_into_eigen=N2_rotations,
+    matrix_into_eigen=N2_matrix,
     color="green",
 )
 
 ax.cos3D(
     origin=[1, 0, 0],
     length=1 / 2,
-    matrix=N2_rotations
+    matrix=N2_matrix
 )
 
 #########
