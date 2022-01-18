@@ -59,10 +59,13 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     print("##########")
     print(key)
     print(quat_1, quat_2)
-    print(Rotation.from_quat(quat_1).as_matrix())
-    print(Rotation.from_quat(quat_2).as_matrix())
-
-    print()
+    mat_1 = Rotation.from_quat(quat_1).as_matrix()
+    mat_2 = Rotation.from_quat(quat_2).as_matrix()
+    print(mat_1)
+    print(mat_2)
+    frob = np.linalg.norm(mat_1 - mat_2)
+    print("frobenius_norm_matrices=", frob)
+    print("angle distance = ", 2 * np.arcsin(frob / (2.0 * np.sqrt(2))))
 
     quat_av = mechinterfabric.rotation.average_quaternion(
         quaternions=np.vstack([quat_1, quat_2]), weights=[2 / 3, 1 / 3]

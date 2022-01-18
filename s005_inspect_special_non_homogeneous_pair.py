@@ -25,8 +25,12 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     print("##########")
     print(key)
     print(quat_1, quat_2)
-    print(Rotation.from_quat(quat_1).as_matrix())
-    print(Rotation.from_quat(quat_2).as_matrix())
+    mat_1 = Rotation.from_quat(quat_1).as_matrix()
+    mat_2 = Rotation.from_quat(quat_2).as_matrix()
+
+    print(mat_1)
+    print(mat_2)
+    print("frobenius_norm_matrices=", np.linalg.norm(mat_1 - mat_2))
 
     print()
 
@@ -54,7 +58,14 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     elif True:
         # Plot granularly
         plot_stepwise_interpolation_rotations_along_x(
-            ax, quat_1, quat_2, nbr_points=5, scale=1, color="green", verbose=True, homebreu=True
+            ax,
+            quat_1,
+            quat_2,
+            nbr_points=5,
+            scale=1,
+            color="green",
+            verbose=True,
+            homebreu=True,
         )
 
     ax.set_title(key)
