@@ -3,6 +3,9 @@ from mpl_toolkits.mplot3d.proj3d import proj_transform
 from mpl_toolkits.mplot3d.axes3d import Axes3D
 import numpy as np
 
+#################################
+# Line / Arrow without head
+
 
 class Arrow3D(FancyArrowPatch):
     def __init__(self, x, y, z, dx, dy, dz, *args, **kwargs):
@@ -30,6 +33,7 @@ def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
 setattr(Axes3D, "arrow3D", _arrow3D)
 
 #################################
+# Coordinate system
 
 
 def _cos3D(ax, origin, length, matrix, *args, **kwargs):
@@ -67,30 +71,9 @@ def _cos3D(ax, origin, length, matrix, *args, **kwargs):
 
 setattr(Axes3D, "cos3D", _cos3D)
 
+
 ########################
-# Application
-
-
-def plot_bunch_of_cos3D_along_x(ax, bunch):
-
-    origins = np.linspace(0, 1, len(bunch))
-
-    factor = 5.0
-    length = factor / (len(bunch) - 1) / (1.0 + 2 * factor)
-
-    offset = length / factor
-    ax.set_xlim(0 - offset, 1 + offset)
-    ax.set_ylim(-0.5 - offset, 0.5 + offset)
-    ax.set_zlim(-0.5 - offset, 0.5 + offset)
-
-    for index, rot in enumerate(bunch):
-        ax.cos3D(
-            origin=[origins[index], 0, 0],
-            length=length,
-            matrix=rot,
-        )
-
-    return ax
+# Ellipsoid
 
 
 def plot_ellipsoid(
@@ -129,3 +112,29 @@ def plot_ellipsoid(
         ax.auto_scale_xyz(
             [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
         )
+
+
+####################################################################################
+# Application
+
+
+def plot_bunch_of_cos3D_along_x(ax, bunch):
+
+    origins = np.linspace(0, 1, len(bunch))
+
+    factor = 5.0
+    length = factor / (len(bunch) - 1) / (1.0 + 2 * factor)
+
+    offset = length / factor
+    ax.set_xlim(0 - offset, 1 + offset)
+    ax.set_ylim(-0.5 - offset, 0.5 + offset)
+    ax.set_zlim(-0.5 - offset, 0.5 + offset)
+
+    for index, rot in enumerate(bunch):
+        ax.cos3D(
+            origin=[origins[index], 0, 0],
+            length=length,
+            matrix=rot,
+        )
+
+    return ax
