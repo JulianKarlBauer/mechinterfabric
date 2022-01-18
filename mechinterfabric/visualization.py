@@ -144,7 +144,7 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
 
 
 def plot_stepwise_interpolation_rotations_along_x(
-    ax, quat_1, quat_2, nbr_points=5, scale=1, color="green"
+    ax, quat_1, quat_2, nbr_points=5, scale=1, color="green", verbose=False
 ):
 
     offset = 0.3
@@ -160,16 +160,16 @@ def plot_stepwise_interpolation_rotations_along_x(
     ).T
 
     for index in range(nbr_points):
-        av_matrix = (
-            Rotation.from_quat(np.vstack([quat_1, quat_2]))
-            .mean(weights=weights[index])
-            .as_matrix()
+        av_rotation = Rotation.from_quat(np.vstack([quat_1, quat_2])).mean(
+            weights=weights[index]
         )
+        if verbose:
+            print(av_rotation.as_quat())
 
         ax.cos3D(
             origin=origins[index],
             length=0.3 * scale,
-            matrix=av_matrix,
+            matrix=av_rotation.as_matrix(),
         )
 
     return ax

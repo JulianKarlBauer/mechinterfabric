@@ -56,6 +56,11 @@ quat_pairs = {
 }
 
 for key, (quat_1, quat_2) in quat_pairs.items():
+    print("##########")
+    print(key)
+    print(quat_1, quat_2)
+    print()
+
     quat_av = mechinterfabric.rotation.average_quaternion(
         quaternions=np.vstack([quat_1, quat_2]), weights=[2 / 3, 1 / 3]
     )
@@ -80,7 +85,7 @@ for key, (quat_1, quat_2) in quat_pairs.items():
     elif True:
         # Plot granularly
         plot_stepwise_interpolation_rotations_along_x(
-            ax, quat_1, quat_2, nbr_points=7, scale=1, color="green"
+            ax, quat_1, quat_2, nbr_points=7, scale=1, color="green", verbose=True
         )
 
     ax.set_title(key)
