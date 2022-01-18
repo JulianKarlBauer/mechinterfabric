@@ -55,7 +55,9 @@ for key, (quat_1, quat_2) in quat_pairs.items():
 
     plot_bunch_of_cos3D_along_x(
         ax=ax,
-        bunch=list(map(lambda x: Rotation.from_quat(x), [quat_1, quat_av, quat_2])),
+        bunch=list(
+            map(lambda x: Rotation.from_quat(x).as_matrix(), [quat_1, quat_av, quat_2])
+        ),
     )
     ax.set_title(key)
 

@@ -87,7 +87,7 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
         ax.cos3D(
             origin=[origins[index], 0, 0],
             length=length,
-            rotation=rot,
+            matrix=rot,
         )
 
     return ax
