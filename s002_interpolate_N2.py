@@ -63,10 +63,3 @@ ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_ma
 
 path_picture = os.path.join(directory, "interpolation_N2" + ".png")
 plt.savefig(path_picture)
-
-
-# radii_in_eigen = np.array([0.5, 0.4, 0.1])
-# rot_mat = Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0])).as_matrix()
-# mechinterfabric.visualization.plot_ellipsoid(
-#     ax=ax, origin=[2, 2, 2], radii_in_eigen=radii_in_eigen, matrix_into_eigen=rot_mat, color="blue"
-# )
