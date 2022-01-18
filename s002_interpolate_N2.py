@@ -29,7 +29,7 @@ ax.set_zlabel("z")
 
 if True:
     mechinterfabric.visualization.plot_stepwise_interpolation_along_x(
-        ax, N1, N2, nbr_points=5, scale=4, colors=None
+        ax, N1, N2, nbr_points=5, scale=4
     )
 elif False:
     mechinterfabric.visualization.plot_ellipsoid(
