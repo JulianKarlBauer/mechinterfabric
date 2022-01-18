@@ -11,15 +11,25 @@ def average_N2(N2s, weights):
         *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
     )
 
-    quats = np.array(list(map(lambda x: Rotation.from_matrix(x).as_quat(), rotations)))
-
+    # Average eigenvalues and
+    # cast to tensor second order
     N2_av_in_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
 
-    quat_av = mechinterfabric.rotation.average_quaternion(
-        quaternions=quats, weights=weights
-    )
+    if False:
+        # average with mechinterfabric
+        quats = np.array(
+            list(map(lambda x: Rotation.from_matrix(x).as_quat(), rotations))
+        )
 
-    rotation_av = Rotation.from_quat(quat_av).as_matrix()
+        quat_av = mechinterfabric.rotation.average_quaternion(
+            quaternions=quats, weights=weights
+        )
+
+        rotation_av = Rotation.from_quat(quat_av).as_matrix()
+    else:
+        # Average with scipy.spatila.transform.Rotation().mean()
+        rotations = Rotation.from_matrix(rotations)
+        rotation_av = rotations.mean().as_matrix()
 
     N2_av = np.einsum("mi, nj, mn->ij", rotation_av, rotation_av, N2_av_in_eigen)
 
