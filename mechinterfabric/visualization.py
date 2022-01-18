@@ -173,4 +173,10 @@ def plot_stepwise_interpolation_along_x(ax, N1, N2, nbr_points=5, scale=1, color
             color="green",
         )
 
+        ax.cos3D(
+            origin=origins[index],
+            length=0.3*scale,
+            matrix=av_rotation,
+        )
+
     return ax

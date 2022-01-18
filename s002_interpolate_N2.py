@@ -27,7 +27,11 @@ ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
 
-if False:
+if True:
+    mechinterfabric.visualization.plot_stepwise_interpolation_along_x(
+        ax, N1, N2, nbr_points=5, scale=4, colors=None
+    )
+elif False:
     mechinterfabric.visualization.plot_ellipsoid(
         ax=ax,
         origin=[0, 0, 0],
@@ -51,10 +55,7 @@ if False:
         matrix_into_eigen=av_rotation,
         color="blue",
     )
-elif True:
-    mechinterfabric.visualization.plot_stepwise_interpolation_along_x(
-        ax, N1, N2, nbr_points=5, scale=4, colors=None
-    )
+
 
 bbox_min = -2
 bbox_max = 2
