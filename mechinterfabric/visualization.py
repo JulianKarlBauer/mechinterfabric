@@ -194,7 +194,7 @@ def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
 # Application
 
 
-def plot_bunch_of_cos3D_along_x(ax, bunch):
+def plot_bunch_of_cos3D_along_x(ax, bunch, shift_y=0):
 
     origins = np.linspace(0, 1, len(bunch))
 
@@ -208,7 +208,7 @@ def plot_bunch_of_cos3D_along_x(ax, bunch):
 
     for index, rot in enumerate(bunch):
         ax.cos3D(
-            origin=[origins[index], 0, 0],
+            origin=[origins[index], shift_y, 0],
             length=length,
             matrix=rot,
         )
