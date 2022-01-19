@@ -21,6 +21,7 @@ setuptools.setup(
     install_requires=[
         "numpy",
         "scipy",
+        "matplotlib",
         # "mechkit>=0.2.6",
         # "natsort",
     ],
