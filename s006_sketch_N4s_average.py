@@ -62,12 +62,7 @@ print(N4s_eigen)
 
 N4_av_eigen = np.einsum("i, ikl->kl", weights, N4s_eigen)
 
-N2_from_N4_av_eigen = converter.convert(
-    inp=np.einsum("ij,j->i", N4_av_eigen, I2_mandel6),
-    source="mandel6",
-    target="tensor",
-    quantity="stress",
-)
+N2_from_N4_av_eigen = con.to_tensor(np.einsum("ij,j->i", N4_av_eigen, I2_mandel6))
 N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
 
 print(N2_from_N4_av_eigen)
