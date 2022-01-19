@@ -25,6 +25,13 @@ class Arrow3D(FancyArrowPatch):
         self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
         super().draw(renderer)
 
+    def do_3d_projection(self, renderer=None):
+        xs3d, ys3d, zs3d = self._verts3d
+        xs, ys, zs = proj_transform(xs3d, ys3d, zs3d, self.axes.M)
+        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+
+        return np.min(zs)
+
 
 def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
     """Add an 3d arrow to an `Axes3D` instance."""
