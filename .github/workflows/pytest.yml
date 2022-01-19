@@ -34,9 +34,9 @@ jobs:
       run: |
         pytest
 
-    - name: Install nbmake
-      run: |
-        pip install nbmake
-    - name: Run Pytest for notebooks
-      run: |
-        pytest --nbmake **/*ipynb
+    # - name: Install nbmake
+    #   run: |
+    #     pip install nbmake
+    # - name: Run Pytest for notebooks
+    #   run: |
+    #     pytest --nbmake **/*ipynb
