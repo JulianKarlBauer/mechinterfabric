@@ -23,7 +23,7 @@ setuptools.setup(
         "numpy",
         "scipy",
         "matplotlib",
-        "mechkit>=0.3.6",
+        "mechkit>=0.3.7",
         "natsort",
     ],
     # setup_requires=["pybind11>=2.3", "libcgal-dev", "libeigen3-dev"],
