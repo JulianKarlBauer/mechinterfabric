@@ -5,6 +5,9 @@ import numpy as np
 import mechinterfabric
 import matplotlib
 from scipy.spatial.transform import Rotation
+import mechkit
+
+con = mechkit.notation.Converter()
 
 #################################
 # Line / Arrow without head
@@ -46,7 +49,7 @@ setattr(Axes3D, "arrow3D", _arrow3D)
 # Coordinate system
 
 
-def _cos3D(ax, origin, length, matrix, *args, **kwargs):
+def _cos3D(ax, origin, matrix, length=0.3, *args, **kwargs):
     # origin = np.array([x, y, z])
 
     arrow_x = np.array([1.0, 0, 0]) * length
@@ -122,6 +125,33 @@ def plot_ellipsoid(
         ax.auto_scale_xyz(
             [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
         )
+
+
+########################
+# Fourth order Glyph
+
+
+def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **kwargs):
+
+    phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
+    theta = np.linspace(0.0, np.pi, nbr_points)
+    x = np.outer(np.cos(phi), np.sin(theta))
+    y = np.outer(np.sin(phi), np.sin(theta))
+    z = np.outer(np.ones_like(phi), np.cos(theta))
+
+    vectors = np.array([x, y, z])
+
+    # Project
+    vectors = (
+        np.einsum(
+            "ijkl, j..., k..., l...->i...", con.to_tensor(N4), vectors, vectors, vectors
+        )
+        + np.array(origin)[:, np.newaxis, np.newaxis]
+    )
+
+    ax.plot_surface(
+        *vectors, rstride=3, cstride=3, linewidth=0.1, alpha=1, shade=True, **kwargs
+    )
 
 
 ####################################################################################
