@@ -7,6 +7,14 @@ with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
 
 name = "mechinterfabric"
 
+required_packages = [
+    "numpy",
+    "scipy",
+    "matplotlib",
+    # "mechkit>=0.2.6",
+    # "natsort",
+]
+
 setuptools.setup(
     name=name,
     version="0.0.0,",
@@ -18,15 +26,9 @@ setuptools.setup(
     url="https://github.com/JulianKarlBauer/mechinterfabric/",
     packages=[name],
     package_dir={name: name},
-    install_requires=[
-        "numpy",
-        "scipy",
-        "matplotlib",
-        # "mechkit>=0.2.6",
-        # "natsort",
-    ],
+    install_requires=required_packages,
     # setup_requires=["pybind11>=2.3", "libcgal-dev", "libeigen3-dev"],
-    extras_require={"test": ["pytest", "natsort"]},
+    extras_require={"test": required_packages + ["pytest", "natsort"]},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Operating System :: OS Independent",
