@@ -14,8 +14,13 @@ os.makedirs(directory, exist_ok=True)
 converter = mechkit.notation.ExplicitConverter()
 con = mechkit.notation.Converter()
 
-N4_1_tensor = mechkit.fabric_tensors.first_kind_discrete(np.random.rand(1, 3))
-N4_2_tensor = mechkit.fabric_tensors.first_kind_discrete(np.random.rand(1, 3))
+
+def random_in_between(shape, lower=-1, upper=1):
+    return (upper - lower) * np.random.rand(*shape) + lower
+
+
+N4_1_tensor = mechkit.fabric_tensors.first_kind_discrete(random_in_between((8, 3)))
+N4_2_tensor = mechkit.fabric_tensors.first_kind_discrete(random_in_between((3, 3)))
 
 N4s_tensor = np.stack([N4_1_tensor, N4_2_tensor])
 
@@ -56,7 +61,7 @@ N4s_eigen_tensor = np.einsum(
 )
 
 N4s_eigen = converter.convert(
-    inp=N4s_tensor, source="tensor", target="mandel6", quantity="stiffness"
+    inp=N4s_eigen_tensor, source="tensor", target="mandel6", quantity="stiffness"
 )
 print(N4s_eigen)
 
@@ -68,4 +73,4 @@ N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
 print(N2_from_N4_av_eigen)
 print(N2_av_eigen)
 
-# return N2_av, N2_av_in_eigen, rotation_av
+assert np.allclose(N2_from_N4_av_eigen, N2_av_eigen)
