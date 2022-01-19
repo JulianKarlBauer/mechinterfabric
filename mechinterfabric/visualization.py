@@ -16,21 +16,21 @@ class Arrow3D(FancyArrowPatch):
         self._xyz = (x, y, z)
         self._dxdydz = (dx, dy, dz)
 
-    def draw(self, renderer):
+    def do_stuff(self):
         x1, y1, z1 = self._xyz
         dx, dy, dz = self._dxdydz
         x2, y2, z2 = (x1 + dx, y1 + dy, z1 + dz)
 
         xs, ys, zs = proj_transform((x1, x2), (y1, y2), (z1, z2), self.axes.M)
         self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
+        return np.min(zs)
+
+    def draw(self, renderer):
+        self.do_stuff()
         super().draw(renderer)
 
-    def do_3d_projection(self, renderer=None):
-        xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs = proj_transform(xs3d, ys3d, zs3d, self.axes.M)
-        self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
-
-        return np.min(zs)
+    def do_3d_projection(self, renderer):
+        return self.do_stuff()
 
 
 def _arrow3D(ax, x, y, z, dx, dy, dz, *args, **kwargs):
