@@ -63,12 +63,14 @@ N4s_eigen_tensor = np.einsum(
 N4s_eigen = converter.convert(
     inp=N4s_eigen_tensor, source="tensor", target="mandel6", quantity="stiffness"
 )
-print(N4s_eigen)
 
 N4_av_eigen = np.einsum("i, ikl->kl", weights, N4s_eigen)
 
 N2_from_N4_av_eigen = con.to_tensor(np.einsum("ij,j->i", N4_av_eigen, I2_mandel6))
 N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
+
+print(N4s_eigen)
+print(N4_av_eigen)
 
 print(N2_from_N4_av_eigen)
 print(N2_av_eigen)
