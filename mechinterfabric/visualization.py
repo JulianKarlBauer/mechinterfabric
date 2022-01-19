@@ -6,6 +6,7 @@ import mechinterfabric
 import matplotlib
 from scipy.spatial.transform import Rotation
 import mechkit
+from mechkit import operators
 
 con = mechkit.notation.Converter()
 
@@ -89,6 +90,15 @@ setattr(Axes3D, "cos3D", _cos3D)
 # Ellipsoid
 
 
+def get_unit_vectors(nbr_points=40):
+    phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
+    theta = np.linspace(0.0, np.pi, nbr_points)
+    x = np.outer(np.cos(phi), np.sin(theta))
+    y = np.outer(np.sin(phi), np.sin(theta))
+    z = np.outer(np.ones_like(phi), np.cos(theta))
+    return np.array([x, y, z])
+
+
 def plot_ellipsoid(
     ax,
     origin,
@@ -100,13 +110,11 @@ def plot_ellipsoid(
     **kwargs
 ):
 
-    phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
-    theta = np.linspace(0.0, np.pi, nbr_points)
-    x = radii_in_eigen[0] * np.outer(np.cos(phi), np.sin(theta))
-    y = radii_in_eigen[1] * np.outer(np.sin(phi), np.sin(theta))
-    z = radii_in_eigen[2] * np.outer(np.ones_like(phi), np.cos(theta))
+    x, y, z = get_unit_vectors()
 
-    vectors = np.array([x, y, z])
+    vectors = np.array(
+        [x * radii_in_eigen[0], y * radii_in_eigen[1], z * radii_in_eigen[2]]
+    )
 
     # Transform
     vectors = (
@@ -133,13 +141,7 @@ def plot_ellipsoid(
 
 def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **kwargs):
 
-    phi = np.linspace(0.0, 2.0 * np.pi, nbr_points)
-    theta = np.linspace(0.0, np.pi, nbr_points)
-    x = np.outer(np.cos(phi), np.sin(theta))
-    y = np.outer(np.sin(phi), np.sin(theta))
-    z = np.outer(np.ones_like(phi), np.cos(theta))
-
-    vectors = np.array([x, y, z])
+    vectors = get_unit_vectors(nbr_points=nbr_points)
 
     # Project
     vectors = (
@@ -151,6 +153,40 @@ def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **k
 
     ax.plot_surface(
         *vectors, rstride=3, cstride=3, linewidth=0.1, alpha=1, shade=True, **kwargs
+    )
+
+
+class DistributionDensityTruncateAfter4:
+    def __init__(self, N4):
+        N4 = con.to_tensor(N4)
+        N2 = np.einsum("ijkk->ij", N4)
+        self.D2 = operators.dev(N2, order=2)
+        self.D4 = operators.dev(N4, order=4)
+
+    def project_on_vectors(self, vectors):
+        n = vectors
+        moment2 = np.einsum("i..., j...->ij...", n, n)
+        moment4 = np.einsum("i..., j..., k..., l...->ijkl...", n, n, n, n)
+        return (
+            1.0
+            + 15.0 / 2.0 * np.einsum("ij, j...->...", self.D2, moment2)
+            + 315.0 / 8.0 * np.einsum("ijkl, jkl...->...", self.D4, moment4)
+        ) / (4.0 * np.pi)
+
+
+def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
+
+    vectors = get_unit_vectors(nbr_points=nbr_points)
+
+    distribution = DistributionDensityTruncateAfter4(N4=N4)
+
+    values = (
+        distribution.project_on_vectors(vectors)
+        + np.array(origin)[:, np.newaxis, np.newaxis]
+    )
+
+    ax.plot_surface(
+        *values, rstride=3, cstride=3, linewidth=0.1, alpha=1, shade=True, **kwargs
     )
 
 

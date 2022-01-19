@@ -69,6 +69,16 @@ N4s_eigen = converter.convert(
 
 N4_av_eigen = np.einsum("i, ikl->kl", weights, N4s_eigen)
 
+N4_av_tensor = np.einsum(
+    "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
+    rotation_av.T,
+    rotation_av.T,
+    rotation_av.T,
+    rotation_av.T,
+    con.to_tensor(N4_av_eigen),
+)
+N4_av = con.to_mandel6(N4_av_tensor)
+
 N2_from_N4_av_eigen = con.to_tensor(np.einsum("ij,j->i", N4_av_eigen, I2_mandel6))
 N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
 
@@ -83,25 +93,46 @@ assert np.allclose(N2_from_N4_av_eigen, N2_av_eigen)
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
 
-offset_coord = np.array([0, 1, 0])
 
-origin = [0, 0, 0]
-mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
-    ax, origin=origin, N4=N4_1_tensor
-)
-ax.cos3D(origin=origin + offset_coord, matrix=rotations[0])
+def plot_N4(
+    N4,
+    rotation_matrix,
+    origin=[0, 0, 0],
+    offset_coord=[0, 0.5, 0],
+    offset_alternative=[0, -0.5, 0],
+):
+    mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
+        ax, origin=origin, N4=N4
+    )
+    mechinterfabric.visualization.plot_approx_FODF_by_N4(
+        ax, origin=origin + np.array(offset_alternative), N4=N4
+    )
+    ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
 
-origin = [1, 0, 0]
-mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
-    ax, origin=origin, N4=N4_av_eigen
-)
-ax.cos3D(origin=origin + offset_coord, matrix=rotation_av)
 
-origin = [2, 0, 0]
-mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
-    ax, origin=origin, N4=N4_2_tensor
+################
+plot_N4(
+    # N4=N4s_eigen_tensor[0],
+    N4=N4_1_tensor,
+    rotation_matrix=rotations[0],
+    origin=[0, 0, 0],
 )
-ax.cos3D(origin=origin + offset_coord, matrix=rotations[1])
+
+################
+plot_N4(
+    N4=N4_av,
+    rotation_matrix=rotation_av,
+    origin=[1, 0, 0],
+)
+
+################
+plot_N4(
+    # N4=N4s_eigen_tensor[1],
+    N4=N4_2_tensor,
+    rotation_matrix=rotations[1],
+    origin=[2, 0, 0],
+)
+################
 
 
 upper = 2
