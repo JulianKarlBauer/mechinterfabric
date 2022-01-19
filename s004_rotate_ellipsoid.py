@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation
 import os
 
-directory = os.path.join("output")
+directory = os.path.join("output", "s004")
 os.makedirs(directory, exist_ok=True)
 
 

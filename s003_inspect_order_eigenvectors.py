@@ -2,6 +2,10 @@ import numpy as np
 import mechinterfabric
 import matplotlib.pyplot as plt
 from scipy.spatial.transform import Rotation
+import os
+
+directory = os.path.join("output", "s003")
+os.makedirs(directory, exist_ok=True)
 
 
 N1 = np.diag([0.95, 0.05, 0])
@@ -69,3 +73,6 @@ mechinterfabric.visualization.plot_ellipsoid(
 bbox_min = -2
 bbox_max = 2
 ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+path_picture = os.path.join(directory, "main" + ".png")
+plt.savefig(path_picture)
