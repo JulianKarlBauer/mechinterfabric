@@ -5,6 +5,9 @@ import os
 import matplotlib.pyplot as plt
 import mechkit
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
+import os
+import matplotlib.pyplot as plt
+
 
 np.set_printoptions(linewidth=100000)
 
@@ -76,3 +79,47 @@ print(N2_from_N4_av_eigen)
 print(N2_av_eigen)
 
 assert np.allclose(N2_from_N4_av_eigen, N2_av_eigen)
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+
+offset_coord = np.array([0, 1, 0])
+
+origin = [0, 0, 0]
+mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
+    ax, origin=origin, N4=N4_1_tensor
+)
+ax.cos3D(origin=origin + offset_coord, matrix=rotations[0])
+
+origin = [1, 0, 0]
+mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
+    ax, origin=origin, N4=N4_av_eigen
+)
+ax.cos3D(origin=origin + offset_coord, matrix=rotation_av)
+
+origin = [2, 0, 0]
+mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
+    ax, origin=origin, N4=N4_2_tensor
+)
+ax.cos3D(origin=origin + offset_coord, matrix=rotations[1])
+
+
+upper = 2
+lower = 0
+offset = 0.5
+limits = [
+    (lower - offset, upper + offset),
+    (-0.5 - offset, 0.5 + offset),
+    (-0.5 - offset, 0.5 + offset),
+]
+ax.set_xlim(limits[0])
+ax.set_ylim(limits[1])
+ax.set_zlim(limits[2])
+
+# Homogeneous axes
+bbox_min = np.min(limits)
+bbox_max = np.max(limits)
+ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+path_picture = os.path.join(directory, "main" + ".png")
+plt.savefig(path_picture)
