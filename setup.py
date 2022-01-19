@@ -10,7 +10,7 @@ name = "mechinterfabric"
 
 setuptools.setup(
     name=name,
-    version="0.0.0,",
+    version="0.0.0",
     author="Julian Karl Bauer",
     author_email="juliankarlbauer@gmx.de",
     description="Interpolate fabric tensors",
