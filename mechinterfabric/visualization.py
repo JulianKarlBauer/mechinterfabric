@@ -168,10 +168,14 @@ class DistributionDensityTruncateAfter4:
         moment2 = np.einsum("i..., j...->ij...", n, n)
         moment4 = np.einsum("i..., j..., k..., l...->ijkl...", n, n, n, n)
         return (
-            1.0
-            + 15.0 / 2.0 * np.einsum("ij, j...->...", self.D2, moment2)
-            + 315.0 / 8.0 * np.einsum("ijkl, jkl...->...", self.D4, moment4)
-        ) / (4.0 * np.pi)
+            (
+                1.0
+                + 15.0 / 2.0 * np.einsum("ij, ij...->...", self.D2, moment2)
+                + 315.0 / 8.0 * np.einsum("ijkl, ijkl...->...", self.D4, moment4)
+            )
+            / (4.0 * np.pi)
+            * vectors
+        )
 
 
 def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
