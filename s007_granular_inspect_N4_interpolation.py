@@ -61,6 +61,18 @@ pairs = {
         con.to_tensor(biblio["planar_iso_xz"]),
         con.to_tensor(biblio["planar_iso_yz"]),
     ),
+    "iso vs piso xy": (
+        con.to_tensor(biblio["iso"]),
+        con.to_tensor(biblio["planar_iso_xy"]),
+    ),
+    "iso vs piso xz": (
+        con.to_tensor(biblio["iso"]),
+        con.to_tensor(biblio["planar_iso_xz"]),
+    ),
+    "iso vs piso yz": (
+        con.to_tensor(biblio["iso"]),
+        con.to_tensor(biblio["planar_iso_yz"]),
+    ),
 }
 
 for key, (N4_1, N4_2) in pairs.items():
