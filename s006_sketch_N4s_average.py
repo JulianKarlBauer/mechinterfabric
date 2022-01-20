@@ -107,7 +107,7 @@ for key, (N4_1, N4_2) in pairs.items():
     plot_N4(
         # N4=N4s_eigen_tensor[0],
         N4=N4_1,
-        rotation_matrix=rotations[0],
+        rotation_matrix=rotations[0],  # COS only
         origin=[0, 0, 0],
     )
 
