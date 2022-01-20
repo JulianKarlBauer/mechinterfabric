@@ -57,7 +57,7 @@ for key, (N4_1, N4_2) in pairs.items():
     ax = fig.add_subplot(111, projection="3d")
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
-        ax=ax, N1=N4_1, N2=N4_2, nbr_points=5, scale=1
+        ax=ax, N1=N4_1, N2=N4_2, nbr_points=5, scale=3
     )
 
     upper = 2

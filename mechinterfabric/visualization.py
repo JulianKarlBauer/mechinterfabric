@@ -318,16 +318,14 @@ def plot_N4(
     rotation_matrix,
     origin=[0, 0, 0],
     offset_coord=[0, 0.5, 0],
-    offset_alternative=[0, -0.5, 0],
+    offset_fodf=[0, -0.5, 0],
 ):
     plot_projection_of_N4_onto_sphere(ax, origin=origin, N4=N4)
-    plot_approx_FODF_by_N4(ax, origin=origin + np.array(offset_alternative), N4=N4)
+    plot_approx_FODF_by_N4(ax, origin=origin + np.array(offset_fodf), N4=N4)
     ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
 
 
-def plot_stepwise_interpolation_N4_along_x(
-    ax, N1, N2, nbr_points=5, scale=1
-):
+def plot_stepwise_interpolation_N4_along_x(ax, N1, N2, nbr_points=5, scale=1):
 
     offset = 0.3
     ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
@@ -362,6 +360,8 @@ def plot_stepwise_interpolation_N4_along_x(
             N4=N4_av,
             rotation_matrix=rotation_av,  # COS only
             origin=origin,
+            offset_coord=np.array([0, 0.4, 0]) * scale,
+            offset_fodf=np.array([0, -0.4, 0]) * scale,
         )
 
     return ax
