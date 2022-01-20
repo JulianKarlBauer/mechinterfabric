@@ -77,11 +77,13 @@ for key, (N4_1, N4_2) in pairs.items():
     N4s_eigen_mandel = converter.convert(
         inp=N4s_eigen, source="tensor", target="mandel6", quantity="stiffness"
     )
-    print(N4s_eigen_mandel)
-    print(N4_av_eigen_mandel)
 
-    # N2
-    print(N2_av_eigen)
+    if False:
+        print(N4s_eigen_mandel)
+        print(N4_av_eigen_mandel)
+
+        # N2
+        print(N2_av_eigen)
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
