@@ -53,37 +53,28 @@ def average_N4(N4s, weights):
     # Get average rotation
     rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
 
-    # Rotate each N4 into it's eigensystem
-    N4s_eigen = np.einsum(
-        "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
-        rotations,
-        rotations,
-        rotations,
-        rotations,
-        N4s,
-    )
+    def apply_rotation(rotations, tensors):
+        return np.einsum(
+            "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
+            rotations,
+            rotations,
+            rotations,
+            rotations,
+            tensors,
+        )
 
-    # N4s_eigen = converter.convert(
-    #     inp=N4s_eigen_tensor, source="tensor", target="mandel6", quantity="stiffness"
-    # )
+    # Rotate each N4 into it's eigensystem
+    N4s_eigen = apply_rotation(rotations=rotations, tensors=N4s)
 
     # Average components in eigensystems
     N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
 
     # Rotate back to world COS
-    N4_av = np.einsum(
-        "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
-        rotation_av.T,
-        rotation_av.T,
-        rotation_av.T,
-        rotation_av.T,
-        con.to_tensor(N4_av_eigen),
-    )
+    N4_av = apply_rotation(rotations=rotation_av.T, tensors=N4_av_eigen)
 
     # Check if N4_av[I2] == N2_av
-    # Get N4_av[I2]
     N4_av_I2_eigen = np.einsum("ijkl,kl->ij", N4_av_eigen, I2)
     N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
     assert np.allclose(N4_av_I2_eigen, N2_av_eigen)
 
-    return N4_av, N4_av_in_eigen, rotation_av
+    return N4_av, N4_av_eigen, rotation_av, N2_av_eigen, N4s_eigen, rotations
