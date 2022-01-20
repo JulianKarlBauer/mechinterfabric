@@ -323,3 +323,45 @@ def plot_N4(
     plot_projection_of_N4_onto_sphere(ax, origin=origin, N4=N4)
     plot_approx_FODF_by_N4(ax, origin=origin + np.array(offset_alternative), N4=N4)
     ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
+
+
+def plot_stepwise_interpolation_N4_along_x(
+    ax, N1, N2, nbr_points=5, scale=1
+):
+
+    offset = 0.3
+    ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
+    ax.set_ylim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+    ax.set_zlim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+
+    weights_N2 = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - weights_N2, weights_N2]).T
+
+    origins = np.vstack(
+        [np.linspace(0, scale, nbr_points), np.zeros((2, nbr_points))]
+    ).T
+
+    for index in range(nbr_points):
+
+        N4s = np.array([N1, N2])
+        current_weights = weights[index]
+        origin = origins[index]
+
+        (
+            N4_av,
+            N4_av_eigen,
+            rotation_av,
+            N2_av_eigen,
+            N4s_eigen,
+            rotations,
+        ) = mechinterfabric.interpolation.average_N4(N4s=N4s, weights=current_weights)
+
+        plot_N4(
+            ax=ax,
+            # N4=N4s_eigen_tensor[0],
+            N4=N4_av,
+            rotation_matrix=rotation_av,  # COS only
+            origin=origin,
+        )
+
+    return ax
