@@ -26,6 +26,8 @@ def random_in_between(shape, lower=-1, upper=1):
 
 from_vectors = mechkit.fabric_tensors.first_kind_discrete
 
+biblio = mechkit.fabric_tensors.Basic().N4
+
 pairs = {
     "Random: many vs many": (
         from_vectors(random_in_between((8, 3))),
@@ -46,6 +48,18 @@ pairs = {
     "Random: 3 vs 3": (
         from_vectors(random_in_between((2, 3))),
         from_vectors(random_in_between((2, 3))),
+    ),
+    "piso xy vs piso xz": (
+        con.to_tensor(biblio["planar_iso_xy"]),
+        con.to_tensor(biblio["planar_iso_xz"]),
+    ),
+    "piso xy vs piso yz": (
+        con.to_tensor(biblio["planar_iso_xy"]),
+        con.to_tensor(biblio["planar_iso_yz"]),
+    ),
+    "piso xz vs piso yz": (
+        con.to_tensor(biblio["planar_iso_xz"]),
+        con.to_tensor(biblio["planar_iso_yz"]),
     ),
 }
 
