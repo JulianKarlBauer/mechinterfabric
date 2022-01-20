@@ -36,6 +36,17 @@ def average_N2(N2s, weights):
     return N2_av, N2_av_in_eigen, rotation_av
 
 
+def apply_rotation(rotations, tensors):
+    return np.einsum(
+        "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
+        rotations,
+        rotations,
+        rotations,
+        rotations,
+        tensors,
+    )
+
+
 def average_N4(N4s, weights):
 
     assert N4s.shape == (len(weights), 3, 3, 3, 3)
@@ -52,16 +63,6 @@ def average_N4(N4s, weights):
 
     # Get average rotation
     rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
-
-    def apply_rotation(rotations, tensors):
-        return np.einsum(
-            "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
-            rotations,
-            rotations,
-            rotations,
-            rotations,
-            tensors,
-        )
 
     # Rotate each N4 into it's eigensystem
     N4s_eigen = apply_rotation(rotations=rotations, tensors=N4s)
