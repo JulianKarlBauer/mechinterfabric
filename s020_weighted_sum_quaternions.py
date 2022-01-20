@@ -4,7 +4,7 @@ import mechinterfabric
 import matplotlib.pyplot as plt
 import os
 
-directory = os.path.join("output", "s007")
+directory = os.path.join("output", "s020")
 os.makedirs(directory, exist_ok=True)
 
 for i in range(10):
