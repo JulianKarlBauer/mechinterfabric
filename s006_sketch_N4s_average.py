@@ -137,7 +137,7 @@ plot_N4(
 
 upper = 2
 lower = 0
-offset = 0.5
+offset = 1
 limits = [
     (lower - offset, upper + offset),
     (-0.5 - offset, 0.5 + offset),
