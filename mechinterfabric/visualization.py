@@ -306,3 +306,20 @@ def plot_stepwise_interpolation_along_x(
         )
 
     return ax
+
+
+################################################
+# N4
+
+
+def plot_N4(
+    ax,
+    N4,
+    rotation_matrix,
+    origin=[0, 0, 0],
+    offset_coord=[0, 0.5, 0],
+    offset_alternative=[0, -0.5, 0],
+):
+    plot_projection_of_N4_onto_sphere(ax, origin=origin, N4=N4)
+    plot_approx_FODF_by_N4(ax, origin=origin + np.array(offset_alternative), N4=N4)
+    ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)

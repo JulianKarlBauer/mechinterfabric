@@ -88,23 +88,11 @@ for key, (N4_1, N4_2) in pairs.items():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    def plot_N4(
-        N4,
-        rotation_matrix,
-        origin=[0, 0, 0],
-        offset_coord=[0, 0.5, 0],
-        offset_alternative=[0, -0.5, 0],
-    ):
-        mechinterfabric.visualization.plot_projection_of_N4_onto_sphere(
-            ax, origin=origin, N4=N4
-        )
-        mechinterfabric.visualization.plot_approx_FODF_by_N4(
-            ax, origin=origin + np.array(offset_alternative), N4=N4
-        )
-        ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
+    plot_N4 = mechinterfabric.visualization.plot_N4
 
     ################
     plot_N4(
+        ax=ax,
         # N4=N4s_eigen_tensor[0],
         N4=N4_1,
         rotation_matrix=rotations[0],  # COS only
@@ -113,6 +101,7 @@ for key, (N4_1, N4_2) in pairs.items():
 
     ################
     plot_N4(
+        ax=ax,
         N4=N4_av,
         rotation_matrix=rotation_av,
         origin=[1, 0, 0],
@@ -120,6 +109,7 @@ for key, (N4_1, N4_2) in pairs.items():
 
     ################
     plot_N4(
+        ax=ax,
         # N4=N4s_eigen_tensor[1],
         N4=N4_2,
         rotation_matrix=rotations[1],
