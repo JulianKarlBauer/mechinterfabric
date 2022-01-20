@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s006")
+directory = os.path.join("output", "s007")
 os.makedirs(directory, exist_ok=True)
 
 #########################################################
@@ -53,69 +53,12 @@ for key, (N4_1, N4_2) in pairs.items():
     print("###########")
     print(key)
 
-    N4s = np.stack([N4_1, N4_2])
-
-    nbr_N4s = len(N4s)
-    weights = np.ones((nbr_N4s)) / nbr_N4s
-
-    ########################################################################
-
-    (
-        N4_av,
-        N4_av_eigen,
-        rotation_av,
-        N2_av_eigen,
-        N4s_eigen,
-        rotations,
-    ) = mechinterfabric.interpolation.average_N4(N4s=N4s, weights=weights)
-
-    ##########
-    N4_av_mandel = con.to_mandel6(N4_av)
-    N4_av_eigen_mandel = con.to_mandel6(N4_av_eigen)
-
-    # N4
-    N4s_eigen_mandel = converter.convert(
-        inp=N4s_eigen, source="tensor", target="mandel6", quantity="stiffness"
-    )
-
-    if False:
-        print(N4s_eigen_mandel)
-        print(N4_av_eigen_mandel)
-
-        # N2
-        print(N2_av_eigen)
-
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    plot_N4 = mechinterfabric.visualization.plot_N4
-
-    ################
-    plot_N4(
-        ax=ax,
-        # N4=N4s_eigen_tensor[0],
-        N4=N4_1,
-        rotation_matrix=rotations[0],  # COS only
-        origin=[0, 0, 0],
+    mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+        ax=ax, N1=N4_1, N2=N4_2, nbr_points=5, scale=1
     )
-
-    ################
-    plot_N4(
-        ax=ax,
-        N4=N4_av,
-        rotation_matrix=rotation_av,
-        origin=[1, 0, 0],
-    )
-
-    ################
-    plot_N4(
-        ax=ax,
-        # N4=N4s_eigen_tensor[1],
-        N4=N4_2,
-        rotation_matrix=rotations[1],
-        origin=[2, 0, 0],
-    )
-    ################
 
     upper = 2
     lower = 0
