@@ -30,46 +30,45 @@ N4s_tensor = np.stack([N4_1_tensor, N4_2_tensor])
 nbr_N4s = len(N4s_tensor)
 weights = np.ones((nbr_N4s)) / nbr_N4s
 
-N4s = converter.convert(
-    inp=N4s_tensor, source="tensor", target="mandel6", quantity="stiffness"
-)
+# N4s = converter.convert(
+#     inp=N4s_tensor, source="tensor", target="mandel6", quantity="stiffness"
+# )
 
-assert N4s.shape == (len(weights), 6, 6)
+########################################################################
+N4s = N4s_tensor
 
-# mechkit.notation.converter().to_mandel6(mechkit.tensors.Basic().I2)
-I2_mandel6 = np.array([1.0, 1.0, 1.0, 0.0, 0.0, 0.0])
+assert N4s.shape == (len(weights), 3, 3, 3, 3)
 
-N2s_mandel = np.einsum("mij,j->mi", N4s, I2_mandel6)
+I2 = mechkit.tensors.Basic().I2
 
-N2s = converter.convert(
-    inp=N2s_mandel, source="mandel6", target="tensor", quantity="stress"
-)
+N2s = np.einsum("mijkl,kl->mij", N4s, I2)
 
-############
-# Get representations in eigensystems
-
+# Get rotations into eigensystem
 eigenvals, rotations = zip(*[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s])
 rotations = np.array(rotations)
 
-# Average with scipy.spatila.transform.Rotation().mean()
+# Get average rotation
 rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
 
-N4s_eigen_tensor = np.einsum(
+# Rotate each N4 into it's eigensystem
+N4s_eigen = np.einsum(
     "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
     rotations,
     rotations,
     rotations,
     rotations,
-    N4s_tensor,
+    N4s,
 )
 
-N4s_eigen = converter.convert(
-    inp=N4s_eigen_tensor, source="tensor", target="mandel6", quantity="stiffness"
-)
+# N4s_eigen = converter.convert(
+#     inp=N4s_eigen_tensor, source="tensor", target="mandel6", quantity="stiffness"
+# )
 
-N4_av_eigen = np.einsum("i, ikl->kl", weights, N4s_eigen)
+# Average components in eigensystems
+N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
 
-N4_av_tensor = np.einsum(
+# Rotate back to world COS
+N4_av = np.einsum(
     "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
     rotation_av.T,
     rotation_av.T,
@@ -77,18 +76,28 @@ N4_av_tensor = np.einsum(
     rotation_av.T,
     con.to_tensor(N4_av_eigen),
 )
-N4_av = con.to_mandel6(N4_av_tensor)
 
-N2_from_N4_av_eigen = con.to_tensor(np.einsum("ij,j->i", N4_av_eigen, I2_mandel6))
+# Check if N4_av[I2] == N2_av
+# Get N4_av[I2]
+N4_av_I2_eigen = np.einsum("ijkl,kl->ij", N4_av_eigen, I2)
 N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
+assert np.allclose(N4_av_I2_eigen, N2_av_eigen)
 
-print(N4s_eigen)
-print(N4_av_eigen)
+##########
+N4_av_mandel = con.to_mandel6(N4_av)
+N4_av_eigen_mandel = con.to_mandel6(N4_av_eigen)
 
-print(N2_from_N4_av_eigen)
+# N4
+N4s_eigen_mandel = converter.convert(
+    inp=N4s_eigen, source="tensor", target="mandel6", quantity="stiffness"
+)
+print(N4s_eigen_mandel)
+print(N4_av_eigen_mandel)
+
+# N2
+print(N4_av_I2_eigen)
 print(N2_av_eigen)
 
-assert np.allclose(N2_from_N4_av_eigen, N2_av_eigen)
 
 fig = plt.figure()
 ax = fig.add_subplot(111, projection="3d")
