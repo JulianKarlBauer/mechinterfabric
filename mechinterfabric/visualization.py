@@ -349,7 +349,7 @@ def plot_stepwise_interpolation_N4_along_x(
     method=None,
     origin_y=0,
     origin_z=0,
-    plot_all=True,
+    plot_func_key='cos_projection_fodf',
 ):
 
     if method is None:
@@ -384,7 +384,7 @@ def plot_stepwise_interpolation_N4_along_x(
             tensor=N2_av
         )
 
-        if plot_all:
+        if plot_func_key == 'cos_projection_fodf':
             plot_N4_COS_projection_FODF(
                 ax=ax,
                 # N4=N4s_eigen_tensor[0],
@@ -394,7 +394,7 @@ def plot_stepwise_interpolation_N4_along_x(
                 offset_coord=np.array([0, 0.35, 0]) * scale,
                 offset_fodf=np.array([0, -0.35, 0]) * scale,
             )
-        else:
+        elif plot_func_key == 'cos_fodf':
             plot_N_COS_FODF(
                 ax=ax,
                 N4=N4_av,
