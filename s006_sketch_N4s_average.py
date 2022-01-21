@@ -90,7 +90,7 @@ for key, (N4_1, N4_2) in pairs.items():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    plot_N4 = mechinterfabric.visualization.plot_N4
+    plot_N4 = mechinterfabric.visualization.plot_N4_COS_projection_FODF
 
     ################
     plot_N4(

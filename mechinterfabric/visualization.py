@@ -316,7 +316,7 @@ def plot_stepwise_interpolation_along_x(
 # N4
 
 
-def plot_N4(
+def plot_N4_COS_projection_FODF(
     ax,
     N4,
     rotation_matrix,
@@ -329,7 +329,31 @@ def plot_N4(
     ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
 
 
-def plot_stepwise_interpolation_N4_along_x(ax, N1, N2, nbr_points=5, scale=1):
+def plot_N_COS_FODF(
+    ax,
+    N4,
+    rotation_matrix,
+    origin=[0, 0, 0],
+    offset_coord=[0, 0.5, 0],
+):
+    plot_approx_FODF_by_N4(ax, origin=origin, N4=N4)
+    ax.cos3D(origin=origin + np.array(offset_coord), matrix=rotation_matrix)
+
+
+def plot_stepwise_interpolation_N4_along_x(
+    ax,
+    N1,
+    N2,
+    nbr_points=5,
+    scale=1,
+    method=None,
+    origin_y=0,
+    origin_z=0,
+    plot_all=True,
+):
+
+    if method is None:
+        method = mechinterfabric.interpolation.interpolate_N4_decomp
 
     offset = 0.3
     ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
@@ -340,7 +364,11 @@ def plot_stepwise_interpolation_N4_along_x(ax, N1, N2, nbr_points=5, scale=1):
     weights = np.array([1.0 - weights_N2, weights_N2]).T
 
     origins = np.vstack(
-        [np.linspace(0, scale, nbr_points), np.zeros((2, nbr_points))]
+        [
+            np.linspace(0, scale, nbr_points),
+            np.ones((nbr_points)) * origin_y,
+            np.ones((nbr_points)) * origin_z,
+        ]
     ).T
 
     for index in range(nbr_points):
@@ -349,25 +377,30 @@ def plot_stepwise_interpolation_N4_along_x(ax, N1, N2, nbr_points=5, scale=1):
         current_weights = weights[index]
         origin = origins[index]
 
-        (
-            N4_av,
-            N4_av_eigen,
-            rotation_av,
-            N2_av_eigen,
-            N4s_eigen,
-            rotations,
-        ) = mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values(
-            N4s=N4s, weights=current_weights
+        N4_av = method(N4s=N4s, weights=current_weights)
+
+        N2_av = np.einsum("ijkl, kl->ij", N4_av, np.eye(3))
+        _, rotation_av = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(
+            tensor=N2_av
         )
 
-        plot_N4(
-            ax=ax,
-            # N4=N4s_eigen_tensor[0],
-            N4=N4_av,
-            rotation_matrix=rotation_av,  # COS only
-            origin=origin,
-            offset_coord=np.array([0, 0.4, 0]) * scale,
-            offset_fodf=np.array([0, -0.4, 0]) * scale,
-        )
+        if plot_all:
+            plot_N4_COS_projection_FODF(
+                ax=ax,
+                # N4=N4s_eigen_tensor[0],
+                N4=N4_av,
+                rotation_matrix=rotation_av,  # COS only
+                origin=origin,
+                offset_coord=np.array([0, 0.4, 0]) * scale,
+                offset_fodf=np.array([0, -0.4, 0]) * scale,
+            )
+        else:
+            plot_N_COS_FODF(
+                ax=ax,
+                N4=N4_av,
+                rotation_matrix=rotation_av,
+                origin=[0, 0, 0],
+                offset_coord=np.array([0, 0.4, 0]) * scale,
+            )
 
     return ax
