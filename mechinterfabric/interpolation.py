@@ -78,3 +78,7 @@ def interpolate_N4_decomp_extended_return_values(N4s, weights):
     assert np.allclose(N4_av_I2_eigen, N2_av_eigen)
 
     return N4_av, N4_av_eigen, rotation_av, N2_av_eigen, N4s_eigen, rotations
+
+
+def interpolate_N4_decomp(N4s, weights):
+    return interpolate_N4_decomp_extended_return_values(N4s, weights)[0]
