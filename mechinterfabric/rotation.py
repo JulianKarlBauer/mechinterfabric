@@ -6,6 +6,8 @@ def average_quaternion(quaternions, weights, verbose=False):
     """
     See https://arc.aiaa.org/doi/abs/10.2514/1.28949
     and https://github.com/christophhagen/averaging-quaternions
+
+    Use scipy.spatila.transform.Rotation.mean instead
     """
     assert quaternions.shape == (len(weights), 4)
 
