@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", 's001')
+directory = os.path.join("output", "s001")
 os.makedirs(directory, exist_ok=True)
 
 
