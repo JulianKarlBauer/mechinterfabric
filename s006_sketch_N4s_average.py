@@ -67,7 +67,7 @@ for key, (N4_1, N4_2) in pairs.items():
         N2_av_eigen,
         N4s_eigen,
         rotations,
-    ) = mechinterfabric.interpolation.average_N4(N4s=N4s, weights=weights)
+    ) = mechinterfabric.interpolation.interpolate_N4_decomp(N4s=N4s, weights=weights)
 
     ##########
     N4_av_mandel = con.to_mandel6(N4_av)
