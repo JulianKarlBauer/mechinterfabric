@@ -9,6 +9,14 @@ class ExceptionMechinterfabric(Exception):
     pass
 
 
+def assert_notation_N2(N2s, weights):
+    assert N2s.shape == (len(weights), 3, 3), "N2s must be in tensor notation"
+
+
+def assert_notation_N4(N4s, weights):
+    assert N4s.shape == (len(weights), 3, 3, 3, 3), "N4s must be in tensor notation"
+
+
 def get_rotation_matrix_into_eigensystem(tensor, verbose=False):
     # Eigenvectors given by eigh are orthonormal, i.e. orthogonal and normalized, but
     # unsorted,

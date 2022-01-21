@@ -2,10 +2,17 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
 import mechkit
+from mechinterfabric import utils
+
+
+def interpolate_N2_naive(N2s, weights):
+    utils.assert_notation_N2(N2s, weights)
+
+    return np.diag(np.einsum("m, mij->ij", weights, N2s))
 
 
 def interpolate_N2_decomp(N2s, weights):
-    assert N2s.shape == (len(weights), 3, 3)
+    utils.assert_notation_N2(N2s, weights)
 
     eigenvals, rotations = zip(
         *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
@@ -34,9 +41,14 @@ def apply_rotation(rotations, tensors):
     )
 
 
-def interpolate_N4_decomp(N4s, weights):
+def interpolate_N4_naive(N4s, weights):
+    utils.assert_notation_N4(N4s, weights)
 
-    assert N4s.shape == (len(weights), 3, 3, 3, 3)
+    return np.diag(np.einsum("m, mijkl->ijkl", weights, N4s))
+
+
+def interpolate_N4_decomp(N4s, weights):
+    utils.assert_notation_N4(N4s, weights)
 
     I2 = mechkit.tensors.Basic().I2
 
