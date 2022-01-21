@@ -110,6 +110,11 @@ for key, (N4_1, N4_2) in pairs.items():
     ax.set_ylim(limits[1])
     ax.set_zlim(limits[2])
 
+    # Axes labels
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
+
     # Homogeneous axes
     bbox_min = np.min(limits)
     bbox_max = np.max(limits)
