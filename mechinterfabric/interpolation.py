@@ -34,7 +34,7 @@ def apply_rotation(rotations, tensors):
     )
 
 
-def average_N4(N4s, weights):
+def interpolate_N4_decomp(N4s, weights):
 
     assert N4s.shape == (len(weights), 3, 3, 3, 3)
 

@@ -356,7 +356,9 @@ def plot_stepwise_interpolation_N4_along_x(ax, N1, N2, nbr_points=5, scale=1):
             N2_av_eigen,
             N4s_eigen,
             rotations,
-        ) = mechinterfabric.interpolation.average_N4(N4s=N4s, weights=current_weights)
+        ) = mechinterfabric.interpolation.interpolate_N4_decomp(
+            N4s=N4s, weights=current_weights
+        )
 
         plot_N4(
             ax=ax,
