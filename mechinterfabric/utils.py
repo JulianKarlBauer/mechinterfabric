@@ -65,26 +65,14 @@ def get_rotation_matrix_into_eigensystem(tensor, verbose=False):
         else:
             raise ExceptionMechinterfabric("Check this")
 
-    # Assert no reflection
-    if np.linalg.det(eigen_vectors.T) < 0:
-        print("det=", np.linalg.det(eigen_vectors.T))
-        raise Exception("reflection")
-
     matrix_into_eigen = eigen_vectors
 
-    assert_ortho_normal_right_handed(matrix=matrix_into_eigen)
+    assert_orthonormal_right_handed_rotation(matrix=matrix_into_eigen)
 
     return eigen_values, matrix_into_eigen
 
 
-# def get_rotation_into_eigensystem(tensor, verbose=False):
-#     eigen_values, matrix_into_eigen = get_rotation_matrix_into_eigensystem(
-#         tensor=tensor, verbose=verbose
-#     )
-#     return eigen_values, Rotation.from_matrix(matrix_into_eigen)
-
-
-def assert_ortho_normal_right_handed(matrix):
+def assert_orthonormal_right_handed_rotation(matrix):
     vx = matrix[:, 0]
     vy = matrix[:, 1]
     vz = matrix[:, 2]
@@ -101,3 +89,8 @@ def assert_ortho_normal_right_handed(matrix):
 
     # Right-handed
     assert np.allclose(np.cross(vx, vy), vz)
+
+    # Assert no reflection
+    if np.linalg.det(matrix) < 0:
+        print("det=", np.linalg.det(matrix))
+        raise Exception("reflection")
