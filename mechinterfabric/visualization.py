@@ -287,7 +287,11 @@ def plot_stepwise_interpolation_along_x(
     ).T
 
     for index in range(nbr_points):
-        av, av_in_eigen, av_rotation = mechinterfabric.interpolation.average_N2(
+        (
+            av,
+            av_in_eigen,
+            av_rotation,
+        ) = mechinterfabric.interpolation.interpolate_N2_decomp(
             N2s=np.array([N1, N2]), weights=weights[index]
         )
 

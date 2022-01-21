@@ -13,7 +13,7 @@ N2 = np.diag([0.0, 0.95, 0.05])
 
 bunch = np.array([N1, N2])
 
-av, av_in_eigen, av_rotation = mechinterfabric.interpolation.average_N2(
+av, av_in_eigen, av_rotation = mechinterfabric.interpolation.interpolate_N2_decomp(
     bunch, weights=np.ones(len(bunch)) / len(bunch)
 )
 

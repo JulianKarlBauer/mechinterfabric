@@ -4,7 +4,7 @@ from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
 import mechkit
 
 
-def average_N2(N2s, weights):
+def interpolate_N2_decomp(N2s, weights):
     assert N2s.shape == (len(weights), 3, 3)
 
     eigenvals, rotations = zip(
