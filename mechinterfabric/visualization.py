@@ -391,16 +391,16 @@ def plot_stepwise_interpolation_N4_along_x(
                 N4=N4_av,
                 rotation_matrix=rotation_av,  # COS only
                 origin=origin,
-                offset_coord=np.array([0, 0.4, 0]) * scale,
-                offset_fodf=np.array([0, -0.4, 0]) * scale,
+                offset_coord=np.array([0, 0.35, 0]) * scale,
+                offset_fodf=np.array([0, -0.35, 0]) * scale,
             )
         else:
             plot_N_COS_FODF(
                 ax=ax,
                 N4=N4_av,
                 rotation_matrix=rotation_av,
-                origin=[0, 0, 0],
-                offset_coord=np.array([0, 0.4, 0]) * scale,
+                origin=origin,
+                offset_coord=np.array([0, 0.35, 0]) * scale,
             )
 
     return ax
