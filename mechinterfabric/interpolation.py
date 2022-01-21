@@ -44,7 +44,7 @@ def apply_rotation(rotations, tensors):
 def interpolate_N4_naive(N4s, weights):
     utils.assert_notation_N4(N4s, weights)
 
-    return np.diag(np.einsum("m, mijkl->ijkl", weights, N4s))
+    return np.einsum("m, mijkl->ijkl", weights, N4s)
 
 
 def interpolate_N4_decomp_extended_return_values(N4s, weights):
