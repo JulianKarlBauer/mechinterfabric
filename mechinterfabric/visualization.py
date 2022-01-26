@@ -271,7 +271,7 @@ def plot_stepwise_interpolation_rotations_along_x(
 
 
 def plot_stepwise_interpolation_along_x(
-    ax, N1, N2, nbr_points=5, scale=1, color="green"
+    ax, N1, N2, nbr_points=5, scale=1, color="green", closest_eigensystems=False
 ):
 
     offset = 0.3
@@ -292,7 +292,9 @@ def plot_stepwise_interpolation_along_x(
             av_in_eigen,
             av_rotation,
         ) = mechinterfabric.interpolation.interpolate_N2_decomp(
-            N2s=np.array([N1, N2]), weights=weights[index]
+            N2s=np.array([N1, N2]),
+            weights=weights[index],
+            closest_eigensystems=closest_eigensystems,
         )
 
         mechinterfabric.visualization.plot_ellipsoid(
