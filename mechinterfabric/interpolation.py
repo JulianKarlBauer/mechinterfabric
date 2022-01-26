@@ -97,7 +97,9 @@ def interpolate_N4_naive(N4s, weights):
     return np.einsum("m, mijkl->ijkl", weights, N4s)
 
 
-def interpolate_N4_decomp_extended_return_values(N4s, weights):
+def interpolate_N4_decomp_extended_return_values(
+    N4s, weights, closest_eigensystems=False
+):
     utils.assert_notation_N4(N4s, weights)
 
     I2 = mechkit.tensors.Basic().I2
@@ -109,6 +111,9 @@ def interpolate_N4_decomp_extended_return_values(N4s, weights):
         *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
     )
     rotations = np.array(rotations)
+
+    if closest_eigensystems:
+        rotations = np.array(get_closest_rotation_matrices(*rotations))
 
     # Get average rotation
     rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
