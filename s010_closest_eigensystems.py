@@ -3,8 +3,8 @@ import mechinterfabric
 import os
 import matplotlib.pyplot as plt
 import mechkit
-import os
-import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation
+import itertools
 
 
 np.set_printoptions(linewidth=100000)
@@ -29,8 +29,53 @@ pairs = {
     ),
 }
 
+
+def angle_between_two_rotations(rotmatrix_1, rotmatrix_2):
+
+    quat_1 = Rotation.from_matrix(rotmatrix_1).as_quat()
+    quat_2 = Rotation.from_matrix(rotmatrix_2).as_quat()
+
+    scalar = np.einsum("i,i->", quat_1, quat_2)
+
+    angle = np.arccos(2.0 * scalar * scalar - 1.0)
+
+    return angle
+
+
 for key, (N2_1, N2_2) in pairs.items():
     print("###########")
     print(key)
 
-    rotations = 
+    eigenvals, rotation_matrices = zip(
+        *[
+            mechinterfabric.utils.get_rotation_matrix_into_eigensystem(N2)
+            for N2 in [N2_1, N2_2]
+        ]
+    )
+
+    # angle = angle_between_two_rotations(
+    #     rotmatrix_1=rotation_matrices[0], rotmatrix_2=rotation_matrices[1]
+    # )
+
+    rotmatrix_1 = rotation_matrices[0]
+    rotmatrix_2 = rotation_matrices[1]
+    variants = np.array([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
+
+    combinations = list(itertools.combinations(list(range(len(variants))), 2))
+
+    pairs_of_matrices = np.array(
+        [
+            [
+                np.einsum("j, ij->ij", variants[index_1], rotmatrix_1),
+                np.einsum("j, ij->ij", variants[index_2], rotmatrix_2),
+            ]
+            for (index_1, index_2) in combinations
+        ]
+    )
+
+    angles = np.array(
+        [
+            angle_between_two_rotations(rotmat_1, rotmat_2)
+            for (rotmat_1, rotmat_2) in pairs_of_matrices
+        ]
+    )
