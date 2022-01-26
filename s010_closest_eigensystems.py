@@ -27,6 +27,10 @@ pairs = {
         np.diag([0.95, 0.05, 0]),
         np.diag([0.0, 0.95, 0.05]),
     ),
+    "iso vs ud x": (
+        con.to_tensor(biblio["ud_y"]),
+        con.to_tensor(biblio["ud_x"]),
+    ),
 }
 
 
@@ -79,3 +83,11 @@ for key, (N2_1, N2_2) in pairs.items():
             for (rotmat_1, rotmat_2) in pairs_of_matrices
         ]
     )
+
+    index_minimal_angle = angles.argsort()[0]
+
+    rotmat_1, rotmat_2 = pairs_of_matrices[index_minimal_angle]
+
+
+
+    print(angles)
