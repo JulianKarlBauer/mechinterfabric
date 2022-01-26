@@ -59,11 +59,11 @@ for key, (N1, N2) in pairs.items():
     print("###########")
     print(key)
 
-    bunch = np.array([N1, N2])
-
-    av, av_in_eigen, av_rotation = mechinterfabric.interpolation.interpolate_N2_decomp(
-        bunch, weights=np.ones(len(bunch)) / len(bunch)
-    )
+    # bunch = np.array([N1, N2])
+    #
+    # av, av_in_eigen, av_rotation = mechinterfabric.interpolation.interpolate_N2_decomp(
+    #     bunch, weights=np.ones(len(bunch)) / len(bunch)
+    # )
 
     # Plot
 
