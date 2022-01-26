@@ -46,23 +46,7 @@ def angle_between_two_rotations(rotmatrix_1, rotmatrix_2):
     return angle
 
 
-for key, (N2_1, N2_2) in pairs.items():
-    print("###########")
-    print(key)
-
-    eigenvals, rotation_matrices = zip(
-        *[
-            mechinterfabric.utils.get_rotation_matrix_into_eigensystem(N2)
-            for N2 in [N2_1, N2_2]
-        ]
-    )
-
-    # angle = angle_between_two_rotations(
-    #     rotmatrix_1=rotation_matrices[0], rotmatrix_2=rotation_matrices[1]
-    # )
-
-    rotmatrix_1 = rotation_matrices[0]
-    rotmatrix_2 = rotation_matrices[1]
+def get_closest_rotation_matrices(rotmatrix_1, rotmatrix_2):
     variants = np.array([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
 
     combinations = list(itertools.combinations(list(range(len(variants))), 2))
@@ -84,10 +68,39 @@ for key, (N2_1, N2_2) in pairs.items():
         ]
     )
 
+    print(angles)
+
     index_minimal_angle = angles.argsort()[0]
 
-    rotmat_1, rotmat_2 = pairs_of_matrices[index_minimal_angle]
+    closest_1, closest_2 = pairs_of_matrices[index_minimal_angle]
+
+    return closest_1, closest_2
 
 
+for key, (N2_1, N2_2) in pairs.items():
+    print("###########")
+    print(key)
 
-    print(angles)
+    eigenvals, rotation_matrices = zip(
+        *[
+            mechinterfabric.utils.get_rotation_matrix_into_eigensystem(N2)
+            for N2 in [N2_1, N2_2]
+        ]
+    )
+
+    # angle = angle_between_two_rotations(
+    #     rotmatrix_1=rotation_matrices[0], rotmatrix_2=rotation_matrices[1]
+    # )
+
+    rotmatrix_1 = rotation_matrices[0]
+    rotmatrix_2 = rotation_matrices[1]
+
+    print("Initial")
+    print(rotmatrix_1)
+    print(rotmatrix_2)
+
+    m_1, m_2 = get_closest_rotation_matrices(rotmatrix_1, rotmatrix_2)
+
+    print("Final")
+    print(m_1)
+    print(m_2)
