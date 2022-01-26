@@ -76,7 +76,7 @@ for key, (N1, N2) in pairs.items():
     ax.set_zlabel("z")
 
     mechinterfabric.visualization.plot_stepwise_interpolation_along_x(
-        ax, N1, N2, nbr_points=5, scale=4, closest_eigensystems=True
+        ax, N1, N2, nbr_points=5, scale=4
     )
 
     bbox_min = -2
