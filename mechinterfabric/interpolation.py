@@ -3,6 +3,7 @@ from scipy.spatial.transform import Rotation
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
 import mechkit
 from mechinterfabric import utils
+import itertools
 
 
 def interpolate_N2_naive(N2s, weights):
@@ -11,12 +12,15 @@ def interpolate_N2_naive(N2s, weights):
     return np.diag(np.einsum("m, mij->ij", weights, N2s))
 
 
-def interpolate_N2_decomp(N2s, weights):
+def interpolate_N2_decomp(N2s, weights, closest_eigensystems=False):
     utils.assert_notation_N2(N2s, weights)
 
     eigenvals, rotations = zip(
         *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
     )
+
+    if closest_eigensystems:
+        rotations = np.array(get_closest_rotation_matrices(*rotations))
 
     # Average eigenvalues and
     # cast to tensor second order
@@ -28,6 +32,52 @@ def interpolate_N2_decomp(N2s, weights):
     N2_av = np.einsum("mi, nj, mn->ij", rotation_av, rotation_av, N2_av_in_eigen)
 
     return N2_av, N2_av_in_eigen, rotation_av
+
+
+def angle_between_two_rotations(rotmatrix_1, rotmatrix_2):
+
+    quat_1 = Rotation.from_matrix(rotmatrix_1).as_quat()
+    quat_2 = Rotation.from_matrix(rotmatrix_2).as_quat()
+
+    scalar = np.einsum("i,i->", quat_1, quat_2)
+
+    angle = np.arccos(2.0 * scalar * scalar - 1.0)
+
+    return angle
+
+
+def get_closest_rotation_matrices(rotmatrix_1, rotmatrix_2):
+
+    assert rotmatrix_1.shape == rotmatrix_2.shape == (3, 3)
+
+    variants = np.array([[1, 1, 1], [1, -1, -1], [-1, 1, -1], [-1, -1, 1]])
+
+    combinations = list(itertools.combinations(list(range(len(variants))), 2))
+
+    pairs_of_matrices = np.array(
+        [
+            [
+                np.einsum("j, ij->ij", variants[index_1], rotmatrix_1),
+                np.einsum("j, ij->ij", variants[index_2], rotmatrix_2),
+            ]
+            for (index_1, index_2) in combinations
+        ]
+    )
+
+    angles = np.array(
+        [
+            angle_between_two_rotations(rotmat_1, rotmat_2)
+            for (rotmat_1, rotmat_2) in pairs_of_matrices
+        ]
+    )
+
+    print(angles)
+
+    index_minimal_angle = angles.argsort()[0]
+
+    closest_1, closest_2 = pairs_of_matrices[index_minimal_angle]
+
+    return closest_1, closest_2
 
 
 def apply_rotation(rotations, tensors):
