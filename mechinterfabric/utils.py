@@ -17,7 +17,9 @@ def assert_notation_N4(N4s, weights):
     assert N4s.shape == (len(weights), 3, 3, 3, 3), "N4s must be in tensor notation"
 
 
-def get_rotation_matrix_into_eigensystem(tensor, verbose=False):
+def get_rotation_matrix_into_eigensystem(
+    tensor, verbose=False, convention_on_signs=True
+):
     # Eigenvectors given by eigh are orthonormal, i.e. orthogonal and normalized, but
     # unsorted,
     # not necessarily right-handed
@@ -58,12 +60,13 @@ def get_rotation_matrix_into_eigensystem(tensor, verbose=False):
     ev1 = eigen_vectors[:, 1]
     ev2 = eigen_vectors[:, 2]
 
-    # Apply convention an signs
-    if ev0[0] < 0.0:
-        eigen_vectors[:, 0] = -eigen_vectors[:, 0]
+    if convention_on_signs:
+        # Apply convention an signs
+        if ev0[0] < 0.0:
+            eigen_vectors[:, 0] = -eigen_vectors[:, 0]
 
-    if ev1[1] < 0.0:
-        eigen_vectors[:, 1] = -eigen_vectors[:, 1]
+        if ev1[1] < 0.0:
+            eigen_vectors[:, 1] = -eigen_vectors[:, 1]
 
     # Make it right-handed
     ev0_cross_ev1 = np.cross(ev0, ev1)
