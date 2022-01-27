@@ -105,3 +105,14 @@ def assert_orthonormal_right_handed_rotation(matrix):
     if np.linalg.det(matrix) < 0:
         print("det=", np.linalg.det(matrix))
         raise Exception("reflection")
+
+
+def get_orthotropic_sym_rotations():
+
+    rotations = [
+        np.eye(3),
+        Rotation.from_rotvec(np.pi * np.array([1, 0, 0])).as_matrix(),
+        Rotation.from_rotvec(np.pi * np.array([0, 1, 0])).as_matrix(),
+        Rotation.from_rotvec(np.pi * np.array([0, 0, 1])).as_matrix(),
+    ]
+    return rotations
