@@ -3,6 +3,7 @@
 
 import numpy as np
 from scipy.spatial.transform import Rotation
+import mechinterfabric
 
 
 def test_change_sign_of_columns():
@@ -19,12 +20,7 @@ def test_change_of_sign_equal_to_rotation():
 
     signs_changed = [np.einsum("j, ij->ij", variant, base) for variant in variants]
 
-    rotations = [
-        np.eye(3),
-        Rotation.from_rotvec(np.pi * np.array([1, 0, 0])).as_matrix(),
-        Rotation.from_rotvec(np.pi * np.array([0, 1, 0])).as_matrix(),
-        Rotation.from_rotvec(np.pi * np.array([0, 0, 1])).as_matrix(),
-    ]
+    rotations = mechinterfabric.utils.get_orthotropic_sym_rotations()
 
     for index in range(4):
         assert np.allclose(signs_changed[index], rotations[index])
