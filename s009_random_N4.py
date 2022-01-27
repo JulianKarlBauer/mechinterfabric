@@ -48,7 +48,21 @@ for key, N4 in pairs.items():
         rotations=rotation_into_eigen, tensors=N4
     )
 
+    slice = np.s_[0:3, 3:6]
+    # slice = np.s_[:, :]
+
     print("###########")
     print(key)
     print(con.to_mandel6(N4))
+    print("Eigen")
     print(con.to_mandel6(N4_eigen))
+
+    rotations = mechinterfabric.utils.get_orthotropic_sym_rotations(as_dict=True)
+    # rotations.pop("{v_i}_1: no flip")
+
+    for label, rot in rotations.items():
+        N4_eigen_transformed = mechinterfabric.interpolation.apply_rotation(
+            rotations=rot, tensors=N4_eigen
+        )
+        print(label)
+        print(con.to_mandel6(N4_eigen_transformed)[slice])
