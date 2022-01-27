@@ -107,12 +107,20 @@ def assert_orthonormal_right_handed_rotation(matrix):
         raise Exception("reflection")
 
 
-def get_orthotropic_sym_rotations():
-
+def get_orthotropic_sym_rotations(as_dict=False):
     rotations = [
         np.eye(3),
         Rotation.from_rotvec(np.pi * np.array([1, 0, 0])).as_matrix(),
         Rotation.from_rotvec(np.pi * np.array([0, 1, 0])).as_matrix(),
         Rotation.from_rotvec(np.pi * np.array([0, 0, 1])).as_matrix(),
     ]
-    return rotations
+    if not as_dict:
+        return rotations
+    else:
+        labels = [
+            "{v_i}_1: no flip",
+            "{v_i}_2: flip yz",
+            "{v_i}_3: flip xz",
+            "{v_i}_4: flip xy",
+        ]
+        return {labels[index]: rot for index, rot in enumerate(rotations)}
