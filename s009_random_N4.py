@@ -48,6 +48,7 @@ for key, N4 in pairs.items():
 
     slice = np.s_[0:3, 3:6]
     # slice = np.s_[:, :]
+    selected_positions = np.s_[[0, 1], [3, 4]]
 
     print("###########")
     print(key)
@@ -62,5 +63,11 @@ for key, N4 in pairs.items():
         N4_eigen_transformed = mechinterfabric.interpolation.apply_rotation(
             rotations=rot, tensors=N4_eigen
         )
-        print(label)
-        print(con.to_mandel6(N4_eigen_transformed)[slice])
+        N4_eigen_transformed_mandel = con.to_mandel6(N4_eigen_transformed)
+        if np.allclose(N4_eigen_transformed_mandel[selected_positions], np.zeros(2)):
+            print("not valid")
+            break
+        else:
+            if np.all(N4_eigen_transformed_mandel[selected_positions] > 0):
+                print(label)
+                print(N4_eigen_transformed_mandel[slice])
