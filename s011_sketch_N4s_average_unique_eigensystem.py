@@ -15,12 +15,6 @@ os.makedirs(directory, exist_ok=True)
 #########################################################
 
 
-def to_mandel6(N4s):
-    return converter.convert(
-        inp=N4s, source="tensor", target="mandel6", quantity="stiffness"
-    )
-
-
 def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
     transforms_raw = mechinterfabric.utils.get_orthotropic_sym_rotations(as_dict=True)
 
@@ -45,6 +39,13 @@ def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
 
 
 def interpolate_N4_decomp_unique_rotation(N4s, weights):
+    converter = mechkit.notation.ExplicitConverter()
+    def to_mandel6(N4s):
+
+        return converter.convert(
+            inp=N4s, source="tensor", target="mandel6", quantity="stiffness"
+        )
+
     mechinterfabric.utils.assert_notation_N4(N4s, weights)
 
     I2 = mechkit.tensors.Basic().I2
