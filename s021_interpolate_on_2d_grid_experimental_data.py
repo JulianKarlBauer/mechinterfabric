@@ -13,14 +13,6 @@ os.makedirs(directory, exist_ok=True)
 converter = mechkit.notation.ExplicitConverter()
 
 #########################################################
-# N2
-
-df_N2 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
-    header=0,
-    sep=",",
-)
-df_N2.columns = df_N2.columns.str.strip()
 
 
 def N2_from_row(row):
@@ -29,21 +21,6 @@ def N2_from_row(row):
         [row["n12"], row["n22"], row["n23"]],
         [row["n13"], row["n23"], row["n33"]],
     ]
-
-
-df_N2["N2"] = df_N2.apply(N2_from_row, axis=1)
-
-N2s = np.array(df_N2["N2"].to_list())
-
-#########################################################
-# N4
-
-df = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
-    header=0,
-    sep=",",
-)
-df.columns = df.columns.str.strip()
 
 
 def N4_from_row(row):
@@ -75,8 +52,31 @@ def N4_from_row(row):
     return N4.tolist()
 
 
+#########################################################
+# Read N2
+df_N2 = pd.read_csv(
+    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+    header=0,
+    sep=",",
+)
+df_N2.columns = df_N2.columns.str.strip()
+
+# Read N4
+df_N4 = pd.read_csv(
+    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+    header=0,
+    sep=",",
+)
+df_N4.columns = df_N4.columns.str.strip()
+
+# Merge
+df = df_N2.merge(df_N4)
+
+
+df["N2"] = df.apply(N2_from_row, axis=1)
 df["N4"] = df.apply(N4_from_row, axis=1)
 
+N2s = np.array(df["N2"].to_list())
 N4s = np.array(df["N4"].to_list())
 
 N4s_mandel = converter.convert(
