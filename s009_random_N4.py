@@ -48,7 +48,7 @@ for key, N4 in pairs.items():
 
     slice = np.s_[0:3, 3:6]
     # slice = np.s_[:, :]
-    selected_positions = np.s_[[0, 1], [3, 4]]
+    selected_positions = np.s_[[0, 0], [4, 5]]
 
     print("###########")
     print(key)
