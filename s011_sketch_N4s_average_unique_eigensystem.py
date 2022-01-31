@@ -1,18 +1,61 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 import mechinterfabric
-import os
-import matplotlib.pyplot as plt
 import mechkit
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
 import os
 import matplotlib.pyplot as plt
 
-
+np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
 directory = os.path.join("output", "s011")
 os.makedirs(directory, exist_ok=True)
+
+#########################################################
+
+
+def interpolate_N4_decomp_unique_rotation(N4s, weights, closest_eigensystems=False):
+    mechinterfabric.utils.assert_notation_N4(N4s, weights)
+
+    I2 = mechkit.tensors.Basic().I2
+
+    N2s = np.einsum("mijkl,kl->mij", N4s, I2)
+
+    # Get rotations into eigensystem
+    eigenvals, rotations = zip(
+        *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
+    )
+    rotations = np.array(rotations)
+
+    if closest_eigensystems:
+        rotations = np.array(
+            mechinterfabric.interpolation.get_closest_rotation_matrices(*rotations)
+        )
+
+    # Get average rotation
+    rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
+
+    # Rotate each N4 into it's eigensystem
+    N4s_eigen = mechinterfabric.interpolation.apply_rotation(
+        rotations=rotations, tensors=N4s
+    )
+
+    # Average components in eigensystems
+    N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
+
+    # Rotate back to world COS
+    N4_av = mechinterfabric.interpolation.apply_rotation(
+        rotations=rotation_av.T, tensors=N4_av_eigen
+    )
+
+    # Check if N4_av[I2] == N2_av
+    N4_av_I2_eigen = np.einsum("ijkl,kl->ij", N4_av_eigen, I2)
+    N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
+    assert np.allclose(N4_av_I2_eigen, N2_av_eigen)
+
+    return N4_av, N4_av_eigen, rotation_av, N2_av_eigen, N4s_eigen, rotations
+
 
 #########################################################
 
@@ -51,9 +94,7 @@ for key, (N4_1, N4_2) in pairs.items():
         N2_av_eigen,
         N4s_eigen,
         rotations,
-    ) = mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values(
-        N4s=N4s, weights=weights
-    )
+    ) = interpolate_N4_decomp_unique_rotation(N4s=N4s, weights=weights)
 
     ##########
     N4_av_mandel = con.to_mandel6(N4_av)
