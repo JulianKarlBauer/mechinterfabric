@@ -82,3 +82,8 @@ N4s = np.array(df["N4"].to_list())
 N4s_mandel = converter.convert(
     inp=N4s, source="tensor", target="mandel6", quantity="stiffness"
 )
+
+I2 = mechkit.tensors.Basic().I2
+for index, N2 in enumerate(N2s):
+    N2_from_N4 = np.einsum("ijkl,kl->ij", N4s[index], I2)
+    assert np.allclose(N2, N2_from_N4, atol=1e-5)
