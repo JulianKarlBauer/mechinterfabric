@@ -14,14 +14,14 @@ directory = os.path.join("output", "s011")
 os.makedirs(directory, exist_ok=True)
 
 #########################################################
+# N2
 
-
-df = pd.read_csv(
+df_N2 = pd.read_csv(
     os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
     header=0,
     sep=",",
 )
-df.columns = df.columns.str.strip()
+df_N2.columns = df_N2.columns.str.strip()
 
 
 def N2_from_row(row):
@@ -34,4 +34,4 @@ def N2_from_row(row):
     )
 
 
-df["N2"] = df.apply(N2_from_row, axis=1)
+df_N2["N2"] = df_N2.apply(N2_from_row, axis=1)
