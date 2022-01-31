@@ -78,12 +78,5 @@ def N4_from_row(row):
             N4[perm] = row[column_key]
     return N4
 
-    # for index_i in range(3):
-    #     for index_j in range(3):
-    #         for index_k in range(3):
-    #             for index_l in range(3):
-    #                 key = f"{index_i}{index_j}{index_k}{index_l}"
-    #
-    #                 N4[index_i, index_j, index_k, index_l] = 1
 
 df["N4"] = df.apply(N4_from_row, axis=1)
