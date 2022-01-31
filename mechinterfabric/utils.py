@@ -118,9 +118,9 @@ def get_orthotropic_sym_rotations(as_dict=False):
         return rotations
     else:
         labels = [
-            "{v_i}_1: no flip",
-            "{v_i}_2: flip yz",
-            "{v_i}_3: flip xz",
-            "{v_i}_4: flip xy",
+            "no flip",
+            "flip yz",
+            "flip xz",
+            "flip xy",
         ]
         return {labels[index]: rot for index, rot in enumerate(rotations)}
