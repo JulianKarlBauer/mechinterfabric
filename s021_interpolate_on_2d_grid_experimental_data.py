@@ -14,3 +14,24 @@ directory = os.path.join("output", "s011")
 os.makedirs(directory, exist_ok=True)
 
 #########################################################
+
+
+df = pd.read_csv(
+    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+    header=0,
+    sep=",",
+)
+df.columns = df.columns.str.strip()
+
+
+def N2_from_row(row):
+    return np.array(
+        [
+            [row["n11"], row["n12"], row["n13"]],
+            [row["n12"], row["n22"], row["n23"]],
+            [row["n13"], row["n23"], row["n33"]],
+        ]
+    )
+
+
+df["N2"] = df.apply(N2_from_row, axis=1)
