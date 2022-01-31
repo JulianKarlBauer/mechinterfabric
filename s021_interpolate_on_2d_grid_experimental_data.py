@@ -10,7 +10,7 @@ np.set_printoptions(linewidth=100000)
 directory = os.path.join("output", "s011")
 os.makedirs(directory, exist_ok=True)
 
-converter = mechkit.notation.Converter()
+converter = mechkit.notation.ExplicitConverter()
 
 #########################################################
 # N2
@@ -24,16 +24,16 @@ df_N2.columns = df_N2.columns.str.strip()
 
 
 def N2_from_row(row):
-    return np.array(
-        [
-            [row["n11"], row["n12"], row["n13"]],
-            [row["n12"], row["n22"], row["n23"]],
-            [row["n13"], row["n23"], row["n33"]],
-        ]
-    )
+    return [
+        [row["n11"], row["n12"], row["n13"]],
+        [row["n12"], row["n22"], row["n23"]],
+        [row["n13"], row["n23"], row["n33"]],
+    ]
 
 
 df_N2["N2"] = df_N2.apply(N2_from_row, axis=1)
+
+N2s = np.array(df_N2["N2"].to_list())
 
 #########################################################
 # N4
@@ -72,7 +72,13 @@ def N4_from_row(row):
         permutations = itertools.permutations([int(item) - 1 for item in column_key])
         for perm in permutations:
             N4[perm] = row[column_key]
-    return N4
+    return N4.tolist()
 
 
 df["N4"] = df.apply(N4_from_row, axis=1)
+
+N4s = np.array(df["N4"].to_list())
+
+N4s_mandel = converter.convert(
+    inp=N4s, source="tensor", target="mandel6", quantity="stiffness"
+)
