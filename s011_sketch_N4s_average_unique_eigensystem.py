@@ -15,7 +15,36 @@ os.makedirs(directory, exist_ok=True)
 #########################################################
 
 
-def interpolate_N4_decomp_unique_rotation(N4s, weights, closest_eigensystems=False):
+def to_mandel6(N4s):
+    return converter.convert(
+        inp=N4s, source="tensor", target="mandel6", quantity="stiffness"
+    )
+
+
+def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
+    transforms_raw = mechinterfabric.utils.get_orthotropic_sym_rotations(as_dict=True)
+
+    index_d8 = np.s_[0, 0, 0, 1]
+    index_d6 = np.s_[0, 0, 0, 2]
+
+    d8 = N4_tensor_in_eigen[index_d8]
+    d6 = N4_tensor_in_eigen[index_d6]
+
+    if (0.0 <= d8) and (0.0 <= d6):
+        key = "no flip"
+    elif (0.0 <= d8) and (d6 < 0.0):
+        key = "flip xy"
+    elif (d8 < 0.0) and (0.0 <= d6):
+        key = "flip xz"
+    elif (d8 < 0.0) and (d6 < 0.0):
+        key = "flip yz"
+
+    print(key)
+
+    return transforms_raw[key]
+
+
+def interpolate_N4_decomp_unique_rotation(N4s, weights):
     mechinterfabric.utils.assert_notation_N4(N4s, weights)
 
     I2 = mechkit.tensors.Basic().I2
@@ -23,23 +52,58 @@ def interpolate_N4_decomp_unique_rotation(N4s, weights, closest_eigensystems=Fal
     N2s = np.einsum("mijkl,kl->mij", N4s, I2)
 
     # Get rotations into eigensystem
-    eigenvals, rotations = zip(
+    eigenvals, rotations_non_unique = zip(
         *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
     )
-    rotations = np.array(rotations)
+    rotations_non_unique = np.array(rotations_non_unique)
 
-    if closest_eigensystems:
-        rotations = np.array(
-            mechinterfabric.interpolation.get_closest_rotation_matrices(*rotations)
-        )
+    # Rotate each N4 into one possible eigensystem
+    N4s_eigen_non_unique = mechinterfabric.interpolation.apply_rotation(
+        rotations=rotations_non_unique, tensors=N4s
+    )
+
+    # Get unique eigensystem
+    additional_rotation = np.array(
+        [
+            get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen=N4_eigen)
+            for N4_eigen in N4s_eigen_non_unique
+        ]
+    )
+
+    rotations = np.einsum(
+        "...ij,...jk->...ik", rotations_non_unique, additional_rotation
+    )
+
+    # print("non unique:\n", rotations_non_unique)
+    # print("additional:\n", additional_rotation)
+    # print("resulting:\n", rotations)
+
+    # Rotate each N4 into the unique eigensystem
+    N4s_eigen = mechinterfabric.interpolation.apply_rotation(
+        rotations=additional_rotation, tensors=N4s_eigen_non_unique
+    )
+
+    # # Inspect signs
+    # for index in range(len(N4s_eigen)):
+    #     print(to_mandel6(N4s_eigen_non_unique[index]))
+    #     print(to_mandel6(N4s_eigen[index]))
+    #     print()
+    #
+    # # Inspect combination of rotations
+    # N4s_eigen_straight = mechinterfabric.interpolation.apply_rotation(
+    #     rotations=rotations, tensors=N4s
+    # )
+    #
+    # assert np.allclose(N4s_eigen, N4s_eigen_straight)
+    #
+    # for index in range(len(N4s_eigen)):
+    #     print('Stepwise vs. straight')
+    #     print(to_mandel6(N4s_eigen[index]))
+    #     print(to_mandel6(N4s_eigen_straight[index]))
+    #     print()
 
     # Get average rotation
     rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
-
-    # Rotate each N4 into it's eigensystem
-    N4s_eigen = mechinterfabric.interpolation.apply_rotation(
-        rotations=rotations, tensors=N4s
-    )
 
     # Average components in eigensystems
     N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
