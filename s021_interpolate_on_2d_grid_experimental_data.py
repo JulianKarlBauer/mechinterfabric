@@ -5,11 +5,12 @@ import itertools
 import os
 from scipy.interpolate import interp1d
 import mechinterfabric
+import matplotlib.pyplot as plt
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s011")
+directory = os.path.join("output", "s021")
 os.makedirs(directory, exist_ok=True)
 
 converter = mechkit.notation.ExplicitConverter()
@@ -147,13 +148,52 @@ new["weights"] = new.apply(
     axis=1,
 )
 
+
 new["N4"] = new.apply(
     lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
         N4s=N4s, weights=row["weights"]
-    ),
+    ).tolist(),
     axis=1,
 )
 
 N4s_mandel_new = converter.convert(
-    inp=np.array(new["N4"].to_list()), source="tensor", target="mandel6", quantity="stiffness"
+    inp=np.array(new["N4"].to_list()),
+    source="tensor",
+    target="mandel6",
+    quantity="stiffness",
 )
+#############################
+# Plot
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.view_init(elev=90, azim=-90)
+
+# Axes labels
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+
+scale = 1.0
+for _, row in new.iterrows():
+    mechinterfabric.visualization.plot_approx_FODF_by_N4(
+        ax=ax,
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        N4=np.array(row["N4"]),
+        color="blue",
+    )
+
+for _, row in df.iterrows():
+    mechinterfabric.visualization.plot_approx_FODF_by_N4(
+        ax=ax,
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        N4=np.array(row["N4"]),
+        color="red",
+    )
+
+bbox_min = 0
+bbox_max = 14 * scale
+ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+path_picture = os.path.join(directory, "main.png")
+plt.savefig(path_picture)
