@@ -196,7 +196,7 @@ for interpolation_method in [
     ax.set_ylabel("y")
     ax.set_zlabel("z")
 
-    scale = 1.0
+    scale = 1.2
     for _, row in new.iterrows():
         mechinterfabric.visualization.plot_approx_FODF_by_N4(
             ax=ax,
@@ -220,8 +220,12 @@ for interpolation_method in [
     name = str(interpolation_method.__name__)
 
     ax.set_title(name)
+    fig.tight_layout()
+
     path_picture = os.path.join(directory, name + ".png")
-    plt.savefig(path_picture)
+    plt.savefig(path_picture, dpi=300)
+
+
 
     # plt.close(fig)
 
