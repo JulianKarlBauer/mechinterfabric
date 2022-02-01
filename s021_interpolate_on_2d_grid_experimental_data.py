@@ -150,70 +150,75 @@ new["weights"] = new.apply(
     axis=1,
 )
 
+for interpolation_method in [
+    mechinterfabric.interpolation.interpolate_N4_decomp,
+    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation,
+]:
 
-new["N4"] = new.apply(
-    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
-        N4s=N4s, weights=row["weights"]
-    ).tolist(),
-    axis=1,
-)
-
-
-def get_singgular_weights(index):
-    zeros = [
-        0.0,
-    ] * len(df)
-    zeros[index] = 1.0
-    return zeros
-
-
-validation = [
-    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
-        N4s=N4s, weights=get_singgular_weights(index=index)
-    ).tolist()
-    for index, (_, row) in enumerate(df.iterrows())
-]
-assert np.allclose(N4s, np.array(validation))
-
-
-N4s_mandel_new = converter.convert(
-    inp=np.array(new["N4"].to_list()),
-    source="tensor",
-    target="mandel6",
-    quantity="stiffness",
-)
-#############################
-# Plot
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-ax.view_init(elev=90, azim=-90)
-
-# Axes labels
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
-
-scale = 1.0
-for _, row in new.iterrows():
-    mechinterfabric.visualization.plot_approx_FODF_by_N4(
-        ax=ax,
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-        N4=np.array(row["N4"]),
-        color="yellow",
+    new["N4"] = new.apply(
+        lambda row: interpolation_method(N4s=N4s, weights=row["weights"]).tolist(),
+        axis=1,
     )
 
-for _, row in df.iterrows():
-    mechinterfabric.visualization.plot_approx_FODF_by_N4(
-        ax=ax,
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-        N4=np.array(row["N4"]),
-        color="red",
+    ########################
+    # Validate case with single non-vanishing weight
+
+    def get_singgular_weights(index):
+        zeros = [
+            0.0,
+        ] * len(df)
+        zeros[index] = 1.0
+        return zeros
+
+    validation = [
+        interpolation_method(
+            N4s=N4s, weights=get_singgular_weights(index=index)
+        ).tolist()
+        for index, (_, row) in enumerate(df.iterrows())
+    ]
+    assert np.allclose(N4s, np.array(validation))
+
+    N4s_mandel_new = converter.convert(
+        inp=np.array(new["N4"].to_list()),
+        source="tensor",
+        target="mandel6",
+        quantity="stiffness",
     )
+    #############################
+    # Plot
 
-bbox_min = 0
-bbox_max = 14 * scale
-ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    ax.view_init(elev=90, azim=-90)
 
-path_picture = os.path.join(directory, "main.png")
-plt.savefig(path_picture)
+    # Axes labels
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_zlabel("z")
+
+    scale = 1.0
+    for _, row in new.iterrows():
+        mechinterfabric.visualization.plot_approx_FODF_by_N4(
+            ax=ax,
+            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+            N4=np.array(row["N4"]),
+            color="yellow",
+        )
+
+    for _, row in df.iterrows():
+        mechinterfabric.visualization.plot_approx_FODF_by_N4(
+            ax=ax,
+            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+            N4=np.array(row["N4"]),
+            color="red",
+        )
+
+    bbox_min = 0
+    bbox_max = 14 * scale
+    ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+    name = str(interpolation_method.__name__)
+
+    ax.set_title(name)
+    path_picture = os.path.join(directory, name + ".png")
+    plt.savefig(path_picture)
