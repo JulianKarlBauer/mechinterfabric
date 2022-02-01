@@ -182,7 +182,7 @@ for _, row in new.iterrows():
         ax=ax,
         origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
         N4=np.array(row["N4"]),
-        color="blue",
+        color="yellow",
     )
 
 for _, row in df.iterrows():
