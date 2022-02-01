@@ -40,6 +40,7 @@ def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
 
 def interpolate_N4_decomp_unique_rotation(N4s, weights):
     converter = mechkit.notation.ExplicitConverter()
+
     def to_mandel6(N4s):
 
         return converter.convert(
