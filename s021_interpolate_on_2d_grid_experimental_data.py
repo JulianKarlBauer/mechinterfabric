@@ -154,6 +154,14 @@ new["weights"] = new.apply(
     axis=1,
 )
 
+
+def check_if_all_weight_sets_are_normalized(weights):
+    return np.allclose(np.array(weights.to_list()).sum(axis=1), np.ones((len(weights))))
+
+
+# Check whether all weight sets are normalized
+assert check_if_all_weight_sets_are_normalized(weights=new["weights"])
+
 ################
 # Compare weights
 
@@ -173,6 +181,9 @@ df_weights["weights_reference"] = df_weights.apply(
     ],
     axis=1,
 )
+
+# Check whether all weight sets are normalized
+assert check_if_all_weight_sets_are_normalized(weights=df_weights["weights_reference"])
 
 # Merge
 new = new.merge(df_weights)
