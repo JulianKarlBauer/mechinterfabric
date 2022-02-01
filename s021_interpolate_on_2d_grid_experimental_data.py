@@ -90,6 +90,7 @@ for index, N2 in enumerate(N2s):
     assert np.allclose(N2, N2_from_N4, atol=1e-5)
 
 #########################################################
+
 dimensions = {
     "x": {1: 0.0, 7: 196.0, 13: 379.0},
     "y": {1: 0.0, 7: 197.0, 13: 379.0},
@@ -101,22 +102,43 @@ index_y_to_y = interp1d(
     list(dimensions["y"].keys()), list(dimensions["y"].values()), kind="linear"
 )
 
-df["x"] = df.apply(lambda row: dimensions["x"][row["index_x"]], axis=1)
-df["y"] = df.apply(lambda row: dimensions["y"][row["index_y"]], axis=1)
-
-df.set_index(["index_x", "index_y"], inplace=True)
-
 
 def distance_shepard_inverse(row_1, row_2):
     difference = np.array([row_1["x"] - row_2["x"], row_1["y"] - row_2["y"]])
     return 1.0 / np.sqrt((difference * difference).sum())
 
 
+#########################################################
+
+# Calc entities in df
+df_index = df.set_index(["index_x", "index_y"]).index
+# df.set_index(["index_x", "index_y"], inplace=True)
+
+df["x"] = df.apply(lambda row: index_x_to_x(row["index_x"]), axis=1)
+df["y"] = df.apply(lambda row: index_y_to_y(row["index_y"]), axis=1)
+
+N4s_df = np.array(df['N4'].to_list())
+
+
+# New points
 indices = [i + 1 for i in range(13)]
-indices_points = list(itertools.permutations(indices, 2))
+indices_points = list(itertools.product(indices, repeat=2))
+indices_points = [index for index in indices_points if index not in df_index]
 
 new = pd.DataFrame(indices_points, columns=["index_x", "index_y"])
 
-new['x'] = new.apply(lambda row: index_x_to_x(row['index_x']), axis=1)
-new['y'] = new.apply(lambda row: index_y_to_y(row['index_y']), axis=1)
+
+new["x"] = new.apply(lambda row: index_x_to_x(row["index_x"]), axis=1)
+new["y"] = new.apply(lambda row: index_y_to_y(row["index_y"]), axis=1)
+
+new["weights"] = new.apply(
+    lambda row: [
+        distance_shepard_inverse(row_1=row, row_2=original_row)
+        for _, original_row in df.iterrows()
+    ],
+    axis=1,
+)
+
+
+
 
