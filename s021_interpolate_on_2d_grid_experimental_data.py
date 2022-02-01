@@ -4,6 +4,7 @@ import pandas as pd
 import itertools
 import os
 from scipy.interpolate import interp1d
+import mechinterfabric
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -117,7 +118,7 @@ df_index = df.set_index(["index_x", "index_y"]).index
 df["x"] = df.apply(lambda row: index_x_to_x(row["index_x"]), axis=1)
 df["y"] = df.apply(lambda row: index_y_to_y(row["index_y"]), axis=1)
 
-N4s_df = np.array(df['N4'].to_list())
+N4s_df = np.array(df["N4"].to_list())
 
 
 # New points
@@ -139,6 +140,13 @@ new["weights"] = new.apply(
     axis=1,
 )
 
+new["N4"] = new.apply(
+    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
+        N4s=N4s, weights=row["weights"]
+    ),
+    axis=1,
+)
 
-
-
+N4s_mandel_new = converter.convert(
+    inp=np.array(new["N4"].to_list()), source="tensor", target="mandel6", quantity="stiffness"
+)
