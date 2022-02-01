@@ -6,12 +6,16 @@ import os
 from scipy.interpolate import interp1d
 import mechinterfabric
 import matplotlib.pyplot as plt
+import pprint
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
 directory = os.path.join("output", "s021")
 os.makedirs(directory, exist_ok=True)
+
+directory_data = os.path.join("export")
+os.makedirs(directory_data, exist_ok=True)
 
 converter = mechkit.notation.ExplicitConverter()
 
@@ -173,6 +177,29 @@ df_weights["weights_reference"] = df_weights.apply(
 # Merge
 new = new.merge(df_weights)
 
+#####
+# Export
+
+df[["index_x", "index_y", "x", "y"]].to_csv(os.path.join(directory_data, "df.csv"))
+new[["index_x", "index_y", "x", "y", "weights", "weights_reference"]].to_csv(
+    os.path.join(directory_data, "new.csv")
+)
+
+
+def multidim_array_to_file(array, path, array_name="data"):
+    with np.printoptions(threshold=np.inf):
+        with open(path, "wt") as f:
+            f.write("from numpy import array\n")
+            f.write(f"{array_name}=")
+            pprint.pprint(array, stream=f)
+
+
+multidim_array_to_file(
+    array=np.array(df["N4"].to_list()),
+    path=os.path.join(directory_data, "df_N4s" + ".py"),
+)
+
+
 ##############################################
 
 for interpolation_method in [
@@ -182,10 +209,22 @@ for interpolation_method in [
 
     new["N4"] = new.apply(
         lambda row: interpolation_method(
-            N4s=N4s, weights=row["weights_reference"]
+            N4s=N4s,
+            weights=row["weights"],
+            # weights=row["weights_reference"],
         ).tolist(),
         axis=1,
     )
+
+    # Export
+    multidim_array_to_file(
+        array=np.array(new["N4"].to_list()),
+        path=os.path.join(
+            directory_data, "new_N4s" + "_" + str(interpolation_method.__name__) + ".py"
+        ),
+    )
+
+    continue
 
     ########################
     # Validate case with single non-vanishing weight
@@ -260,7 +299,7 @@ for interpolation_method in [
         ax.set_title(name)
         fig.tight_layout()
 
-        path_picture = os.path.join(directory, name.replace('\n', '_') + ".png")
+        path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
         plt.savefig(path_picture, dpi=300)
 
     # plt.close(fig)
