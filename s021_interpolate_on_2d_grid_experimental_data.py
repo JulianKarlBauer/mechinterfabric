@@ -132,11 +132,18 @@ new = pd.DataFrame(indices_points, columns=["index_x", "index_y"])
 new["x"] = new.apply(lambda row: index_x_to_x(row["index_x"]), axis=1)
 new["y"] = new.apply(lambda row: index_y_to_y(row["index_y"]), axis=1)
 
+
+def get_normalized_weigths(row, df_reference_points):
+    weights = [
+        distance_shepard_inverse(row_1=row, row_2=reference_row)
+        for _, reference_row in df_reference_points.iterrows()
+    ]
+    sum_weights = np.sum(weights)
+    return weights / sum_weights
+
+
 new["weights"] = new.apply(
-    lambda row: [
-        distance_shepard_inverse(row_1=row, row_2=original_row)
-        for _, original_row in df.iterrows()
-    ],
+    lambda row: get_normalized_weigths(row=row, df_reference_points=df),
     axis=1,
 )
 
