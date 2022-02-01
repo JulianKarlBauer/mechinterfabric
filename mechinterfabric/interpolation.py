@@ -218,5 +218,5 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(N4s, weights):
     return N4_av, N4_av_eigen, rotation_av, N2_av_eigen, N4s_eigen, rotations
 
 
-def interpolate_N4_decomp_unique_rotation_(N4s, weights):
+def interpolate_N4_decomp_unique_rotation(N4s, weights):
     return interpolate_N4_decomp_unique_rotation_extended_return_values(N4s, weights)[0]
