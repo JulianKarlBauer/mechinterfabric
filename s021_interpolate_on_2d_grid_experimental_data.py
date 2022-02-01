@@ -123,7 +123,9 @@ N4s_df = np.array(df["N4"].to_list())
 
 
 # New points
-indices = [i + 1 for i in range(13)]
+# indices = [i + 1 for i in range(13)]
+indices = [i + 1 for i in range(13) if i in [0, 3, 6, 9, 12]]
+
 indices_points = list(itertools.product(indices, repeat=2))
 indices_points = [index for index in indices_points if index not in df_index]
 
