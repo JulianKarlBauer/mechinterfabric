@@ -181,7 +181,9 @@ for interpolation_method in [
 ]:
 
     new["N4"] = new.apply(
-        lambda row: interpolation_method(N4s=N4s, weights=row["weights_reference"]).tolist(),
+        lambda row: interpolation_method(
+            N4s=N4s, weights=row["weights_reference"]
+        ).tolist(),
         axis=1,
     )
 
@@ -212,45 +214,53 @@ for interpolation_method in [
     #############################
     # Plot
 
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.view_init(elev=90, azim=-90)
+    for visualization_method in [
+        mechinterfabric.visualization.plot_projection_of_N4_onto_sphere,
+        mechinterfabric.visualization.plot_approx_FODF_by_N4,
+    ]:
 
-    # Axes labels
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        ax.view_init(elev=90, azim=-90)
 
-    scale = 1.2
-    for _, row in new.iterrows():
-        mechinterfabric.visualization.plot_approx_FODF_by_N4(
-            ax=ax,
-            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-            N4=np.array(row["N4"]),
-            color="yellow",
+        # Axes labels
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+
+        scale = 1.2
+        for _, row in new.iterrows():
+            visualization_method(
+                ax=ax,
+                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+                N4=np.array(row["N4"]),
+                color="yellow",
+            )
+
+        for _, row in df.iterrows():
+            visualization_method(
+                ax=ax,
+                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+                N4=np.array(row["N4"]),
+                color="red",
+            )
+
+        bbox_min = 0
+        bbox_max = 14 * scale
+        ax.auto_scale_xyz(
+            [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
         )
 
-    for _, row in df.iterrows():
-        mechinterfabric.visualization.plot_approx_FODF_by_N4(
-            ax=ax,
-            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-            N4=np.array(row["N4"]),
-            color="red",
+        name = (
+            str(interpolation_method.__name__)
+            + "\n"
+            + str(visualization_method.__name__)
         )
 
-    bbox_min = 0
-    bbox_max = 14 * scale
-    ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+        ax.set_title(name)
+        fig.tight_layout()
 
-    name = str(interpolation_method.__name__)
-
-    ax.set_title(name)
-    fig.tight_layout()
-
-    path_picture = os.path.join(directory, name + ".png")
-    plt.savefig(path_picture, dpi=300)
-
-
+        path_picture = os.path.join(directory, name.replace('\n', '_') + ".png")
+        plt.savefig(path_picture, dpi=300)
 
     # plt.close(fig)
-
