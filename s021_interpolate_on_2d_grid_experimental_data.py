@@ -158,6 +158,24 @@ new["N4"] = new.apply(
     axis=1,
 )
 
+
+def get_singgular_weights(index):
+    zeros = [
+        0.0,
+    ] * len(df)
+    zeros[index] = 1.0
+    return zeros
+
+
+validation = [
+    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
+        N4s=N4s, weights=get_singgular_weights(index=index)
+    ).tolist()
+    for index, (_, row) in enumerate(df.iterrows())
+]
+assert np.allclose(N4s, np.array(validation))
+
+
 N4s_mandel_new = converter.convert(
     inp=np.array(new["N4"].to_list()),
     source="tensor",
