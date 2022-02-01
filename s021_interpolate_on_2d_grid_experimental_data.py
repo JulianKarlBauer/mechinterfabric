@@ -210,8 +210,8 @@ for interpolation_method in [
     new["N4"] = new.apply(
         lambda row: interpolation_method(
             N4s=N4s,
-            weights=row["weights"],
-            # weights=row["weights_reference"],
+            # weights=row["weights"],
+            weights=row["weights_reference"],
         ).tolist(),
         axis=1,
     )
