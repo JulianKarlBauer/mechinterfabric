@@ -3,6 +3,7 @@ import mechkit
 import pandas as pd
 import itertools
 import os
+from scipy.interpolate import interp1d
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -87,3 +88,35 @@ I2 = mechkit.tensors.Basic().I2
 for index, N2 in enumerate(N2s):
     N2_from_N4 = np.einsum("ijkl,kl->ij", N4s[index], I2)
     assert np.allclose(N2, N2_from_N4, atol=1e-5)
+
+#########################################################
+dimensions = {
+    "x": {1: 0.0, 7: 196.0, 13: 379.0},
+    "y": {1: 0.0, 7: 197.0, 13: 379.0},
+}
+index_x_to_x = interp1d(
+    list(dimensions["x"].keys()), list(dimensions["x"].values()), kind="linear"
+)
+index_y_to_y = interp1d(
+    list(dimensions["y"].keys()), list(dimensions["y"].values()), kind="linear"
+)
+
+df["x"] = df.apply(lambda row: dimensions["x"][row["index_x"]], axis=1)
+df["y"] = df.apply(lambda row: dimensions["y"][row["index_y"]], axis=1)
+
+df.set_index(["index_x", "index_y"], inplace=True)
+
+
+def distance_shepard_inverse(row_1, row_2):
+    difference = np.array([row_1["x"] - row_2["x"], row_1["y"] - row_2["y"]])
+    return 1.0 / np.sqrt((difference * difference).sum())
+
+
+indices = [i + 1 for i in range(13)]
+indices_points = list(itertools.permutations(indices, 2))
+
+new = pd.DataFrame(indices_points, columns=["index_x", "index_y"])
+
+new['x'] = new.apply(lambda row: index_x_to_x(row['index_x']), axis=1)
+new['y'] = new.apply(lambda row: index_y_to_y(row['index_y']), axis=1)
+
