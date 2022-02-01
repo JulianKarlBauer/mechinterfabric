@@ -156,6 +156,8 @@ def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
         key = "flip xz"
     elif (d8 < 0.0) and (d6 < 0.0):
         key = "flip yz"
+    else:
+        raise Exception("Unexpected")
 
     return transforms_raw[key]
 
