@@ -150,13 +150,38 @@ new["weights"] = new.apply(
     axis=1,
 )
 
+################
+# Compare weights
+
+# Load reference weights
+df_weights = pd.read_csv(
+    os.path.join("data", "juliane_blarr_mail_2022_02_01_1322_weight_data.csv"),
+    header=0,
+    sep=",",
+)
+df_weights.columns = df_weights.columns.str.strip()
+
+# Sort
+df_weights["weights_reference"] = df_weights.apply(
+    lambda row: [
+        row[f"w_{index_x}_{index_y}"]
+        for _, (index_x, index_y) in df[["index_x", "index_y"]].iterrows()
+    ],
+    axis=1,
+)
+
+# Merge
+new = new.merge(df_weights)
+
+##############################################
+
 for interpolation_method in [
     mechinterfabric.interpolation.interpolate_N4_decomp,
     mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation,
 ]:
 
     new["N4"] = new.apply(
-        lambda row: interpolation_method(N4s=N4s, weights=row["weights"]).tolist(),
+        lambda row: interpolation_method(N4s=N4s, weights=row["weights_reference"]).tolist(),
         axis=1,
     )
 
