@@ -134,7 +134,9 @@ new["rotation_av"] = new.apply(
         N4s=N4s,
         # weights=row["weights"],
         weights=row["weights_reference"],
-    )[2],
+    )[
+        2
+    ],
     axis=1,
 )
 df["rotation_av"] = df.apply(
