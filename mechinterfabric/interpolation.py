@@ -136,10 +136,7 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(
 
     (
         rotations,
-        N2s,
         eigenvals,
-        rotations,
-        additional_rotation,
     ) = utils.get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s=N4s)
 
     # Rotate each N4 into the unique eigensystem

@@ -190,7 +190,7 @@ def get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s):
         "...ij,...jk->...ik", rotations_non_unique, additional_rotation
     )
 
-    return rotations, N2s, eigenvals, rotations, additional_rotation
+    return rotations, eigenvals
 
 
 def get_rotation_matrix_into_unique_N4_eigensystem(N4s):
