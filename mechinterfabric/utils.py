@@ -195,4 +195,4 @@ def get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s):
 
 
 def get_rotation_matrix_into_unique_N4_eigensystem(N4s):
-    get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s)[0]
+    return get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s)[0]
