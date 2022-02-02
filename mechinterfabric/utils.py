@@ -164,6 +164,7 @@ def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
 def get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s):
 
     assert N4s.shape[-4:] == (3, 3, 3, 3)
+    assert len(N4s.shape) > 4, "Wrap single N4 into array"
 
     I2 = mechkit.tensors.Basic().I2
 
