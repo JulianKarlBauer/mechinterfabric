@@ -171,6 +171,7 @@ for _, row in df.iterrows():
         origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
         matrix=np.array(row["rotation_av"]),
     )
+    ax.scatter(*[row["index_x"] * scale, row["index_y"] * scale, 0], color="orange")
 
 bbox_min = 0
 bbox_max = 14 * scale
