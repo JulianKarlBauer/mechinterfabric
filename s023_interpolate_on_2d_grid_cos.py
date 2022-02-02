@@ -11,7 +11,7 @@ import pprint
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s022")
+directory = os.path.join("output", "s023")
 os.makedirs(directory, exist_ok=True)
 
 
@@ -126,63 +126,60 @@ df_weights["weights_reference"] = df_weights.apply(
 # Merge
 new = new.merge(df_weights)
 
-
 ##############################################
 
-for interpolation_method in [
-    lambda **kwargs: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
-        **kwargs
-    )[
-        2
-    ]
-]:
 
-    new["rotation_av"] = new.apply(
-        lambda row: interpolation_method(
-            N4s=N4s,
-            # weights=row["weights"],
-            weights=row["weights_reference"],
-        ).tolist(),
-        axis=1,
+new["rotation_av"] = new.apply(
+    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
+        N4s=N4s,
+        # weights=row["weights"],
+        weights=row["weights_reference"],
+    )[2],
+    axis=1,
+)
+df["rotation_av"] = df.apply(
+    lambda row: mechinterfabric.utils.get_rotation_matrix_into_unique_N4_eigensystem(
+        N4s=np.array([row["N4"]]),
+    )[0],
+    axis=1,
+)
+
+
+#############################
+# Plot
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.view_init(elev=90, azim=-90)
+
+# Axes labels
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+
+scale = 0.4
+for _, row in new.iterrows():
+    ax.cos3D(
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        matrix=np.array(row["rotation_av"]),
     )
 
-    #############################
-    # Plot
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-    ax.view_init(elev=90, azim=-90)
-
-    # Axes labels
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
-
-    scale = 1.2
-    for _, row in new.iterrows():
-        ax.cos3D(
-            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-            matrix=np.array(row["rotation_av"]),
-        )
-
-    for _, row in df.iterrows():
-        ax.cos3D(
-            origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-            matrix=np.array(row["rotation_av"]),
-        )
-
-    bbox_min = 0
-    bbox_max = 14 * scale
-    ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
-
-    name = (
-        str(interpolation_method.__name__) + "\n" + str(visualization_method.__name__)
+for _, row in df.iterrows():
+    ax.cos3D(
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        matrix=np.array(row["rotation_av"]),
     )
 
-    ax.set_title(name)
-    fig.tight_layout()
+bbox_min = 0
+bbox_max = 14 * scale
+ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
 
-    path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
-    plt.savefig(path_picture, dpi=300)
+name = "coordinate systems"
 
-    # plt.close(fig)
+ax.set_title(name)
+fig.tight_layout()
+
+path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
+plt.savefig(path_picture, dpi=300)
+
+# plt.close(fig)
