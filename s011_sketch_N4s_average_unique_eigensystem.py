@@ -60,7 +60,7 @@ def interpolate_N4_decomp_unique_rotation(N4s, weights):
     rotations_non_unique = np.array(rotations_non_unique)
 
     # Rotate each N4 into one possible eigensystem
-    N4s_eigen_non_unique = mechinterfabric.interpolation.apply_rotation(
+    N4s_eigen_non_unique = mechinterfabric.utils.apply_rotation(
         rotations=rotations_non_unique, tensors=N4s
     )
 
@@ -81,7 +81,7 @@ def interpolate_N4_decomp_unique_rotation(N4s, weights):
     # print("resulting:\n", rotations)
 
     # Rotate each N4 into the unique eigensystem
-    N4s_eigen = mechinterfabric.interpolation.apply_rotation(
+    N4s_eigen = mechinterfabric.utils.apply_rotation(
         rotations=additional_rotation, tensors=N4s_eigen_non_unique
     )
 
@@ -92,7 +92,7 @@ def interpolate_N4_decomp_unique_rotation(N4s, weights):
     #     print()
     #
     # # Inspect combination of rotations
-    # N4s_eigen_straight = mechinterfabric.interpolation.apply_rotation(
+    # N4s_eigen_straight = mechinterfabric.utils.apply_rotation(
     #     rotations=rotations, tensors=N4s
     # )
     #
@@ -111,7 +111,7 @@ def interpolate_N4_decomp_unique_rotation(N4s, weights):
     N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
 
     # Rotate back to world COS
-    N4_av = mechinterfabric.interpolation.apply_rotation(
+    N4_av = mechinterfabric.utils.apply_rotation(
         rotations=rotation_av.T, tensors=N4_av_eigen
     )
 
