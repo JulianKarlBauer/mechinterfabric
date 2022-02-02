@@ -159,7 +159,7 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(
         N2_av_eigen = np.diag(np.einsum("i, ij->j", weights, eigenvals))
         assert np.allclose(N4_av_I2_eigen, N2_av_eigen)
 
-    return N4_av, N4_av_eigen, rotation_av, N2_av_eigen, N4s_eigen, rotations
+    return N4_av, N4_av_eigen, rotation_av, N4s_eigen, rotations
 
 
 def interpolate_N4_decomp_unique_rotation(N4s, weights):
