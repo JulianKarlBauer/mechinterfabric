@@ -42,7 +42,7 @@ for key, N4 in pairs.items():
         rotation_into_eigen,
     ) = mechinterfabric.utils.get_rotation_matrix_into_eigensystem(N2)
 
-    N4_eigen = mechinterfabric.interpolation.apply_rotation(
+    N4_eigen = mechinterfabric.utils.apply_rotation(
         rotations=rotation_into_eigen, tensors=N4
     )
 
@@ -60,7 +60,7 @@ for key, N4 in pairs.items():
     # rotations.pop("{v_i}_1: no flip")
 
     for label, rot in rotations.items():
-        N4_eigen_transformed = mechinterfabric.interpolation.apply_rotation(
+        N4_eigen_transformed = mechinterfabric.utils.apply_rotation(
             rotations=rot, tensors=N4_eigen
         )
         N4_eigen_transformed_mandel = con.to_mandel6(N4_eigen_transformed)

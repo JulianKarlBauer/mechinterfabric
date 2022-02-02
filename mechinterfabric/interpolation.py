@@ -80,17 +80,6 @@ def get_closest_rotation_matrices(rotmatrix_1, rotmatrix_2):
     return closest_1, closest_2
 
 
-def apply_rotation(rotations, tensors):
-    return np.einsum(
-        "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
-        rotations,
-        rotations,
-        rotations,
-        rotations,
-        tensors,
-    )
-
-
 def interpolate_N4_naive(N4s, weights):
     utils.assert_notation_N4(N4s, weights)
 
@@ -119,13 +108,13 @@ def interpolate_N4_decomp_extended_return_values(
     rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
 
     # Rotate each N4 into it's eigensystem
-    N4s_eigen = apply_rotation(rotations=rotations, tensors=N4s)
+    N4s_eigen = utils.apply_rotation(rotations=rotations, tensors=N4s)
 
     # Average components in eigensystems
     N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
 
     # Rotate back to world COS
-    N4_av = apply_rotation(rotations=rotation_av.T, tensors=N4_av_eigen)
+    N4_av = utils.apply_rotation(rotations=rotation_av.T, tensors=N4_av_eigen)
 
     # Check if N4_av[I2] == N2_av
     N4_av_I2_eigen = np.einsum("ijkl,kl->ij", N4_av_eigen, I2)

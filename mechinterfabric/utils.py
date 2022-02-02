@@ -107,6 +107,17 @@ def assert_orthonormal_right_handed_rotation(matrix):
         raise Exception("reflection")
 
 
+def apply_rotation(rotations, tensors):
+    return np.einsum(
+        "...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl",
+        rotations,
+        rotations,
+        rotations,
+        rotations,
+        tensors,
+    )
+
+
 def get_orthotropic_sym_rotations(as_dict=False):
     rotations = [
         np.eye(3),
