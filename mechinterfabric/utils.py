@@ -168,7 +168,7 @@ def get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s):
 
     I2 = mechkit.tensors.Basic().I2
 
-    N2s = np.einsum("mijkl,kl->mij", N4s, I2)
+    N2s = np.einsum("...ijkl,kl->...ij", N4s, I2)
 
     # Get rotations into eigensystem
     eigenvals, rotations_non_unique = zip(
