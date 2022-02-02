@@ -128,8 +128,17 @@ def interpolate_N4_decomp(N4s, weights):
     return interpolate_N4_decomp_extended_return_values(N4s, weights)[0]
 
 
+def intermediate_rotation_by_weighted_sum_quats_normalized(rotations, weights):
+    quats = Rotation.from_matrix(rotations).as_quat()
+    quats_weighted_sum = np.einsum("ij, i->j", quats, weights)
+    rotation_av = Rotation.from_quat(
+        quats_weighted_sum / np.linalg.norm(quats_weighted_sum)
+    ).as_matrix()
+    return rotation_av
+
+
 def interpolate_N4_decomp_unique_rotation_extended_return_values(
-    N4s, weights, validate=True
+    N4s, weights, validate=True, averaging_rotation="mean"
 ):
 
     utils.assert_notation_N4(N4s, weights)
@@ -143,7 +152,14 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(
     N4s_eigen = utils.apply_rotation(rotations=rotations, tensors=N4s)
 
     # Get average rotation
-    rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
+    if averaging_rotation == "mean":
+        rotation_av = Rotation.from_matrix(rotations).mean(weights=weights).as_matrix()
+    elif averaging_rotation == "weighted_quat":
+        rotation_av = intermediate_rotation_by_weighted_sum_quats_normalized(
+            rotations=rotations, weights=weights
+        )
+    else:
+        raise utils.ExceptionMechinterfabric("unintended situation")
 
     # Average components in eigensystems
     N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
