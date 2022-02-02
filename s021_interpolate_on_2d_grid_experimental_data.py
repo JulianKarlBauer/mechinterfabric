@@ -235,8 +235,6 @@ for interpolation_method in [
         ),
     )
 
-    continue
-
     ########################
     # Validate case with single non-vanishing weight
 
