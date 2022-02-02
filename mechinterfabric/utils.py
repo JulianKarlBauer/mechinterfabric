@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 import itertools
+import mechkit
 
 
 class ExceptionMechinterfabric(Exception):
@@ -135,3 +136,62 @@ def get_orthotropic_sym_rotations(as_dict=False):
             "flip xy",
         ]
         return {labels[index]: rot for index, rot in enumerate(rotations)}
+
+
+def get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen):
+    transforms_raw = get_orthotropic_sym_rotations(as_dict=True)
+
+    index_d8 = np.s_[0, 0, 0, 1]
+    index_d6 = np.s_[0, 0, 0, 2]
+
+    d8 = N4_tensor_in_eigen[index_d8]
+    d6 = N4_tensor_in_eigen[index_d6]
+
+    if (0.0 <= d8) and (0.0 <= d6):
+        key = "no flip"
+    elif (0.0 <= d8) and (d6 < 0.0):
+        key = "flip xy"
+    elif (d8 < 0.0) and (0.0 <= d6):
+        key = "flip xz"
+    elif (d8 < 0.0) and (d6 < 0.0):
+        key = "flip yz"
+    else:
+        raise Exception("Unexpected")
+
+    return transforms_raw[key]
+
+
+def get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s):
+
+    assert N4s.shape[-4:] == (3, 3, 3, 3)
+
+    I2 = mechkit.tensors.Basic().I2
+
+    N2s = np.einsum("mijkl,kl->mij", N4s, I2)
+
+    # Get rotations into eigensystem
+    eigenvals, rotations_non_unique = zip(
+        *[get_rotation_matrix_into_eigensystem(N2) for N2 in N2s]
+    )
+    rotations_non_unique = np.array(rotations_non_unique)
+
+    # Rotate each N4 into one of four possible eigensystem
+    N4s_eigen_non_unique = apply_rotation(rotations=rotations_non_unique, tensors=N4s)
+
+    # Get unique eigensystem
+    additional_rotation = np.array(
+        [
+            get_additional_rotation_into_unique_eigensystem(N4_tensor_in_eigen=N4_eigen)
+            for N4_eigen in N4s_eigen_non_unique
+        ]
+    )
+
+    rotations = np.einsum(
+        "...ij,...jk->...ik", rotations_non_unique, additional_rotation
+    )
+
+    return rotations, N2s, eigenvals, rotations, additional_rotation
+
+
+def get_rotation_matrix_into_unique_N4_eigensystem(N4s):
+    get_rotation_matrix_into_unique_N4_eigensystem_detailed(N4s)[0]
