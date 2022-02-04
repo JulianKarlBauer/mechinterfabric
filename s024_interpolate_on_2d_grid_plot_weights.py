@@ -7,6 +7,8 @@ from scipy.interpolate import interp1d
 import mechinterfabric
 import matplotlib.pyplot as plt
 import pprint
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -34,7 +36,21 @@ df.columns = df.columns.str.strip()
 
 fig, axs = plt.subplots(3, 3)
 
-from mpl_toolkits.axes_grid1 import make_axes_locatable
+weights = df[
+    [
+        "w_1_1",
+        "w_1_7",
+        "w_1_13",
+        "w_7_1",
+        "w_7_7",
+        "w_7_13",
+        "w_13_1",
+        "w_13_7",
+        "w_13_13",
+    ]
+].to_numpy()
+mask = weights.max(axis=1) <= 0.33
+masked = df[mask]
 
 for index_x in range(3):
     for index_y in range(3):
@@ -43,17 +59,15 @@ for index_x in range(3):
         indices = [1, 7, 13]
         key_weight = f"w_{indices[index_x]}_{indices[index_y]}"
 
-        weight = df
-
         # Axes labels
         ax.set_xlabel("x")
         ax.set_ylabel("y")
 
-        plot = ax.tricontourf(
-            df["index_x"], df["index_y"], df[key_weight]
-        )
+        plot = ax.tricontourf(df["index_x"], df["index_y"], df[key_weight])
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
+
+        ax.scatter(masked["index_x"], masked["index_y"], s=6)
 
         plt.colorbar(plot, cax=cax)
 
