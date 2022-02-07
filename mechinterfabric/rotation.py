@@ -28,13 +28,14 @@ def average_quaternion(quaternions, weights, verbose=False):
 def average_Manton2004(matrices, weights, **kwargs):
     """Implement iterative algorithm Manton2004"""
 
+    # print(matrices)
+
     tolerance = 1e-4
 
     # Init
     mean = matrices[0]
 
     while True:
-        # print(mean)
 
         mean_inverse = np.linalg.inv(mean)
 
@@ -43,7 +44,15 @@ def average_Manton2004(matrices, weights, **kwargs):
             weight = weights[index]
             matrix = matrices[index]
 
-            A += weight * logm(mean_inverse @ matrix)
+            log = logm(mean_inverse @ matrix)
+            if np.iscomplex(log).any():
+                print(
+                    "Attention, matrices are too far away from each other, returning eye"
+                )
+                print(weights)
+                return np.eye(3)
+
+            A += weight * log
 
         if np.linalg.norm(A) <= tolerance:
             break
