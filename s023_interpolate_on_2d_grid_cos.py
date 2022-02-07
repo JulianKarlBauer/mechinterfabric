@@ -134,6 +134,7 @@ new["rotation_av"] = new.apply(
         N4s=N4s,
         # weights=row["weights"],
         weights=row["weights_reference"],
+        func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
     )[
         2
     ],
@@ -159,27 +160,29 @@ ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
 
-scale = 0.4
+length = 0.7
 for _, row in new.iterrows():
     ax.cos3D(
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        origin=[row["index_x"], row["index_y"], 0],
         matrix=np.array(row["rotation_av"]),
+        length=length,
     )
 
 for _, row in df.iterrows():
     ax.cos3D(
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        origin=[row["index_x"], row["index_y"], 0],
         matrix=np.array(row["rotation_av"]),
+        length=length,
     )
     ax.scatter(
-        *[row["index_x"] * scale, row["index_y"] * scale, 0],
+        *[row["index_x"], row["index_y"], 0],
         s=80,
         facecolors="none",
         edgecolors="orange",
     )
 
 bbox_min = 0
-bbox_max = 14 * scale
+bbox_max = 14
 ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
 
 name = "coordinate systems"
