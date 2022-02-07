@@ -111,16 +111,41 @@ points = df[["index_x", "index_y"]].to_numpy()
 tri = scipy.spatial.Delaunay(points)
 
 # Define example targets
-targets = np.array([[2, 3], [4, 5]])
+targets = np.array([[2, 3], [3, 4], [4, 5], [10, 10]])
 
 # Plot triangulation
 fig = plt.figure()
 plt.triplot(points[:, 0], points[:, 1], tri.simplices)
-plt.plot(targets[:, 0], targets[:, 1], "x")
-plt.plot(points[:, 0], points[:, 1], "o")
 
+plt.plot(points[:, 0], points[:, 1], "o", label='points')
+for index, point in enumerate(points):
+    plt.text(*point, str(index))
+
+plt.plot(targets[:, 0], targets[:, 1], "x", label='targets')
+for index, point in enumerate(targets):
+    plt.text(*point, str(index))
+
+plt.legend()
 path_picture = os.path.join(directory, "triangulation" + ".png")
 plt.savefig(path_picture, dpi=300)
 
-# Get barycentric coodrinates
-tri.find_simplex(targets)
+# Get barycentric coordinates
+simplices = tri.find_simplex(targets)
+
+# Make sure all taregts are found
+# If a target is not inside of any simplices, -1 is returned by find_simplex()
+mask = ~(simplices == -1)
+if not mask.all():
+    raise Exception("At least on target is outside all triangles")
+hidden_triangles = simplices[mask]
+
+dimension = 2
+
+# https://codereview.stackexchange.com/a/41089/255069
+transforms_x = tri.transform[hidden_triangles, :dimension]
+transforms_y = targets - tri.transform[hidden_triangles, dimension]
+tmp = np.einsum("ijk,ik->ij", transforms_x, transforms_y)
+bcoords = np.c_[tmp, 1 - tmp.sum(axis=1)]
+
+N4_indices = tri.simplices[hidden_triangles]
+
