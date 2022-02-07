@@ -3,6 +3,7 @@ from scipy.spatial.transform import Rotation
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
 import mechkit
 from mechinterfabric import utils
+from mechinterfabric import rotation
 import itertools
 
 
@@ -105,7 +106,9 @@ def interpolate_N4_decomp_extended_return_values(
         rotations = np.array(get_closest_rotation_matrices(*rotations))
 
     # Get average rotation
-    rotation_av = interpolate_rotations(rotations=rotations, weights=weights, **kwargs)
+    rotation_av = rotation.average_scipy_spatial_Rotation(
+        matrices=rotations, weights=weights, **kwargs
+    )
 
     # Rotate each N4 into it's eigensystem
     N4s_eigen = utils.apply_rotation(rotations=rotations, tensors=N4s)
@@ -128,32 +131,11 @@ def interpolate_N4_decomp(N4s, weights):
     return interpolate_N4_decomp_extended_return_values(N4s, weights)[0]
 
 
-def interpolate_rotations(matrices, weights, averaging_rotation="mean", **kwargs):
-    if averaging_rotation == "mean":
-        rotation_av = Rotation.from_matrix(matrices).mean(weights=weights).as_matrix()
-    elif averaging_rotation == "weighted_quat":
-        rotation_av = intermediate_rotation_by_weighted_sum_quats_normalized(
-            rotations=matrices, weights=weights
-        )
-    else:
-        raise utils.ExceptionMechinterfabric("unintended situation")
-    return rotation_av
-
-
-def intermediate_rotation_by_weighted_sum_quats_normalized(rotations, weights):
-    quats = Rotation.from_matrix(rotations).as_quat()
-    quats_weighted_sum = np.einsum("ij, i->j", quats, weights)
-    rotation_av = Rotation.from_quat(
-        quats_weighted_sum / np.linalg.norm(quats_weighted_sum)
-    ).as_matrix()
-    return rotation_av
-
-
 def interpolate_N4_decomp_unique_rotation_extended_return_values(
     N4s,
     weights,
     validate=True,
-    func_interpolation_rotation=interpolate_rotations,
+    func_interpolation_rotation=rotation.average_scipy_spatial_Rotation,
     **kwargs,
 ):
 
