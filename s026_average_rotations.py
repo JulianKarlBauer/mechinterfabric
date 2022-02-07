@@ -18,35 +18,25 @@ quat_pairs = {
         Rotation.from_rotvec(0 * np.array([1, 0, 0])),
         Rotation.from_rotvec(np.pi / 4 * np.array([1, 0, 0])),
     ),
+    "Exchange x and y axes without signs": (
+        Rotation.from_rotvec(0.001 * np.array([1, 0, 0])),
+        Rotation.from_matrix(
+            np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, -1.0]])
+        ),
+    ),
+    "Exchange x and y axes": (
+        Rotation.from_rotvec(1e-5 * np.array([1, 0, 0])),
+        Rotation.from_matrix(
+            np.array([[0.0, 1.0, -0.0], [1.0, 0.0, -0.0], [0.0, 0.0, -1.0]])
+        ),
+    ),
 }
 
 
-def interpolate(matrices, weights):
-    """Implement iteratove algorithm Manton"""
-
-    tolerance = 1e-4
-
-    # Init
-    mean = matrices[0]
-
-    while True:
-        print(mean)
-
-        mean_inverse = np.linalg.inv(mean)
-
-        A = np.zeros((3, 3))
-        for index in range(len(weights)):
-            weight = weights[index]
-            matrix = matrices[index]
-
-            A += weight * logm(mean_inverse @ matrix)
-
-        if np.linalg.norm(A) <= tolerance:
-            break
-
-        mean = mean @ expm(A)
-
-    return mean
+def angle_between_matrices(mat_1, mat_2):
+    frob = np.linalg.norm(mat_1 - mat_2)
+    angle = 2 * np.arcsin(frob / (2.0 * np.sqrt(2)))
+    return angle
 
 
 for key, (rot_1, rot_2) in quat_pairs.items():
@@ -56,12 +46,13 @@ for key, (rot_1, rot_2) in quat_pairs.items():
     mat_2 = rot_2.as_matrix()
 
     frob = np.linalg.norm(mat_1 - mat_2)
+    angle = angle_between_matrices(mat_1=mat_1, mat_2=mat_2)
     print("frobenius_norm_matrices=", frob)
-    print("angle distance = ", 2 * np.arcsin(frob / (2.0 * np.sqrt(2))))
+    print("angle distance = ", angle)
 
-    mat_mean = interpolate(matrices=[mat_1, mat_2], weights=[0.5, 0.5])
-    rot_mean = Rotation.from_matrix(mat_mean)
-
+    assert np.isclose(
+        angle, mechinterfabric.interpolation.angle_between_two_rotations(mat_1, mat_2)
+    )
     ###################################
     # Plot bunch of rotations
 
@@ -69,15 +60,28 @@ for key, (rot_1, rot_2) in quat_pairs.items():
     ax = fig.add_subplot(111, projection="3d")
 
     # Plot only end points and one intermediate
-    plot_bunch_of_cos3D_along_x(
-        ax=ax,
-        bunch=list(
-            map(
-                lambda x: x.as_matrix(),
-                [rot_1, rot_mean, rot_2],
-            )
-        ),
-    )
+
+    nbr_points = 5
+    scale = 1
+
+    single_weights = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - single_weights, single_weights]).T
+    origins = np.vstack(
+        [np.linspace(0, scale, nbr_points), np.zeros((2, nbr_points))]
+    ).T
+
+    for index in range(nbr_points):
+
+        mat_mean = mechinterfabric.rotation.average_Manton2004(
+            matrices=[mat_1, mat_2], weights=weights[index]
+        )
+        rot_mean = Rotation.from_matrix(mat_mean)
+
+        ax.cos3D(
+            origin=origins[index],
+            length=0.3 * scale,
+            matrix=mat_mean,
+        )
 
     ax.set_title(key)
 

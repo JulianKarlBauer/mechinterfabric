@@ -1,5 +1,6 @@
 import numpy as np
 import scipy
+from scipy.linalg import expm, logm
 
 
 def average_quaternion(quaternions, weights, verbose=False):
@@ -22,3 +23,31 @@ def average_quaternion(quaternions, weights, verbose=False):
         _, ev = scipy.linalg.eigh(matrix, subset_by_index=[3, 3])
 
     return np.ravel(ev)
+
+
+def average_Manton2004(matrices, weights):
+    """Implement iterative algorithm Manton2004"""
+
+    tolerance = 1e-4
+
+    # Init
+    mean = matrices[0]
+
+    while True:
+        # print(mean)
+
+        mean_inverse = np.linalg.inv(mean)
+
+        A = np.zeros((3, 3))
+        for index in range(len(weights)):
+            weight = weights[index]
+            matrix = matrices[index]
+
+            A += weight * logm(mean_inverse @ matrix)
+
+        if np.linalg.norm(A) <= tolerance:
+            break
+
+        mean = mean @ expm(A)
+
+    return mean
