@@ -102,92 +102,25 @@ indices_points = [index for index in indices_points if index not in df_index]
 
 new = pd.DataFrame(indices_points, columns=["index_x", "index_y"])
 
-
-################
-# Load weights
-
-# Load reference weights
-df_weights = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_02_01_1322_weight_data.csv"),
-    header=0,
-    sep=",",
-)
-df_weights.columns = df_weights.columns.str.strip()
-
-# Sort
-df_weights["weights_reference"] = df_weights.apply(
-    lambda row: [
-        row[f"w_{index_x}_{index_y}"]
-        for _, (index_x, index_y) in df[["index_x", "index_y"]].iterrows()
-    ],
-    axis=1,
-)
-
-# Merge
-new = new.merge(df_weights)
-
 ##############################################
 
+import scipy.spatial
 
-new["rotation_av"] = new.apply(
-    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
-        N4s=N4s,
-        # weights=row["weights"],
-        weights=row["weights_reference"],
-    )[
-        2
-    ],
-    axis=1,
-)
-df["rotation_av"] = df.apply(
-    lambda row: mechinterfabric.utils.get_rotation_matrix_into_unique_N4_eigensystem(
-        N4s=np.array([row["N4"]]),
-    )[0],
-    axis=1,
-)
+# Triangulate
+points = df[["index_x", "index_y"]].to_numpy()
+tri = scipy.spatial.Delaunay(points)
 
+# Define example targets
+targets = np.array([[2, 3], [4, 5]])
 
-#############################
-# Plot
-
+# Plot triangulation
 fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-ax.view_init(elev=90, azim=-90)
+plt.triplot(points[:, 0], points[:, 1], tri.simplices)
+plt.plot(targets[:, 0], targets[:, 1], "x")
+plt.plot(points[:, 0], points[:, 1], "o")
 
-# Axes labels
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
-
-scale = 0.4
-for _, row in new.iterrows():
-    ax.cos3D(
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-        matrix=np.array(row["rotation_av"]),
-    )
-
-for _, row in df.iterrows():
-    ax.cos3D(
-        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-        matrix=np.array(row["rotation_av"]),
-    )
-    ax.scatter(
-        *[row["index_x"] * scale, row["index_y"] * scale, 0],
-        s=80,
-        facecolors="none",
-        edgecolors="orange",
-    )
-
-bbox_min = 0
-bbox_max = 14 * scale
-ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
-
-name = "coordinate systems"
-
-ax.set_title(name)
-fig.tight_layout()
-
-path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
+path_picture = os.path.join(directory, "triangulation" + ".png")
 plt.savefig(path_picture, dpi=300)
 
-# plt.close(fig)
+# Get barycentric coodrinates
+tri.find_simplex(targets)
