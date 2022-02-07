@@ -5,6 +5,7 @@ from mechinterfabric.visualization import plot_bunch_of_cos3D_along_x
 from mechinterfabric.visualization import plot_stepwise_interpolation_rotations_along_x
 import os
 import matplotlib.pyplot as plt
+from scipy.linalg import expm, logm
 
 np.set_printoptions(linewidth=100000)
 
@@ -21,7 +22,31 @@ quat_pairs = {
 
 
 def interpolate(matrices, weights):
-    return matrices[0]
+    """Implement iteratove algorithm Manton"""
+
+    tolerance = 1e-4
+
+    # Init
+    mean = matrices[0]
+
+    while True:
+        print(mean)
+
+        mean_inverse = np.linalg.inv(mean)
+
+        A = np.zeros((3, 3))
+        for index in range(len(weights)):
+            weight = weights[index]
+            matrix = matrices[index]
+
+            A += weight * logm(mean_inverse @ matrix)
+
+        if np.linalg.norm(A) <= tolerance:
+            break
+
+        mean = mean @ expm(A)
+
+    return mean
 
 
 for key, (rot_1, rot_2) in quat_pairs.items():
