@@ -25,7 +25,7 @@ def average_quaternion(quaternions, weights, verbose=False):
     return np.ravel(ev)
 
 
-def average_Manton2004(matrices, weights):
+def average_Manton2004(matrices, weights, **kwargs):
     """Implement iterative algorithm Manton2004"""
 
     tolerance = 1e-4
