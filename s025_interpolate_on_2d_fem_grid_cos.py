@@ -111,17 +111,18 @@ points = df[["index_x", "index_y"]].to_numpy()
 tri = scipy.spatial.Delaunay(points)
 
 # Define example targets
-targets = np.array([[2, 3], [3, 4], [4, 5], [10, 10]])
+# targets = np.array([[2, 3], [3, 4], [4, 5], [10, 10]])
+targets = new[["index_x", "index_y"]].to_numpy()
 
 # Plot triangulation
 fig = plt.figure()
 plt.triplot(points[:, 0], points[:, 1], tri.simplices)
 
-plt.plot(points[:, 0], points[:, 1], "o", label='points')
+plt.plot(points[:, 0], points[:, 1], "o", label="points")
 for index, point in enumerate(points):
     plt.text(*point, str(index))
 
-plt.plot(targets[:, 0], targets[:, 1], "x", label='targets')
+plt.plot(targets[:, 0], targets[:, 1], "x", label="targets")
 for index, point in enumerate(targets):
     plt.text(*point, str(index))
 
@@ -149,3 +150,66 @@ bcoords = np.c_[tmp, 1 - tmp.sum(axis=1)]
 
 N4_indices = tri.simplices[hidden_triangles]
 
+##############################################################
+
+new["rotation_av"] = new.apply(
+    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
+        N4s=N4s[N4_indices[row.name]],
+        weights=bcoords[row.name],
+    )[
+        2
+    ],
+    axis=1,
+)
+df["rotation_av"] = df.apply(
+    lambda row: mechinterfabric.utils.get_rotation_matrix_into_unique_N4_eigensystem(
+        N4s=np.array([row["N4"]]),
+    )[0],
+    axis=1,
+)
+
+
+#############################
+# Plot
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection="3d")
+ax.view_init(elev=90, azim=-90)
+
+# Axes labels
+ax.set_xlabel("x")
+ax.set_ylabel("y")
+ax.set_zlabel("z")
+
+scale = 0.4
+for _, row in new.iterrows():
+    ax.cos3D(
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        matrix=np.array(row["rotation_av"]),
+    )
+
+for _, row in df.iterrows():
+    ax.cos3D(
+        origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        matrix=np.array(row["rotation_av"]),
+    )
+    ax.scatter(
+        *[row["index_x"] * scale, row["index_y"] * scale, 0],
+        s=80,
+        facecolors="none",
+        edgecolors="orange",
+    )
+
+bbox_min = 0
+bbox_max = 14 * scale
+ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+
+name = "coordinate systems"
+
+ax.set_title(name)
+fig.tight_layout()
+
+path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
+plt.savefig(path_picture, dpi=300)
+
+# plt.close(fig)
