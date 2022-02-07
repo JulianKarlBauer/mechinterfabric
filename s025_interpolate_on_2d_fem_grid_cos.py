@@ -156,6 +156,7 @@ new["rotation_av"] = new.apply(
     lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
         N4s=N4s[N4_indices[row.name]],
         weights=bcoords[row.name],
+        func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
     )[
         2
     ],
