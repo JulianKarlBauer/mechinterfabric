@@ -136,7 +136,8 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(
     N4s,
     weights,
     validate=True,
-    func_interpolation_rotation=rotation.average_scipy_spatial_Rotation,
+    # func_interpolation_rotation=rotation.average_scipy_spatial_Rotation,
+    func_interpolation_rotation=rotation.average_Manton2004,
     **kwargs,
 ):
 
