@@ -88,7 +88,10 @@ def interpolate_N4_naive(N4s, weights):
 
 
 def interpolate_N4_decomp_extended_return_values(
-    N4s, weights, closest_eigensystems=False, **kwargs
+    N4s,
+    weights,
+    closest_eigensystems=False,
+    func_interpolation_rotation=rotation.average_scipy_spatial_Rotation,
 ):
     utils.assert_notation_N4(N4s, weights)
 
@@ -106,9 +109,7 @@ def interpolate_N4_decomp_extended_return_values(
         rotations = np.array(get_closest_rotation_matrices(*rotations))
 
     # Get average rotation
-    rotation_av = rotation.average_scipy_spatial_Rotation(
-        matrices=rotations, weights=weights, **kwargs
-    )
+    rotation_av = func_interpolation_rotation(matrices=rotations, weights=weights)
 
     # Rotate each N4 into it's eigensystem
     N4s_eigen = utils.apply_rotation(rotations=rotations, tensors=N4s)
