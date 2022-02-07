@@ -39,7 +39,7 @@ def intermediate_rotation_by_weighted_sum_quats_normalized(matrices, weights):
     return rotation_av
 
 
-def average_Manton2004(matrices, weights, **kwargs):
+def average_Manton2004(matrices, weights):
     """Implement iterative algorithm Manton2004"""
 
     # print(matrices)
