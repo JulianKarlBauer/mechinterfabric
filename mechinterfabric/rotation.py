@@ -2,6 +2,7 @@ import numpy as np
 import scipy
 from scipy.linalg import expm, logm
 from scipy.spatial.transform import Rotation
+from mechinterfabric import utils
 
 
 def average_quaternion(quaternions, weights, verbose=False):
@@ -47,7 +48,7 @@ def average_Manton2004(matrices, weights):
     tolerance = 1e-4
 
     # Init
-    mean = matrices[0]
+    mean = average_scipy_spatial_Rotation(matrices, weights)
 
     while True:
 
@@ -60,7 +61,7 @@ def average_Manton2004(matrices, weights):
 
             log = logm(mean_inverse @ matrix)
             if np.iscomplex(log).any():
-                print(
+                raise utils.ExceptionMechinterfabric(
                     "Attention, matrices are too far away from each other, returning eye"
                 )
                 print(weights)
