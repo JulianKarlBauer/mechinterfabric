@@ -1,6 +1,7 @@
 import numpy as np
 import scipy
 from scipy.linalg import expm, logm
+from scipy.spatial.transform import Rotation
 
 
 def average_quaternion(quaternions, weights, verbose=False):
@@ -23,6 +24,19 @@ def average_quaternion(quaternions, weights, verbose=False):
         _, ev = scipy.linalg.eigh(matrix, subset_by_index=[3, 3])
 
     return np.ravel(ev)
+
+
+def average_scipy_spatial_Rotation(matrices, weights):
+    return Rotation.from_matrix(matrices).mean(weights=weights).as_matrix()
+
+
+def intermediate_rotation_by_weighted_sum_quats_normalized(matrices, weights):
+    quats = Rotation.from_matrix(matrices).as_quat()
+    quats_weighted_sum = np.einsum("ij, i->j", quats, weights)
+    rotation_av = Rotation.from_quat(
+        quats_weighted_sum / np.linalg.norm(quats_weighted_sum)
+    ).as_matrix()
+    return rotation_av
 
 
 def average_Manton2004(matrices, weights, **kwargs):
