@@ -19,7 +19,7 @@ def assert_notation_N4(N4s, weights):
 
 
 def get_rotation_matrix_into_eigensystem(
-    tensor, verbose=False, convention_on_signs=True
+    tensor, verbose=False, convention_on_signs=False
 ):
     # Eigenvectors given by eigh are orthonormal, i.e. orthogonal and normalized, but
     # unsorted,
