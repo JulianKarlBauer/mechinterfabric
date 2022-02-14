@@ -151,68 +151,76 @@ bcoords = np.c_[tmp, 1 - tmp.sum(axis=1)]
 N4_indices = tri.simplices[hidden_triangles]
 
 ##############################################################
-
-new["rotation_av"] = new.apply(
-    lambda row: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
-        N4s=N4s[N4_indices[row.name]],
-        weights=bcoords[row.name],
-        func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
-    )[
-        2
-    ],
-    axis=1,
-)
-df["rotation_av"] = df.apply(
-    lambda row: mechinterfabric.utils.get_rotation_matrix_into_unique_N4_eigensystem(
-        N4s=np.array([row["N4"]]),
-    )[0],
-    axis=1,
-)
-
-
-#############################
 # Plot
 
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-ax.view_init(elev=90, azim=-90)
 
-# Axes labels
-ax.set_xlabel("x")
-ax.set_ylabel("y")
-ax.set_zlabel("z")
+for interpolation_method in [
+    mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values,
+    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
+]:
 
-length = 0.7
-for _, row in new.iterrows():
-    ax.cos3D(
-        origin=[row["index_x"], row["index_y"], 0],
-        matrix=np.array(row["rotation_av"]),
-        length=length,
+    new["N4"] = new.apply(
+        lambda row: interpolation_method(
+            N4s=N4s[N4_indices[row.name]],
+            weights=bcoords[row.name],
+            func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
+        )[0],
+        axis=1,
     )
 
-for _, row in df.iterrows():
-    ax.cos3D(
-        origin=[row["index_x"], row["index_y"], 0],
-        matrix=np.array(row["rotation_av"]),
-        length=length,
-    )
-    ax.scatter(
-        *[row["index_x"], row["index_y"], 0],
-        s=80,
-        facecolors="none",
-        edgecolors="orange",
-    )
+    #############################
+    # Plot
 
-bbox_min = 0
-bbox_max = 14
-ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max])
+    for visualization_method in [
+        # mechinterfabric.visualization.plot_projection_of_N4_onto_sphere,
+        mechinterfabric.visualization.plot_approx_FODF_by_N4,
+    ]:
 
-name = "coordinate systems"
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        ax.view_init(elev=90, azim=-90)
 
-ax.set_title(name)
-fig.tight_layout()
+        # Axes labels
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
 
-path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
-plt.savefig(path_picture, dpi=300)
+        scale = 1.2
+        for _, row in new.iterrows():
+            visualization_method(
+                ax=ax,
+                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+                N4=np.array(row["N4"]),
+                color="yellow",
+            )
+
+        for _, row in df.iterrows():
+            visualization_method(
+                ax=ax,
+                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+                N4=np.array(row["N4"]),
+                color="red",
+            )
+
+        bbox_min = 0
+        bbox_max = 14 * scale
+        ax.auto_scale_xyz(
+            [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
+        )
+
+        name = (
+            str(interpolation_method.__name__)
+            + "\n"
+            + str(visualization_method.__name__)
+        )
+
+        ax.set_title(name)
+        fig.tight_layout()
+
+        path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
+        plt.savefig(path_picture, dpi=300)
+
+    # plt.close(fig)
+
 
 # plt.close(fig)
