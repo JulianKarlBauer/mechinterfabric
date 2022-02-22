@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s008")
+directory = os.path.join("output", "s028")
 os.makedirs(directory, exist_ok=True)
 
 np.random.seed(seed=100)
@@ -86,11 +86,18 @@ for key, (N4_1, N4_2) in pairs.items():
         N2=N4_2,
         nbr_points=5,
         scale=3,
-        method=mechinterfabric.interpolation.interpolate_N4_decomp,
+        method=lambda N4s, weights: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
+            N4s=N4s,
+            weights=weights,
+            func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
+        )[
+            0
+        ],
         origin_y=0,
         origin_z=0,
         plot_func_key=plot_func_key,
     )
+    ax.text(0, -2, 0, 'new', 'x')
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
         ax=ax,
@@ -103,6 +110,7 @@ for key, (N4_1, N4_2) in pairs.items():
         origin_z=1,
         plot_func_key=plot_func_key,
     )
+    ax.text(0, -2, 1, 'euclidian', 'x')
 
     upper = 2
     lower = 0
