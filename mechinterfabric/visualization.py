@@ -73,7 +73,7 @@ def _cos3D(ax, origin, matrix, length=0.3, *args, **kwargs):
         *args,
         ec="green",
         fc="green",
-        **kwargs
+        **kwargs,
     )
     arrow_z = Arrow3D(
         origin[0], origin[1], origin[2], *diff_z, *args, ec="blue", fc="blue", **kwargs
@@ -429,7 +429,11 @@ def plot_N_COS_FODF_mayavi(
     values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
 
     mlab.mesh(
-        *values, scalars=-np.sign(scalars), opacity=1, figure=fig
+        *values,
+        scalars=-np.sign(scalars),
+        opacity=1,
+        figure=fig,
+        # colormap="jet",
     )  # blue is positive, red is negative
     return fig
 
