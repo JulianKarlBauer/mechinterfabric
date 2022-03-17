@@ -36,15 +36,20 @@ for key, (N4_1, N4_2) in pairs.items():
     print("###########")
     print(key)
 
-    fig = mlab.figure(figure="ODF")
+    fig = mlab.figure(figure="ODF", size=(900, 900))
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x_mayavi(
         fig=fig,
         N1=N4_1,
         N2=N4_2,
         nbr_points=5,
-        scale=1,
-        method=mechinterfabric.interpolation.interpolate_N4_decomp,
+        nbr_vectors=50,
+        scale=2,
+        method=mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation,
         origin_y=0,
         origin_z=0,
     )
+mlab.orientation_axes()
+mlab.savefig(filename=os.path.join(directory, "image.png"))
+mlab.show()
+

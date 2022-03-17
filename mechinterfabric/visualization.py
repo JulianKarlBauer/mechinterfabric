@@ -7,6 +7,7 @@ import matplotlib
 from scipy.spatial.transform import Rotation
 import mechkit
 from mechkit import operators
+from mayavi import mlab
 
 con = mechkit.notation.Converter()
 
@@ -164,22 +165,20 @@ class DistributionDensityTruncateAfter4:
         self.D4 = operators.dev(N4, order=4)
 
     def project_on_vectors(self, vectors):
+        return self.calc_scalars(vectors=vectors) * vectors
+
+    def calc_scalars(self, vectors):
         n = vectors
         moment2 = np.einsum("i..., j...->ij...", n, n)
         moment4 = np.einsum("i..., j..., k..., l...->ijkl...", n, n, n, n)
         return (
-            (
-                1.0
-                + 15.0 / 2.0 * np.einsum("ij, ij...->...", self.D2, moment2)
-                + 315.0 / 8.0 * np.einsum("ijkl, ijkl...->...", self.D4, moment4)
-            )
-            / (4.0 * np.pi)
-            * vectors
-        )
+            1.0
+            + 15.0 / 2.0 * np.einsum("ij, ij...->...", self.D2, moment2)
+            + 315.0 / 8.0 * np.einsum("ijkl, ijkl...->...", self.D4, moment4)
+        ) / (4.0 * np.pi)
 
 
-def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
-
+def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
     vectors = get_unit_vectors(nbr_points=nbr_points)
 
     distribution = DistributionDensityTruncateAfter4(N4=N4)
@@ -188,6 +187,12 @@ def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
         distribution.project_on_vectors(vectors)
         + np.array(origin)[:, np.newaxis, np.newaxis]
     )
+    return values
+
+
+def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
+
+    values = get_approx_FODF_by_N4(N4=N4, origin=origin, nbr_points=nbr_points)
 
     ax.plot_surface(
         *values, rstride=3, cstride=3, linewidth=0.1, alpha=1, shade=True, **kwargs
@@ -406,3 +411,73 @@ def plot_stepwise_interpolation_N4_along_x(
             )
 
     return ax
+
+
+def plot_N_COS_FODF_mayavi(
+    fig,
+    N4,
+    origin=[0, 0, 0],
+    nbr_points=50,
+):
+
+    vectors = get_unit_vectors(nbr_points=nbr_points)
+
+    distribution = DistributionDensityTruncateAfter4(N4=N4)
+
+    scalars = distribution.calc_scalars(vectors)
+
+    values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
+
+    mlab.mesh(
+        *values, scalars=-np.sign(scalars), opacity=1, figure=fig
+    )  # blue is positive, red is negative
+    return fig
+
+
+def plot_stepwise_interpolation_N4_along_x_mayavi(
+    fig,
+    N1,
+    N2,
+    nbr_points=5,
+    nbr_vectors=100,
+    scale=1,
+    method=None,
+    origin_y=0,
+    origin_z=0,
+):
+
+    if method is None:
+        method = mechinterfabric.interpolation.interpolate_N4_decomp
+
+    # offset = 0.3
+    # ax.set_xlim((0 - offset) * scale, (1 + offset) * scale)
+    # ax.set_ylim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+    # ax.set_zlim((-0.5 - offset) * scale, (0.5 + offset) * scale)
+
+    weights_N2 = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - weights_N2, weights_N2]).T
+
+    origins = np.vstack(
+        [
+            np.linspace(0, scale, nbr_points),
+            np.ones((nbr_points)) * origin_y,
+            np.ones((nbr_points)) * origin_z,
+        ]
+    ).T
+
+    for index in range(nbr_points):
+
+        N4s = np.array([N1, N2])
+        current_weights = weights[index]
+        origin = origins[index]
+
+        N4_av = method(N4s=N4s, weights=current_weights)
+
+        plot_N_COS_FODF_mayavi(
+            fig=fig,
+            N4=N4_av,
+            origin=origin,
+            nbr_points=nbr_vectors,
+        )
+
+    return fig
