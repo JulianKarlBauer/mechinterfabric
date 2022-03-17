@@ -3,6 +3,7 @@ import mechinterfabric
 import os
 import mechkit
 from mayavi import mlab
+from scipy.spatial.transform import Rotation
 
 np.set_printoptions(linewidth=100000)
 
@@ -25,10 +26,23 @@ from_vectors = mechkit.fabric_tensors.first_kind_discrete
 
 biblio = mechkit.fabric_tensors.Basic().N4
 
+small_rotation_around_z = Rotation.from_rotvec(-1e-2 * np.array([0, 0, 1])).as_matrix()
+
 pairs = {
-    "Random: many vs few": (
-        from_vectors(random_in_between((8, 3))),
-        from_vectors(random_in_between((2, 3))),
+    # "Random: many vs few": (
+    #     from_vectors(random_in_between((1, 3))),
+    #     from_vectors(random_in_between((1, 3))),
+    # ),
+    "ud z vs ud x": (
+        con.to_tensor(biblio["ud_z"]),
+        np.einsum(
+            "io,jm,kn,lp, omnp->ijkl",
+            small_rotation_around_z,
+            small_rotation_around_z,
+            small_rotation_around_z,
+            small_rotation_around_z,
+            con.to_tensor(biblio["ud_x"]),
+        ),
     ),
 }
 
@@ -36,7 +50,12 @@ for key, (N4_1, N4_2) in pairs.items():
     print("###########")
     print(key)
 
-    fig = mlab.figure(figure="ODF", size=(900, 900))
+    fig = mlab.figure(
+        figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+    )
+
+    scale = 9
+    offest = 3
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x_mayavi(
         fig=fig,
@@ -44,16 +63,28 @@ for key, (N4_1, N4_2) in pairs.items():
         N2=N4_2,
         nbr_points=5,
         nbr_vectors=50,
-        scale=2,
+        scale=scale,
         method=mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation,
         origin_y=0,
         origin_z=0,
     )
 
-if False:
+    mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x_mayavi(
+        fig=fig,
+        N1=N4_1,
+        N2=N4_2,
+        nbr_points=5,
+        nbr_vectors=50,
+        scale=scale,
+        method=mechinterfabric.interpolation.interpolate_N4_naive,
+        origin_y=0,
+        origin_z=offest,
+    )
+
+if True:
     view = mlab.view()
     (azimuth, elevation, distance, focalpoint) = view
-    mlab.view(*(0, 0, distance, focalpoint))
+    mlab.view(*(-90, 90, distance, focalpoint))
 
 mlab.orientation_axes()
 mlab.savefig(filename=os.path.join(directory, "image.png"))
