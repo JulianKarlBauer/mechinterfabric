@@ -3,10 +3,11 @@ import mechkit
 import pandas as pd
 import itertools
 import os
-from scipy.interpolate import interp1d
 import mechinterfabric
 import matplotlib.pyplot as plt
-import pprint
+import sympy as sp
+import vofotensors as vot
+from vofotensors.abc import alpha1, rho1
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -16,85 +17,43 @@ os.makedirs(directory, exist_ok=True)
 
 
 converter = mechkit.notation.ExplicitConverter()
-
+con = mechkit.notation.Converter()
 #########################################################
 
 
-def N2_from_row(row):
-    return [
-        [row["n11"], row["n12"], row["n13"]],
-        [row["n12"], row["n22"], row["n23"]],
-        [row["n13"], row["n23"], row["n33"]],
-    ]
+index_low, index_medium, index_high = 1, 3, 5
 
-
-def N4_from_row(row):
-    # N4 is completely index-symmetric
-    N4 = np.zeros((3, 3, 3, 3), dtype=np.float64)
-
-    columns = [
-        "3333",
-        "3332",
-        "3322",
-        "3222",
-        "2222",
-        "3331",
-        "3321",
-        "3221",
-        "2221",
-        "3311",
-        "3211",
-        "2211",
-        "3111",
-        "2111",
-        "1111",
-    ]
-
-    for column_key in columns:
-        permutations = itertools.permutations([int(item) - 1 for item in column_key])
-        for perm in permutations:
-            N4[perm] = row[column_key]
-    return N4.tolist()
-
-
-#########################################################
-# Read N2
-df_N2 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
-    header=0,
-    sep=",",
+df = pd.DataFrame(
+    [
+        ["planar_iso", -2 / 6, 3 / 280, index_low, index_high],
+        ["iso", 0, 0, index_medium, index_medium],
+        ["ud", 4 / 6, 1 / 35, index_high, index_low],
+        ["iso2_max", 0, 1 / 60, index_high, index_high],
+        ["iso2_min", 0, -1 / 90, index_low, index_low],
+    ],
+    columns=["label", "alpha1", "rho1", "index_x", "index_y"],
 )
-df_N2.columns = df_N2.columns.str.strip()
 
-# Read N4
-df_N4 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
-    header=0,
-    sep=",",
+
+parameterizations = vot.fabric_tensors.N4s_parametric
+parameterization = parameterizations["transv_isotropic"]["alpha1_rho1"]
+N4_func = sp.lambdify([alpha1, rho1], parameterization)
+
+df["N4"] = df.apply(lambda row: N4_func(alpha1=row["alpha1"], rho1=row["rho1"]), axis=1)
+
+N4s = converter.convert(
+    source="mandel6",
+    target="tensor",
+    quantity="stiffness",
+    inp=np.array(df["N4"].to_list()),
 )
-df_N4.columns = df_N4.columns.str.strip()
-
-# Merge
-df = df_N2.merge(df_N4)
-
-
-df["N2"] = df.apply(N2_from_row, axis=1)
-df["N4"] = df.apply(N4_from_row, axis=1)
-
-N2s = np.array(df["N2"].to_list())
-N4s = np.array(df["N4"].to_list())
-
-
 #########################################################
 # Calc entities in df
 
 df_index = df.set_index(["index_x", "index_y"]).index
 
-N4s_df = np.array(df["N4"].to_list())
-
-
 # New points
-indices = [i + 1 for i in range(13)]
+indices = [i + 1 for i in range(index_high)]
 # indices = [i + 1 for i in range(13) if i in [0, 3, 6, 9, 12]]
 
 indices_points = list(itertools.product(indices, repeat=2))
@@ -154,8 +113,11 @@ N4_indices = tri.simplices[hidden_triangles]
 # Plot
 
 
+def do_not_rotate(matrices, weights):
+    return np.eye(3)
+
+
 for interpolation_method in [
-    mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values,
     mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
 ]:
 
@@ -163,7 +125,7 @@ for interpolation_method in [
         lambda row: interpolation_method(
             N4s=N4s[N4_indices[row.name]],
             weights=bcoords[row.name],
-            func_interpolation_rotation=mechinterfabric.rotation.average_Manton2004,
+            func_interpolation_rotation=do_not_rotate,
         )[0],
         axis=1,
     )
@@ -172,7 +134,6 @@ for interpolation_method in [
     # Plot
 
     for visualization_method in [
-        # mechinterfabric.visualization.plot_projection_of_N4_onto_sphere,
         mechinterfabric.visualization.plot_approx_FODF_by_N4,
     ]:
 
@@ -219,8 +180,3 @@ for interpolation_method in [
 
         path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
         plt.savefig(path_picture, dpi=300)
-
-    # plt.close(fig)
-
-
-# plt.close(fig)
