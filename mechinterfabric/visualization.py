@@ -471,7 +471,12 @@ def plot_stepwise_interpolation_N4_along_x_mayavi(
         current_weights = weights[index]
         origin = origins[index]
 
-        N4_av = method(N4s=N4s, weights=current_weights)
+        if index == 0:
+            N4_av = N1
+        elif index == nbr_points - 1:
+            N4_av = N2
+        else:
+            N4_av = method(N4s=N4s, weights=current_weights)
 
         plot_N_COS_FODF_mayavi(
             fig=fig,
