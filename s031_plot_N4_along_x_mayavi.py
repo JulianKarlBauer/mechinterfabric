@@ -49,7 +49,13 @@ for key, (N4_1, N4_2) in pairs.items():
         origin_y=0,
         origin_z=0,
     )
+
+if False:
+    view = mlab.view()
+    (azimuth, elevation, distance, focalpoint) = view
+    mlab.view(*(0, 0, distance, focalpoint))
+
 mlab.orientation_axes()
 mlab.savefig(filename=os.path.join(directory, "image.png"))
-mlab.show()
 
+mlab.show()
