@@ -15,7 +15,7 @@ from scipy.spatial.transform import Rotation
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s032")
+directory = os.path.join("output", "s033")
 os.makedirs(directory, exist_ok=True)
 
 
@@ -23,15 +23,15 @@ converter = mechkit.notation.ExplicitConverter()
 con = mechkit.notation.Converter()
 #########################################################
 
-almost_zero = 1e-5
+almost_zero = -1e-5
 
-index_low, index_medium, index_high = 1, 4, 7
+index_low, index_medium, index_high = 1, 3, 5
 
 df = pd.DataFrame(
     [
-        # ["planar_iso", -2 / 6, 3 / 280, index_low, index_high],
+        ["planar_iso", -2 / 6, 3 / 280, index_low, index_high],
         ["iso", almost_zero, 0, index_medium, index_medium],
-        ["ud", 4 / 6, 1 / 35, index_high, index_low],
+        # ["ud", 4 / 6, 1 / 35, index_high, index_low],
         ["iso2_max", almost_zero, 1 / 60, index_high, index_high],
         ["iso2_min", almost_zero, -1 / 90, index_low, index_low],
     ],
@@ -45,8 +45,22 @@ N4_func = sp.lambdify([alpha1, rho1], parameterization)
 
 df["N4"] = df.apply(lambda row: N4_func(alpha1=row["alpha1"], rho1=row["rho1"]), axis=1)
 
-# Q = Rotation.from_rotvec(np.pi / 2 * np.array([0, 1, 0])).as_matrix()
+Q = Rotation.from_rotvec(np.pi / 2 * np.array([0, 1, 0])).as_matrix()
 # df = df.set_index("label")
+
+df["N4"] = df.apply(
+    lambda row: con.to_mandel6(
+        np.einsum(
+            "io,jm,kn,lp, omnp->ijkl",
+            Q,
+            Q,
+            Q,
+            Q,
+            con.to_tensor(row["N4"]),
+        )
+    ),
+    axis=1,
+)
 # df.at["planar_iso", "N4"] = con.to_mandel6(
 #     np.einsum(
 #         "io,jm,kn,lp, omnp->ijkl",
@@ -78,7 +92,7 @@ indices_points = list(itertools.product(indices, repeat=2))
 indices_points = [
     index
     for index in indices_points
-    if ((index not in df_index) and (index[0] >= index[1]))
+    if ((index not in df_index) and (index[0] <= index[1]))
 ]
 
 new = pd.DataFrame(indices_points, columns=["index_x", "index_y"])
