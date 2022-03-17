@@ -9,6 +9,8 @@ from mayavi import mlab
 import sympy as sp
 import vofotensors as vot
 from vofotensors.abc import alpha1, rho1
+from scipy.spatial.transform import Rotation
+
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -21,6 +23,7 @@ converter = mechkit.notation.ExplicitConverter()
 con = mechkit.notation.Converter()
 #########################################################
 
+almost_zero = 1e-5
 
 index_low, index_medium, index_high = 1, 3, 5
 
@@ -41,6 +44,20 @@ parameterization = parameterizations["transv_isotropic"]["alpha1_rho1"]
 N4_func = sp.lambdify([alpha1, rho1], parameterization)
 
 df["N4"] = df.apply(lambda row: N4_func(alpha1=row["alpha1"], rho1=row["rho1"]), axis=1)
+
+Q = Rotation.from_rotvec(np.pi / 2 * np.array([0, 1, 0])).as_matrix()
+df = df.set_index("label")
+df.at["planar_iso", "N4"] = con.to_mandel6(
+    np.einsum(
+        "io,jm,kn,lp, omnp->ijkl",
+        Q,
+        Q,
+        Q,
+        Q,
+        con.to_tensor(df.loc["planar_iso"]["N4"]),
+    )
+)
+df.reset_index()
 
 N4s = converter.convert(
     source="mandel6",
@@ -158,11 +175,7 @@ for interpolation_method in [
                 N4=np.array(row["N4"]),
             )
 
-        name = (
-            str(interpolation_method.__name__)
-            + "\n"
-            + str(visualization_method.__name__)
-        )
+        name = "image"
 
         if True:
             view = mlab.view()
@@ -173,3 +186,11 @@ for interpolation_method in [
         mlab.savefig(filename=os.path.join(directory, "image.png"))
 
         mlab.show()
+
+
+# Inspect unknown N4s
+tmp = new.set_index(["index_x", "index_y"])
+N4_new = con.to_mandel6(tmp.loc[(1, 2)]["N4"])
+print(np.linalg.eig(N4_new))
+print(np.einsum("i,ji->j", [1, 1, 1, 0, 0, 0], N4_new))
+print(sum(np.einsum("i,ji->j", [1, 1, 1, 0, 0, 0], N4_new)))
