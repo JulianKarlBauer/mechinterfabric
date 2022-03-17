@@ -31,6 +31,17 @@ def average_scipy_spatial_Rotation(matrices, weights):
     return Rotation.from_matrix(matrices).mean(weights=weights).as_matrix()
 
 
+def average_quaternion_naive(matrices, weights):
+    quaternions = Rotation.from_matrix(matrices).as_quat()
+
+    # Take naive weighted average on normalized quaternions
+    mean_quat = np.einsum("m, mi->i", weights, quaternions)
+    # Normalize quaternion
+    mean_quat = mean_quat / np.linalg.norm(mean_quat)
+
+    return Rotation.from_quat(mean_quat).as_matrix()
+
+
 def intermediate_rotation_by_weighted_sum_quats_normalized(matrices, weights):
     quats = Rotation.from_matrix(matrices).as_quat()
     quats_weighted_sum = np.einsum("ij, i->j", quats, weights)
@@ -49,6 +60,7 @@ def average_Manton2004(matrices, weights):
 
     # Init
     mean = average_scipy_spatial_Rotation(matrices, weights)
+    # mean = average_quaternion_naive(matrices, weights)
 
     while True:
 
