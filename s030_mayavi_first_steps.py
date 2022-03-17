@@ -1,10 +1,16 @@
 import numpy as np
+
 la = np.linalg
 from mayavi import mlab
-#mlab.init_notebook()
+
+# mlab.init_notebook()
+import os
+
+directory = os.path.join("output", "s030")
+os.makedirs(directory, exist_ok=True)
 
 EYE3 = np.eye(3)
-PHI, THETA = np.mgrid[-np.pi:np.pi:100j, 0.:np.pi:50j]
+PHI, THETA = np.mgrid[-np.pi : np.pi : 100j, 0.0 : np.pi : 50j]
 X = np.cos(PHI) * np.sin(THETA)
 Y = np.sin(PHI) * np.sin(THETA)
 Z = np.cos(THETA)
@@ -13,6 +19,7 @@ P = np.array([X, Y, Z])
 
 #########################
 # Helper function for sampling FOTs
+
 
 def create_random_spherical_distribtution(N):
     """create 4th order FOT from random fibers
@@ -47,6 +54,7 @@ def fot_from_fibervecs(fiber_vecs):
 
 #########################
 # Helper functions for creating plot data
+
 
 def project_fourth_order_tensor(A4, x0=np.array([0.0, 0.0, 0.0])):
     """project symmetric 4th order tensor onto the 2-sphere
@@ -128,6 +136,7 @@ def odf_from_fot(N4):
 
     return psi
 
+
 #########################
 
 
@@ -139,74 +148,74 @@ N4_rand1 = fot_from_fibervecs(fiber_vecs1)
 N4_rand2 = fot_from_fibervecs(fiber_vecs2)
 
 delta = np.array([2.0, 0.0, 0.0])
-proj1 = project_fourth_order_tensor(N4_rand1)
-proj2 = project_fourth_order_tensor(N4_rand2, x0=delta)
-fig = mlab.figure(figure="FOT")
-mlab.mesh(*proj1, colormap="viridis", opacity=.7)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs1.T))), *fiber_vecs1, scale_factor=0.5, color=(0, 0, 1)
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs1.T))),
-    *-1.0 * fiber_vecs1,
-    scale_factor=0.5,
-    color=(1, 0, 0),
-)
-mlab.mesh(*proj2, colormap="viridis", opacity=.7)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
-    *fiber_vecs2,
-    scale_factor=0.5,
-    color=(0, 0, 1),
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
-    *-1.0 * fiber_vecs2,
-    scale_factor=0.5,
-    color=(1, 0, 0),
-)
-mlab.orientation_axes()
-fig.scene._lift()
+
+#########################
+
+# proj1 = project_fourth_order_tensor(N4_rand1)
+# proj2 = project_fourth_order_tensor(N4_rand2, x0=delta)
+# fig = mlab.figure(figure="FOT")
+# mlab.mesh(*proj1, colormap="viridis", opacity=.7)
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs1.T))), *fiber_vecs1, scale_factor=0.5, color=(0, 0, 1)
+# )
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs1.T))),
+#     *-1.0 * fiber_vecs1,
+#     scale_factor=0.5,
+#     color=(1, 0, 0),
+# )
+# mlab.mesh(*proj2, colormap="viridis", opacity=.7)
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
+#     *fiber_vecs2,
+#     scale_factor=0.5,
+#     color=(0, 0, 1),
+# )
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
+#     *-1.0 * fiber_vecs2,
+#     scale_factor=0.5,
+#     color=(1, 0, 0),
+# )
+# mlab.orientation_axes()
+# fig.scene._lift()
+
+#########################
 
 psi1 = odf_from_fot(N4_rand1)
 psi2 = odf_from_fot(N4_rand2)
 fig2 = mlab.figure(figure="ODF")
 mlab.mesh(
-    *psi1 * P, scalars=-np.sign(psi1), opacity=0.7
+    *psi1 * P, scalars=-np.sign(psi1), opacity=1
 )  # blue is positive, red is negative
-mlab.mesh(
-    *psi2 * P + delta[:, np.newaxis, np.newaxis], scalars=-np.sign(psi2), opacity=0.7
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs1.T))), *fiber_vecs1, scale_factor=0.5, color=(0, 0, 1)
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs1.T))),
-    *-1.0 * fiber_vecs1,
-    scale_factor=0.5,
-    color=(1, 0, 0),
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
-    *fiber_vecs2,
-    scale_factor=0.5,
-    color=(0, 0, 1),
-)
-mlab.quiver3d(
-    *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
-    *-1.0 * fiber_vecs2,
-    scale_factor=0.5,
-    color=(1, 0, 0),
-)
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs1.T))), *fiber_vecs1, scale_factor=0.5, color=(0, 0, 1)
+# )
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs1.T))),
+#     *-1.0 * fiber_vecs1,
+#     scale_factor=0.5,
+#     color=(1, 0, 0),
+# )
+
+# mlab.mesh(
+#     *psi2 * P + delta[:, np.newaxis, np.newaxis], scalars=-np.sign(psi2), opacity=0.7
+# )
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
+#     *fiber_vecs2,
+#     scale_factor=0.5,
+#     color=(0, 0, 1),
+# )
+# mlab.quiver3d(
+#     *np.zeros((3, len(fiber_vecs2.T))) + delta[:, np.newaxis],
+#     *-1.0 * fiber_vecs2,
+#     scale_factor=0.5,
+#     color=(1, 0, 0),
+# )
 mlab.orientation_axes()
 fig2.scene._lift()
 
+mlab.savefig(filename=os.path.join(directory, "image.png"))
+
 mlab.show()
-
-
-
-
-
-
-
-
