@@ -5,6 +5,7 @@ import itertools
 import os
 import mechinterfabric
 import matplotlib.pyplot as plt
+from mayavi import mlab
 import sympy as sp
 import vofotensors as vot
 from vofotensors.abc import alpha1, rho1
@@ -134,40 +135,28 @@ for interpolation_method in [
     # Plot
 
     for visualization_method in [
-        mechinterfabric.visualization.plot_approx_FODF_by_N4,
+        mechinterfabric.visualization.plot_N_COS_FODF_mayavi,
     ]:
 
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
-        ax.view_init(elev=90, azim=-90)
+        fig = mlab.figure(
+            figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+        )
 
-        # Axes labels
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
+        scale = 1.5
 
-        scale = 1.2
         for _, row in new.iterrows():
             visualization_method(
-                ax=ax,
+                fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
-                color="yellow",
             )
 
         for _, row in df.iterrows():
             visualization_method(
-                ax=ax,
+                fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
-                color="red",
             )
-
-        bbox_min = 0
-        bbox_max = 14 * scale
-        ax.auto_scale_xyz(
-            [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
-        )
 
         name = (
             str(interpolation_method.__name__)
@@ -175,8 +164,12 @@ for interpolation_method in [
             + str(visualization_method.__name__)
         )
 
-        ax.set_title(name)
-        fig.tight_layout()
+        if True:
+            view = mlab.view()
+            (azimuth, elevation, distance, focalpoint) = view
+            mlab.view(*(0, 0, distance, focalpoint))
 
-        path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
-        plt.savefig(path_picture, dpi=300)
+        mlab.orientation_axes()
+        mlab.savefig(filename=os.path.join(directory, "image.png"))
+
+        mlab.show()
