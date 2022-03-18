@@ -160,7 +160,7 @@ for interpolation_method in [
     ]:
 
         fig = mlab.figure(
-            figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+            figure="ODF", size=(900, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
         )
 
         scale = 1.1
