@@ -65,8 +65,12 @@ pairs = {
         con.to_tensor(biblio["iso"]),
         con.to_tensor(biblio["planar_iso_xy"]),
     ),
-    "iso vs ud x": (
-        con.to_tensor(biblio["iso"]),
+    # "iso vs ud x": (
+    #     con.to_tensor(biblio["iso"]),
+    #     con.to_tensor(biblio["ud_x"]),
+    # ),
+    "ad y vs ud x": (
+        con.to_tensor(biblio["ud_y"]),
         con.to_tensor(biblio["ud_x"]),
     ),
 }
@@ -97,7 +101,7 @@ for key, (N4_1, N4_2) in pairs.items():
         origin_z=0,
         plot_func_key=plot_func_key,
     )
-    ax.text(0, -2, 0, 'new', 'x')
+    ax.text(0, -2, 0, 'unique', 'x')
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
         ax=ax,
