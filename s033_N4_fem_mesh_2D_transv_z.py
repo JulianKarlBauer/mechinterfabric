@@ -177,7 +177,7 @@ for interpolation_method in [
             figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
         )
 
-        scale = 1.5
+        scale = 0.65
 
         for _, row in new.iterrows():
             visualization_method(
