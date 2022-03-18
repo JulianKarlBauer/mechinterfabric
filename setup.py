@@ -25,7 +25,9 @@ setuptools.setup(
         "matplotlib",
         "mechkit>=0.3.7",
         "natsort",
-        "pandas"
+        "pandas",
+        "mayavi",
+        "PyQt5",
     ],
     # setup_requires=["pybind11>=2.3", "libcgal-dev", "libeigen3-dev"],
     # extras_require={"test": required_packages + ["pytest", "natsort"]},
