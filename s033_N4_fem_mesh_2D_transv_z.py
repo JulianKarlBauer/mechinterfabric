@@ -174,24 +174,30 @@ for interpolation_method in [
     ]:
 
         fig = mlab.figure(
-            figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+            figure="ODF", size=(1000, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
         )
 
-        scale = 0.65
+        scale = 0.8
+
+        def plot_tp_ensemble(row, text_color=(0, 0, 0)):
+            origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
+            visualization_method(
+                fig=fig,
+                origin=origin,
+                N4=np.array(row["N4"]),
+            )
+            mlab.text3d(
+                *(origin + np.array([0, -0.5, 0]) * scale),
+                text=f"({row['index_x']}, {row['index_y']})",
+                scale=0.1,
+                color=text_color,
+            )
 
         for _, row in new.iterrows():
-            visualization_method(
-                fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-                N4=np.array(row["N4"]),
-            )
+            plot_tp_ensemble(row=row)
 
         for _, row in df.iterrows():
-            visualization_method(
-                fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-                N4=np.array(row["N4"]),
-            )
+            plot_tp_ensemble(row=row, text_color=(1, 0, 0))
 
         name = "image"
 

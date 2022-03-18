@@ -165,19 +165,25 @@ for interpolation_method in [
 
         scale = 1.1
 
-        for _, row in new.iterrows():
+        def plot_tp_ensemble(row, text_color=(0, 0, 0)):
+            origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
             visualization_method(
                 fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+                origin=origin,
                 N4=np.array(row["N4"]),
+            )
+            mlab.text3d(
+                *(origin + np.array([0, -0.33, 0]) * scale),
+                text=f"({row['index_x']}, {row['index_y']})",
+                scale=0.1,
+                color=text_color,
             )
 
+        for _, row in new.iterrows():
+            plot_tp_ensemble(row=row)
+
         for _, row in df.iterrows():
-            visualization_method(
-                fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-                N4=np.array(row["N4"]),
-            )
+            plot_tp_ensemble(row=row, text_color=(1, 0, 0))
 
         name = "image"
 
