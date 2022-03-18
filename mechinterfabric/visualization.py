@@ -417,7 +417,7 @@ def plot_N_COS_FODF_mayavi(
     fig,
     N4,
     origin=[0, 0, 0],
-    nbr_points=50,
+    nbr_points=100,
 ):
 
     vectors = get_unit_vectors(nbr_points=nbr_points)
@@ -425,6 +425,13 @@ def plot_N_COS_FODF_mayavi(
     distribution = DistributionDensityTruncateAfter4(N4=N4)
 
     scalars = distribution.calc_scalars(vectors)
+
+    maximum_scalar = np.max(scalars)
+    limit_scalar = 0.55
+    if np.max(scalars) > limit_scalar:
+        # print(maximum_scalar)
+        # print(limit_scalar / maximum_scalar)
+        scalars = scalars * (limit_scalar / maximum_scalar)
 
     values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
 

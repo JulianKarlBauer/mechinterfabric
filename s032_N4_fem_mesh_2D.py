@@ -25,7 +25,7 @@ con = mechkit.notation.Converter()
 
 almost_zero = 1e-5
 
-index_low, index_medium, index_high = 1, 4, 7
+index_low, index_medium, index_high = 1, 3, 5
 
 df = pd.DataFrame(
     [
@@ -163,7 +163,7 @@ for interpolation_method in [
             figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
         )
 
-        scale = 1.5
+        scale = 1.1
 
         for _, row in new.iterrows():
             visualization_method(
