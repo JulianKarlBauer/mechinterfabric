@@ -26,6 +26,7 @@ setuptools.setup(
         "mechkit>=0.3.7",
         "natsort",
         "pandas",
+        "vtk",
         "mayavi",
         "PyQt5",
     ],
