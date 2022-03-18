@@ -51,18 +51,18 @@ for key, (N4_1, N4_2) in pairs.items():
     print(key)
 
     fig = mlab.figure(
-        figure="ODF", size=(1800, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+        figure="ODF", size=(1400, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
     )
 
-    scale = 9
-    offest = 3
+    scale = 5
+    offest = 1.5
 
     mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x_mayavi(
         fig=fig,
         N1=N4_1,
         N2=N4_2,
         nbr_points=5,
-        nbr_vectors=50,
+        nbr_vectors=100,
         scale=scale,
         method=mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation,
         origin_y=0,
@@ -74,7 +74,7 @@ for key, (N4_1, N4_2) in pairs.items():
         N1=N4_1,
         N2=N4_2,
         nbr_points=5,
-        nbr_vectors=50,
+        nbr_vectors=100,
         scale=scale,
         method=mechinterfabric.interpolation.interpolate_N4_naive,
         origin_y=0,
