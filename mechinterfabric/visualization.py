@@ -435,14 +435,14 @@ def plot_N_COS_FODF_mayavi(
 
     values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
 
-    mlab.mesh(
+    added = mlab.mesh(
         *values,
         scalars=-np.sign(scalars),
         opacity=1,
         figure=fig,
         # colormap="jet",
     )  # blue is positive, red is negative
-    return fig
+    return added
 
 
 def plot_stepwise_interpolation_N4_along_x_mayavi(
@@ -476,6 +476,7 @@ def plot_stepwise_interpolation_N4_along_x_mayavi(
         ]
     ).T
 
+    bunch = []
     for index in range(nbr_points):
 
         N4s = np.array([N1, N2])
@@ -489,11 +490,12 @@ def plot_stepwise_interpolation_N4_along_x_mayavi(
         else:
             N4_av = method(N4s=N4s, weights=current_weights)
 
-        plot_N_COS_FODF_mayavi(
+        new = plot_N_COS_FODF_mayavi(
             fig=fig,
             N4=N4_av,
             origin=origin,
             nbr_points=nbr_vectors,
         )
+        bunch.append(new)
 
-    return fig
+    return bunch
