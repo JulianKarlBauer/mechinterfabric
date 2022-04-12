@@ -192,6 +192,8 @@ for interpolation_method in [
             (azimuth, elevation, distance, focalpoint) = view
             mlab.view(*(0, 0, distance, focalpoint))
 
+        mlab.gcf().scene.parallel_projection = True
+
         mlab.orientation_axes()
         mlab.savefig(filename=os.path.join(directory, "image.png"))
 
