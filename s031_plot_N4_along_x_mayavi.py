@@ -81,7 +81,7 @@ for key, (N4_1, N4_2) in pairs.items():
         origin_z=offest,
     )
 
-kwargs = dict(line_width=3, color=(1, 0, 0))
+kwargs = dict(line_width=5, color=(0, 0, 0))
 mlab.outline(upper[0], **kwargs)
 mlab.outline(upper[-1], **kwargs)
 mlab.outline(lower[0], **kwargs)
