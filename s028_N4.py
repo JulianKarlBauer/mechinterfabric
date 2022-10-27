@@ -3,8 +3,6 @@ import mechinterfabric
 import os
 import matplotlib.pyplot as plt
 import mechkit
-import os
-import matplotlib.pyplot as plt
 
 
 np.set_printoptions(linewidth=100000)
