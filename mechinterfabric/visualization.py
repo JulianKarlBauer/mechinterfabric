@@ -7,7 +7,6 @@ import matplotlib
 from scipy.spatial.transform import Rotation
 import mechkit
 from mechkit import operators
-from mayavi import mlab
 
 con = mechkit.notation.Converter()
 
@@ -434,6 +433,8 @@ def plot_N_COS_FODF_mayavi(
         scalars = scalars * (limit_scalar / maximum_scalar)
 
     values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
+
+    from mayavi import mlab
 
     added = mlab.mesh(
         *values,
