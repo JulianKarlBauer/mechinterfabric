@@ -83,8 +83,8 @@ mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
     ax=ax,
     N1=low_num,
     N2=high_num,
-    nbr_points=5,
-    scale=3,
+    nbr_points=7,
+    scale=5,
     method=lambda N4s, weights: mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values(
         N4s=N4s,
         weights=weights,
@@ -98,7 +98,7 @@ mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
 )
 
 
-upper = 2
+upper = 3
 lower = 0
 offset = 1
 limits = [
