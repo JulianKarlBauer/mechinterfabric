@@ -1,4 +1,4 @@
-name: mechinterfabric
+name: mechinterfabric_dev
 channels:
   - conda-forge
   - defaults
@@ -129,4 +129,4 @@ dependencies:
     - vtk==9.1.0
     - wslink==1.4.3
     - yarl==1.7.2
-prefix: /home/julian/miniconda3/envs/mechinterfabric
+prefix: /home/julian/miniconda3/envs/mechinterfabric_dev
