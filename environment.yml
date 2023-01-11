@@ -7,10 +7,12 @@ dependencies:
   - asttokens=2.0.5=pyhd3eb1b0_0
   - attrs=22.1.0=py310h06a4308_0
   - backcall=0.2.0=pyhd3eb1b0_0
+  - black=22.6.0=py310h06a4308_0
   - blas=1.0=mkl
   - bzip2=1.0.8=h7b6447c_0
   - ca-certificates=2022.10.11=h06a4308_0
   - certifi=2022.12.7=py310h06a4308_0
+  - click=8.0.4=py310h06a4308_0
   - decorator=5.1.1=pyhd3eb1b0_0
   - executing=0.8.3=pyhd3eb1b0_0
   - iniconfig=1.1.1=pyhd3eb1b0_0
@@ -28,15 +30,18 @@ dependencies:
   - mkl-service=2.4.0=py310h7f8727e_0
   - mkl_fft=1.3.1=py310hd6ae3a3_0
   - mkl_random=1.2.2=py310h00e6091_0
+  - mypy_extensions=0.4.3=py310h06a4308_0
   - ncurses=6.3=h5eee18b_3
   - numpy=1.23.5=py310hd5efca6_0
   - numpy-base=1.23.5=py310h8e6c178_0
   - openssl=1.1.1s=h7f8727e_0
   - packaging=22.0=py310h06a4308_0
   - parso=0.8.3=pyhd3eb1b0_0
+  - pathspec=0.9.0=py310h06a4308_0
   - pexpect=4.8.0=pyhd3eb1b0_3
   - pickleshare=0.7.5=pyhd3eb1b0_1003
   - pip=22.3.1=py310h06a4308_0
+  - platformdirs=2.5.2=py310h06a4308_0
   - pluggy=1.0.0=py310h06a4308_1
   - prompt-toolkit=3.0.36=py310h06a4308_0
   - ptyprocess=0.7.0=pyhd3eb1b0_2
