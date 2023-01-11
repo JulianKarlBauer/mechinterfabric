@@ -1,6 +1,7 @@
 import mechinterfabric
 import numpy as np
 
+
 class TestAnalyser:
     def test_init(self):
         analyser = mechinterfabric.FourthOrderFabricAnalyser()
