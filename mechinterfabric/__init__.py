@@ -1,5 +1,6 @@
 import numpy as np
 import mechkit
+from . import utils
 
 converter = mechkit.notation.Converter()
 
@@ -28,6 +29,12 @@ class FourthOrderFabricAnalyser:
 
         # Identify symmetry FOT2
         # Get eigensystem candidates
+        (
+            rotation_into_FOT2,
+            eigenvalus_FOT2,
+        ) = utils.get_eigenvalues_and_rotation_matrix_into_eigensystem(FOT2)
+        print(rotation_into_FOT2)
+        print(eigenvalus_FOT2)
 
         FOT4_dev = get_deviator(FOT4)
         print(FOT4_dev)
