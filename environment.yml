@@ -63,4 +63,23 @@ dependencies:
   - wheel=0.37.1=pyhd3eb1b0_0
   - xz=5.2.8=h5eee18b_0
   - zlib=1.2.13=h5eee18b_0
+  - pip:
+      - contourpy==1.0.7
+      - cycler==0.11.0
+      - fonttools==4.38.0
+      - idna==3.4
+      - kiwisolver==1.4.4
+      - matplotlib==3.6.3
+      - mechinterfabricdev==0.0.0
+      - mpmath==1.2.1
+      - natsort==8.2.0
+      - pillow==9.4.0
+      - pyparsing==3.0.9
+      - python-dateutil==2.8.2
+      - pytz==2022.7.1
+      - pyyaml==6.0
+      - scipy==1.10.0
+      - symbolic==0.0.1
+      - sympy==1.11.1
+      - vofotensors==1.0.5
 prefix: /home/julian/miniconda3/envs/mechinterfabric
