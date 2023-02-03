@@ -16,14 +16,35 @@ class FOT4Analysis:
 
     def calc_FOT2_spectral(self):
         (
-            self.rotation_into_FOT2,
-            self.eigenvalus_FOT2,
+            self.FOT2_eigenvalues,
+            self.FOT2_rotation,
         ) = utils.get_eigenvalues_and_rotation_matrix_into_eigensystem(self.FOT2)
         return self
 
     def calc_FOT4_deviator(self):
         self.FOT4_mandel6_dev = self._get_deviator(self.FOT4_mandel6)
         return self
+
+    def identify_symmetry_FOT2(self):
+        index_pairs = [[0, 1], [0, 2], [1, 2]]
+        self.FOT2_eigenvalues_are_equal = tuple(
+            self._pair_of_eigenvalues_is_equal(*self.FOT2_eigenvalues[pair])
+            for pair in index_pairs
+        )
+        transv = "transversely_isotropic"
+
+        mapping = {
+            (True, True, True): "isotropic",
+            (True, True, False): transv,
+            # We assume, that eigenvalues are sorted, so v0 == v2 is only possible, if v0 == v1 as well
+            (False, True, True): transv,
+            (False, False, False): "orthotropic",
+        }
+        self.FOT2_symmetry = mapping[self.FOT2_eigenvalues_are_equal]
+        return self
+
+    def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
+        return np.isclose(first, second, atol=atol, rtol=rtol)
 
     def _contract_FOT4_to_FOT2(self, mandel):
         I2 = np.eye(3)
@@ -47,18 +68,21 @@ class FourthOrderFabricAnalyser:
     def analyse(self, FOT4):
         # Contract
 
-        self.analysis = analysis = (
+        analysis = self.analysis = (
             FOT4Analysis(FOT4).calc_FOT2().calc_FOT2_spectral().calc_FOT4_deviator()
         )
 
+        # Inspect FOT2 part
         print(analysis.FOT2)
+        print(analysis.FOT2_eigenvalues)
+        print(analysis.FOT2_rotation)
+        print(analysis.FOT4_mandel6_dev)
+
+        # Get eigensystem
+        # analysis.get_eigensystem()
 
         # Identify symmetry FOT2
-        # Get eigensystem candidates
-
-        print(analysis.rotation_into_FOT2)
-        print(analysis.eigenvalus_FOT2)
-        print(analysis.FOT4_mandel6_dev)
+        analysis.identify_symmetry_FOT2()
 
         analysis.result = {"d0": 0.0, "rotation_Q": np.eye(3)}
         return analysis
