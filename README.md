@@ -4,5 +4,5 @@ Interpolation of fabric and fiber-orientation tensors
 ## Install
 
 ```
-pip install -e . 
+python -m pip install -e . 
 ```
