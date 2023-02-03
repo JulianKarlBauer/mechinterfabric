@@ -35,7 +35,7 @@ Q = rotation.as_matrix()
 
 def rotate(mandel, Q):
     return converter.to_mandel6(
-        np.einsum("ij, kl, mn, op, jlnp->ikmo", Q, Q, Q, Q, converter.to_tensor(mandel))
+        mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
     )
 
 
