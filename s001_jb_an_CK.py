@@ -59,9 +59,22 @@ N4_rotated = sp.Matrix(sp.trigsimp(sb.actively_rotate_mandel(mandel=N4, Q=Q_arou
 
 pprint(N4_rotated)
 
-I2 = sb.get_I2()
 
-N2 = sb.mandel(np.tensordot(sb.tensorr(N4), sb.to_numpy(sb.get_I2())))
+def contract(A):
+    I2 = sb.get_I2()
+    return sb.mandel(np.tensordot(sb.tensorr(A), sb.to_numpy(I2)))
+
+
+N2 = contract(N4)
+
+N2_rotated = contract(N4_rotated)
+
+
+def matrix_are_equal(A, B):
+    return sp.Matrix(A).equals(sp.Matrix(B))
+
+
+assert matrix_are_equal(N2, N2_rotated)
 
 # #########################
 # # Plot
