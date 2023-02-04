@@ -5,7 +5,6 @@ from pprint import pprint
 from vofotensors.abc import d1
 import sympy as sp
 import numpy as np
-from symbolic.abc import d1
 import scipy.spatial
 import mechkit
 import mechinterfabric
