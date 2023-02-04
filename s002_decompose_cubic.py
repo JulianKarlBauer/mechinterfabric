@@ -1,5 +1,3 @@
-# 03.11.22, 17:47
-
 import vofotensors
 from pprint import pprint
 from vofotensors.abc import d1
