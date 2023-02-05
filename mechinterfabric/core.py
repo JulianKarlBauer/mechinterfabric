@@ -54,20 +54,9 @@ class FOT4Analysis:
             self.spectral_decomp_FOT_dev.get_eigen_vector_which_contains_eigensystem_info()
         )
 
-        print(self.eigen_vector_which_contains_eigensystem_info)
-        evec = self.eigen_vector_which_contains_eigensystem_info
-        self._tmp(evec)
-        # for evec in self.eigen_vectors:
-        #     self._tmp(evec)
-
-    def _tmp(self, evec):
-        _, rotation = np.linalg.eigh(converter.to_tensor(evec))
-        rot = scipy.spatial.transform.Rotation.from_matrix(rotation.T)
-        # print(rot.as_euler("xyz", degrees=True))
-        # print(rot.as_rotvec())
-        print(converter.to_mandel6(utils.rotate(self.FOT4_tensor, rotation)))
-
-        # raise Exception()
+        _, self.eigensystem = np.linalg.eigh(
+            converter.to_tensor(self.eigen_vector_which_contains_eigensystem_info)
+        )
 
     def _get_eigensystem_if_FOT2_transversely_isotropic(self):
         pass
