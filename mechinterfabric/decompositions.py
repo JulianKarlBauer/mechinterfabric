@@ -48,11 +48,16 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
         self.decimals_precision = decimals_precision
         self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
 
-    def get_eigen_vector_which_contains_eigensystem_info(self):
+    def get_eigen_vector_which_contains_eigensystem_info(
+        self,
+        select_only_one_vector=True,
+    ):
         self._get_rounded_eigenvalues()
         self._get_most_common_eigenvalues()
         self._assert_eigenvalues_are_cubic()
-        self._get_index_two_fold_eigenvalue_of_cubic_deviator()
+        self._get_index_two_fold_eigenvalue_of_cubic_deviator(
+            select_only_one_vector=select_only_one_vector
+        )
         self._get_eigen_vector_two_fold_eigen_value()
 
         return self.eigen_vector_two_fold_eigen_value
@@ -89,7 +94,7 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
         counter = Counter(self.eigen_values_rounded)
         self.most_common_eigenvalues = counter.most_common()
 
-    def _get_index_two_fold_eigenvalue_of_cubic_deviator(self, select_only_one=True):
+    def _get_index_two_fold_eigenvalue_of_cubic_deviator(self, select_only_one_vector):
         position_of_interest = 1
         eigen_value_of_interest = self.most_common_eigenvalues[position_of_interest][0]
         # self.index_two_fold_eigen_value = self.eigen_values_rounded.tolist().index(
@@ -98,7 +103,9 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
         indices = np.argwhere(
             self.eigen_values_rounded == eigen_value_of_interest
         ).flatten()
-        self.index_two_fold_eigen_value = indices[0] if select_only_one else indices
+        self.index_two_fold_eigen_value = (
+            indices[0] if select_only_one_vector else indices
+        )
 
     def _get_eigen_vector_two_fold_eigen_value(self):
         self.eigen_vector_two_fold_eigen_value = self.eigen_vectors[
