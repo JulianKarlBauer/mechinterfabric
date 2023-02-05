@@ -50,12 +50,17 @@ class FOT4Analysis:
         }[self.FOT2_eigenvalues_are_equal]
 
     def get_eigensystem(self):
-        func = getattr(
+        self.get_eigensystem_func = self._select_get_eigensystem_function()
+        self.get_eigensystem_func()
+        return self
+
+    def _select_get_eigensystem_function(self):
+        return getattr(
             self,
             {sym: f"_get_eigensystem_{sym}" for sym in self._keys_sym_FOT2}[
                 self.FOT2_symmetry
             ],
-        )()
+        )
 
     def _get_eigensystem_isotropic(self):
         pass
