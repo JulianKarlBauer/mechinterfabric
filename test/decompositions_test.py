@@ -51,8 +51,33 @@ def func_rotating_FOT4(converter):
 
 limits = (-1 / 15, 2 / 45)
 
+f = np.array
+list_of_tests = [
+    (f([-1.3333e-01, -1.3333e-01, -1.3333e-01, 1.3010e-16, 2.0000e-01, 2.0000e-01]), 4),
+    (f([-7.7777e-02, -7.7777e-02, -7.7777e-02, 1.9602e-16, 1.1666e-01, 1.1666e-01]), 4),
+    (f([-2.2222e-02, -2.2222e-02, -2.2222e-02, 1.9689e-16, 3.3333e-02, 3.3333e-02]), 4),
+    (f([-5.0000e-02, -5.0000e-02, 1.2836e-16, 3.3333e-02, 3.3333e-02, 3.3333e-02]), 0),
+    (f([-1.3333e-01, -1.3333e-01, 1.6653e-16, 8.8888e-02, 8.8888e-02, 8.8888e-02]), 0),
+]
+
 
 class TestSpectralDecomposititonOfCubicFOT4Deviator:
+    @pytest.mark.parametrize("eigen_values,first_index", list_of_tests)
+    def test__get_index_two_fold_eigenvalue_of_cubic_deviator(
+        self, eigen_values, first_index
+    ):
+
+        decomposition = (
+            mechinterfabric.decompositions.SpectralDecomposititonOfCubicFOT4Deviator()
+        )
+        decomposition.eigen_values = eigen_values
+        decomposition._get_rounded_eigenvalues()
+        decomposition._get_most_common_eigenvalues()
+        decomposition._get_index_two_fold_eigenvalue_of_cubic_deviator(
+            select_only_one_vector=True  # Get only first index
+        )
+        assert decomposition.index_two_fold_eigen_value == first_index
+
     @pytest.mark.parametrize(
         "cubic_by_d1",
         np.linspace(*limits, 3),
@@ -85,15 +110,3 @@ class TestSpectralDecomposititonOfCubicFOT4Deviator:
                 cubic_by_d1,
                 converter.to_mandel6(utils.rotate(analysis.FOT4_tensor, rotation)),
             )
-
-
-# [-1.33333333e-01 -1.33333333e-01 -1.33333333e-01  1.30104261e-16  2.00000000e-01  2.00000000e-01]
-# 4
-# [-7.77777778e-02 -7.77777778e-02 -7.77777778e-02  1.96023753e-16  1.16666667e-01  1.16666667e-01]
-# 4
-# [-2.22222222e-02 -2.22222222e-02 -2.22222222e-02  1.96891115e-16  3.33333333e-02  3.33333333e-02]
-# 4
-# [-5.00000000e-02 -5.00000000e-02  1.28369537e-16  3.33333333e-02  3.33333333e-02  3.33333333e-02]
-# 0
-# [-1.33333333e-01 -1.33333333e-01  1.66533454e-16  8.88888889e-02  8.88888889e-02  8.88888889e-02]
-# 0
