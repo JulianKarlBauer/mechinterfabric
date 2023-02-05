@@ -44,9 +44,10 @@ class SpectralDecompositionFOT2:
 
 
 class SpectralDecomposititonOfCubicFOT4Deviator:
-    def __init__(self, FOT4_deviator, decimals_precision=4):
+    def __init__(self, FOT4_deviator=None, decimals_precision=4):
         self.decimals_precision = decimals_precision
-        self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
+        if FOT4_deviator is not None:
+            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
 
     def get_eigen_vector_which_contains_eigensystem_info(
         self,
