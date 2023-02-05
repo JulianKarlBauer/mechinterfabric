@@ -50,12 +50,12 @@ class FOT4Analysis:
                 FOT4_deviator=self.FOT4_mandel6_dev
             )
         )
-        self.eigen_vectors = (
+        self.eigen_vector_which_contains_eigensystem_info = (
             self.spectral_decomp_FOT_dev.get_eigen_vector_which_contains_eigensystem_info()
         )
 
-        print(self.eigen_vectors)
-        evec = self.eigen_vectors
+        print(self.eigen_vector_which_contains_eigensystem_info)
+        evec = self.eigen_vector_which_contains_eigensystem_info
         self._tmp(evec)
         # for evec in self.eigen_vectors:
         #     self._tmp(evec)
