@@ -89,22 +89,17 @@ class FourthOrderFabricAnalyser:
         return None
 
     def analyse(self, FOT4):
+        # Start
+        analysis = self.analysis = FOT4Analysis(FOT4)
         # Contract
-
-        analysis = self.analysis = (
-            FOT4Analysis(FOT4).calc_FOT2().calc_FOT2_spectral().calc_FOT4_deviator()
-        )
-
-        # Inspect FOT2 part
-        print(analysis.FOT2)
-        print(analysis.FOT2_eigenvalues)
-        print(analysis.FOT2_rotation)
-        print(analysis.FOT4_mandel6_dev)
-
+        analysis.calc_FOT2()
+        # Identify symmetry FOT2
+        analysis.calc_FOT2_spectral()
         # Identify symmetry FOT2
         analysis.identify_symmetry_FOT2()
 
-        # Get eigensystem
+        # Get eigensystem based on FOT2 and FOT4 information
+        analysis.calc_FOT4_deviator()
         analysis.get_eigensystem()
 
         return analysis
