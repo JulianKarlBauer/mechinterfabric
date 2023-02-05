@@ -43,5 +43,5 @@ N4_rotated = rotate(N4, Q=Q)
 # print(N4_rotated)
 
 analyser = mechinterfabric.FourthOrderFabricAnalyser()
-result = analyser.analyse(N4)
+result = analyser.analyse(N4_rotated)
 print(result)
