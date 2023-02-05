@@ -57,18 +57,18 @@ class FOT4Analysis:
     def _select_get_eigensystem_function(self):
         return getattr(
             self,
-            {sym: f"_get_eigensystem_{sym}" for sym in self._keys_sym_FOT2}[
+            {sym: f"_get_eigensystem_FOT2_{sym}" for sym in self._keys_sym_FOT2}[
                 self.FOT2_symmetry
             ],
         )
 
-    def _get_eigensystem_isotropic(self):
+    def _get_eigensystem_FOT2_isotropic(self):
         pass
 
-    def _get_eigensystem_transversely_isotropic(self):
+    def _get_eigensystem_FOT2_transversely_isotropic(self):
         pass
 
-    def _get_eigensystem_orthotropic(self):
+    def _get_eigensystem_FOT2_orthotropic(self):
         pass
 
     def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
@@ -107,5 +107,4 @@ class FourthOrderFabricAnalyser:
         # Get eigensystem
         analysis.get_eigensystem()
 
-        analysis.result = {"d0": 0.0, "rotation_Q": np.eye(3)}
         return analysis
