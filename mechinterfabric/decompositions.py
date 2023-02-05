@@ -109,6 +109,8 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
         )
 
     def _get_eigen_vector_two_fold_eigen_value(self):
+        # See structure of eigen vectors
+        # https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
         self.eigen_vector_two_fold_eigen_value = self.eigen_vectors[
             :, self.index_two_fold_eigen_value
         ].T
