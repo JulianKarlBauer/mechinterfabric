@@ -74,31 +74,6 @@ class FOT4Analysis:
         print(self.eigen_vectors)
         # raise Exception()
 
-    def _assert_FOT4_dev_eigenvalues_are_cubic(
-        self, eigen_values, decimals_precision=4
-    ):
-        eigen_values_rounded = np.around(eigen_values, decimals_precision)
-        counter = Counter(eigen_values_rounded)
-        assert len(counter) == 3  # Three distinct eigenvalues
-        most_common = counter.most_common()
-        position_in_most_common_to_number_of_repitition = {
-            0: 3,  # One eigenvalue occurs three times and corresponds to shear eigen mode
-            1: 2,  # One eigenvalue accours twice and its corresponding eigen-vector contains the eigen-system information
-            2: 1,  # One eigenvalue occurs once and is equal to zero. It corresponds to the isotropic mode which is not contained in the deviator
-        }
-        for (
-            position,
-            repetition,
-        ) in position_in_most_common_to_number_of_repitition.items():
-            assert most_common[position][1] == repetition
-
-        position_of_interest = 1
-        eigen_value_of_interest = most_common[position_of_interest][0]
-        index_eigen_value_of_interest = eigen_values_rounded.tolist().index(
-            eigen_value_of_interest
-        )
-        return index_eigen_value_of_interest
-
     def _get_eigensystem_FOT2_transversely_isotropic(self):
         pass
 
