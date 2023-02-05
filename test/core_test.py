@@ -4,6 +4,13 @@ import pytest
 import vofotensors
 from vofotensors.abc import d1
 import sympy as sp
+import scipy
+import mechkit
+
+
+@pytest.fixture()
+def converter():
+    return mechkit.notation.Converter()
 
 
 @pytest.fixture()
@@ -29,5 +36,41 @@ class TestAnalyser:
         indirect=True,
     )
     def test_FOT2_symmetry_cubic(self, analyser, cubic_by_d1):
-        result = analyser.analyse(FOT4=cubic_by_d1)
-        assert result.FOT2_symmetry == "isotropic"
+        anaylsis = analyser.analyse(FOT4=cubic_by_d1)
+        assert anaylsis.FOT2_symmetry == "isotropic"
+
+    @pytest.mark.parametrize("angle", [17, 211, 52])
+    @pytest.mark.parametrize(
+        "cubic_by_d1",
+        (-1 / 15, 2 / 45),
+        indirect=True,
+    )
+    def test__get_eigensystem_if_FOT4_is_cubic(
+        self,
+        analyser,
+        cubic_by_d1,
+        angle,
+        converter,
+    ):
+
+        ######
+        # Rotate
+        rotation_vector = np.array([0, 0, 1])
+
+        rotation = scipy.spatial.transform.Rotation.from_rotvec(
+            angle * rotation_vector, degrees=True
+        )
+        Q = rotation.as_matrix()
+
+        def rotate(mandel, Q):
+            return converter.to_mandel6(
+                mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
+            )
+
+        FOT4_rotated = rotate(cubic_by_d1, Q=Q)
+
+        analysis = analyser.analyse(FOT4_rotated)
+        FOT4_reconstructed = converter.to_mandel6(
+            mechinterfabric.utils.rotate(analysis.FOT4_tensor, analysis.eigensystem)
+        )
+        assert np.allclose(cubic_by_d1, FOT4_reconstructed)
