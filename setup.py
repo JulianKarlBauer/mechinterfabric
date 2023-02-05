@@ -24,6 +24,10 @@ setuptools.setup(
     install_requires=[
         "setuptools",
         "numpy",
+        "mechkit",
+        "scipy",
+        "vofotensors",
+        "natsort",
     ],
     classifiers=[
         "Programming Language :: Python",

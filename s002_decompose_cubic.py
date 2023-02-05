@@ -1,11 +1,8 @@
-# 03.11.22, 17:47
-
 import vofotensors
 from pprint import pprint
 from vofotensors.abc import d1
 import sympy as sp
 import numpy as np
-from symbolic.abc import d1
 import scipy.spatial
 import mechkit
 import mechinterfabric
@@ -46,5 +43,12 @@ N4_rotated = rotate(N4, Q=Q)
 # print(N4_rotated)
 
 analyser = mechinterfabric.FourthOrderFabricAnalyser()
-result = analyser.analyse(N4)
-print(result)
+for d1 in np.linspace(*limits, 5):
+    print(f"\n#### d1={d1}")
+    FOT4 = parametrization(d1=d1)
+    FOT4_rotated = rotate(FOT4, Q=Q)
+    analysis = analyser.analyse(FOT4_rotated)
+    FOT4_reconstructed = converter.to_mandel6(
+        mechinterfabric.utils.rotate(analysis.FOT4_tensor, analysis.eigensystem)
+    )
+    assert np.allclose(FOT4, FOT4_reconstructed)
