@@ -7,8 +7,6 @@ import pytest
 import glob
 import natsort
 
-pytestmark = pytest.mark.scripts
-
 
 PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
