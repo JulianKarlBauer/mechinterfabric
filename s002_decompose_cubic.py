@@ -44,5 +44,6 @@ N4_rotated = rotate(N4, Q=Q)
 
 analyser = mechinterfabric.FourthOrderFabricAnalyser()
 for d1 in np.linspace(*limits, 5):
-    result = analyser.analyse(parametrization(d1=d1))
+    print(f"\n#### d1={d1}")
+    result = analyser.analyse(rotate(parametrization(d1=d1), Q=Q))
     # print(result)
