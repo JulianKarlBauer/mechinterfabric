@@ -9,11 +9,13 @@ class FOT4Analysis:
     def __init__(self, FOT4):
         self._assert_is_FOT4(FOT4)
         self.FOT4_mandel6 = converter.to_mandel6(FOT4)
+        self.FOT4_tensor = converter.to_tensor(FOT4)
 
         self._keys_sym_FOT2 = ["isotropic", "transversely_isotropic", "orthotropic"]
 
     def calc_FOT2(self):
-        self.FOT2 = self._contract_FOT4_to_FOT2(self.FOT4_mandel6)
+        I2 = np.eye(3)
+        self.FOT2 = np.tensordot(self.FOT4_tensor, I2)
         return self
 
     def calc_FOT2_spectral(self):
@@ -24,7 +26,7 @@ class FOT4Analysis:
         return self
 
     def calc_FOT4_deviator(self):
-        self.FOT4_mandel6_dev = self._get_deviator(self.FOT4_mandel6)
+        self.FOT4_mandel6_dev = self._get_deviator(self.FOT4_tensor)
         return self
 
     def identify_symmetry_FOT2(self):
@@ -66,11 +68,6 @@ class FOT4Analysis:
 
     def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
         return np.isclose(first, second, atol=atol, rtol=rtol)
-
-    def _contract_FOT4_to_FOT2(self, mandel):
-        I2 = np.eye(3)
-        tensor_FOT2 = np.tensordot(converter.to_tensor(mandel), I2)
-        return tensor_FOT2
 
     def _get_deviator(self, mandel):
         tensor = converter.to_tensor(mandel)
