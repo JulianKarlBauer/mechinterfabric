@@ -3,6 +3,7 @@ from collections import Counter
 import mechkit
 from . import utils
 from . import decompositions
+import scipy
 
 converter = mechkit.notation.Converter()
 
@@ -38,26 +39,40 @@ class FOT4Analysis:
     def _select_get_eigensystem_function(self):
         return getattr(
             self,
-            {sym: f"_get_eigensystem_FOT2_{sym}" for sym in self._keys_sym_FOT2}[
+            {sym: f"_get_eigensystem_if_FOT2_{sym}" for sym in self._keys_sym_FOT2}[
                 self.FOT2_symmetry
             ],
         )
 
-    def _get_eigensystem_FOT2_isotropic(self):
-        decomposition = decompositions.SpectralDecomposititonOfCubicFOT4Deviator(
-            FOT4_deviator=self.FOT4_mandel6_dev
+    def _get_eigensystem_if_FOT2_isotropic(self):
+        self.spectral_decomp_FOT_dev = (
+            decompositions.SpectralDecomposititonOfCubicFOT4Deviator(
+                FOT4_deviator=self.FOT4_mandel6_dev
+            )
         )
         self.eigen_vectors = (
-            decomposition.get_eigen_vector_which_contains_eigensystem_info()
+            self.spectral_decomp_FOT_dev.get_eigen_vector_which_contains_eigensystem_info()
         )
 
         print(self.eigen_vectors)
+        evec = self.eigen_vectors
+        self._tmp(evec)
+        # for evec in self.eigen_vectors:
+        #     self._tmp(evec)
+
+    def _tmp(self, evec):
+        _, rotation = np.linalg.eigh(converter.to_tensor(evec))
+        rot = scipy.spatial.transform.Rotation.from_matrix(rotation.T)
+        # print(rot.as_euler("xyz", degrees=True))
+        # print(rot.as_rotvec())
+        print(converter.to_mandel6(utils.rotate(self.FOT4_tensor, rotation)))
+
         # raise Exception()
 
-    def _get_eigensystem_FOT2_transversely_isotropic(self):
+    def _get_eigensystem_if_FOT2_transversely_isotropic(self):
         pass
 
-    def _get_eigensystem_FOT2_orthotropic(self):
+    def _get_eigensystem_if_FOT2_orthotropic(self):
         pass
 
     def _get_deviator(self, mandel):
