@@ -29,6 +29,24 @@ def cubic_by_d1(lambdified_parametrization_cubic, request):
     return lambdified_parametrization_cubic(d1=request.param)
 
 
+def get_rotating_func(angle_in_degree, vector=None):
+    rotation_vector = np.array([0, 0, 1]) if vector is None else np.array(vector)
+
+    rotation = scipy.spatial.transform.Rotation.from_rotvec(
+        angle_in_degree * rotation_vector, degrees=True
+    )
+    Q = rotation.as_matrix()
+    converter = mechkit.notation.Converter()
+
+    def rotate(mandel):
+
+        return converter.to_mandel6(
+            mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
+        )
+
+    return rotate
+
+
 class TestAnalyser:
     @pytest.mark.parametrize(
         "cubic_by_d1",
@@ -55,19 +73,9 @@ class TestAnalyser:
 
         ######
         # Rotate
-        rotation_vector = np.array([0, 0, 1])
 
-        rotation = scipy.spatial.transform.Rotation.from_rotvec(
-            angle * rotation_vector, degrees=True
-        )
-        Q = rotation.as_matrix()
-
-        def rotate(mandel, Q):
-            return converter.to_mandel6(
-                mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
-            )
-
-        FOT4_rotated = rotate(cubic_by_d1, Q=Q)
+        rotate = get_rotating_func(angle_in_degree=angle)
+        FOT4_rotated = rotate(cubic_by_d1)
 
         analysis = analyser.analyse(FOT4_rotated)
         FOT4_reconstructed = converter.to_mandel6(
