@@ -134,3 +134,14 @@ def triclinic():
             dtype=object,
         )
     )
+
+
+deviators = [
+    cubic,
+    transversely_isotropic,
+    tetragonal,
+    trigonal,
+    orthotropic,
+    monoclinic,
+    triclinic,
+]
