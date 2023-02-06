@@ -28,6 +28,7 @@ setuptools.setup(
         "scipy",
         "vofotensors",
         "natsort",
+        "sympy",
     ],
     classifiers=[
         "Programming Language :: Python",
