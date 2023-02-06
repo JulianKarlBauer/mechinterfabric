@@ -72,15 +72,15 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
         positions_in_most_common_to_be_asserted = {
             0: {
                 "repetition": 3,
-                "message": "One eigenvalue occurs three times and corresponds to shear eigen mode",
+                "message": "One eigenvalue should occur three times and corresponds to shear eigen mode",
             },
             1: {
                 "repetition": 2,
-                "message": "One eigenvalue accours twice and its corresponding eigen-vector contains the eigen-system information",
+                "message": "One eigenvalue should occur twice and its corresponding eigen-vector contains the eigen-system information",
             },
             2: {
                 "repetition": 1,
-                "message": "One eigenvalue occurs once and is equal to zero. It corresponds to the isotropic mode which is not contained in the deviator",
+                "message": "One eigenvalue should occure once and is equal to zero. It corresponds to the isotropic mode which is not contained in the deviator",
             },
         }
         for (
