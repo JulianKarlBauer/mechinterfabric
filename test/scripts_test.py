@@ -12,7 +12,7 @@ PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))
 
 
 def get_paths_of_scripts():
-    exclude_sub_strings = ["setup", "s001", "s003", "s004"]
+    exclude_sub_strings = ["setup", "s001", "s003", "s004", "s005"]
     plot_script_paths = glob.glob(os.path.join(PROJECT_DIR, "s*.py"))
     plot_script_paths_sorted = natsort.natsorted(plot_script_paths)
     plot_script_paths_sorted_reduced = [
