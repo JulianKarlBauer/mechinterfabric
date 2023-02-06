@@ -7,7 +7,7 @@ from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 
-deviators = mechinterfabric.deviators.deviators[0:3]
+deviators = mechinterfabric.deviators.deviators[0:4]
 for dev in deviators:
     if dev.__name__ != "triclinic":
         deviator = sp.Matrix(dev())

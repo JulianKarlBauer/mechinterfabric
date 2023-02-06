@@ -13,6 +13,11 @@ for dev in deviators:
         print(dev.__name__, eigenvalues.values())
 
 
+######################################################
+# Rotate and inspect again
+# Problem: Invariant eigenvalues change due to rotation.
+# This is likely a problem of the identification of multiplicity of eigenvalues within the symbolic package
+
 alpha = sp.symbols("alpha", real=True)
 
 Q = np.array(
