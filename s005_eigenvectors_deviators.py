@@ -1,10 +1,12 @@
 from pprint import pprint
-import sympy as sp
-import numpy as np
+
 import mechkit
+import numpy as np
+import sympy as sp
+
 import mechinterfabric
-from mechinterfabric.abc import *
 from mechinterfabric import symbolic
+from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 

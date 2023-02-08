@@ -1,9 +1,11 @@
 from pprint import pprint
-import sympy as sp
+
 import numpy as np
+import sympy as sp
+
 import mechinterfabric
-from mechinterfabric.abc import *
 from mechinterfabric import symbolic
+from mechinterfabric.abc import *
 
 
 def myprint(dev, eigenvalues):

@@ -1,12 +1,13 @@
-import mechinterfabric
-from mechinterfabric import utils
+import mechkit
 import numpy as np
 import pytest
+import scipy
+import sympy as sp
 import vofotensors
 from vofotensors.abc import d1
-import sympy as sp
-import scipy
-import mechkit
+
+import mechinterfabric
+from mechinterfabric import utils
 
 
 @pytest.fixture()
