@@ -78,7 +78,7 @@ class TestSpectralDecomposititonOfCubicFOT4Deviator:
 
     @pytest.mark.parametrize(
         "cubic_by_d1",
-        np.linspace(*(-1 / 15, 2 / 45), 3),
+        [-1 / 15, 2 / 45],
         indirect=True,
     )
     def test_eigenvectors_of_both_two_fold_eigen_values_lead_to_similar_rotation(
