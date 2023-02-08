@@ -7,7 +7,7 @@ from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 
-deviators = mechinterfabric.deviators.deviators[0:4]
+deviators = mechinterfabric.deviators.deviators
 for dev in deviators:
     if dev.__name__ != "triclinic":
         deviator = sp.Matrix(dev())
@@ -19,6 +19,6 @@ for dev in deviators:
         print(eigenvalues)
         for ev in eigenvectors:
             nicer = np.array([row for row in ev[2][0]])
-            print(f"Multiplicity={ev[1]}", nicer)
+            print(f"Multiplicity={ev[1]}")
             print(con.to_tensor(nicer))
         # print(eigenvectors)
