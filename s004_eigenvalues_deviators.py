@@ -5,12 +5,18 @@ import mechkit
 import mechinterfabric
 from mechinterfabric.abc import *
 
+
+def myprint(dev, eigenvalues):
+    print(dev.__name__, "with multiplicity = ", list(eigenvalues.values()))
+    print(eigenvalues)
+
+
 deviators = mechinterfabric.deviators.deviators
 for dev in deviators:
     if dev.__name__ != "triclinic":
         deviator = sp.Matrix(dev())
         eigenvalues = deviator.eigenvals()
-        print(dev.__name__, eigenvalues)
+        myprint(dev, eigenvalues)
 
 
 ######################################################
@@ -65,4 +71,4 @@ for dev in deviators:
         # eigenvalues = {
         #     sp.trigsimp(key): val for key, val in deviator.eigenvals().items()
         # }
-        print(dev.__name__, eigenvalues)
+        myprint(dev, eigenvalues)
