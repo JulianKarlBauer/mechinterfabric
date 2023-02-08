@@ -31,4 +31,3 @@ Please
 - **modify** and extend the code in your personal fork,
 - run **tests**,
 - open a **pull request** to incorporate your changes into original the project after review.
-
