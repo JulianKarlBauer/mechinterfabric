@@ -45,13 +45,13 @@ class FOT4Analysis:
         )
 
     def _get_eigensystem_if_FOT2_isotropic(self):
-        self.spectral_decomp_FOT_dev = (
-            decompositions.SpectralDecomposititonOfCubicFOT4Deviator(
-                FOT4_deviator=self.FOT4_mandel6_dev
-            )
-        )
+        self.decomposer_class = decompositions.DecompositionSelector(
+            self.FOT4_mandel6_dev
+        ).select()
+        self.decomposer = self.decomposer_class(FOT4_deviator=self.FOT4_mandel6_dev)
+
         self.eigen_vector_which_contains_eigensystem_info = (
-            self.spectral_decomp_FOT_dev.get_eigen_vector_which_contains_eigensystem_info()
+            self.decomposer.get_eigen_vector_which_contains_eigensystem_info()
         )
 
         _, self.eigensystem = np.linalg.eigh(
