@@ -2,7 +2,7 @@ We follow the [code of conduct][url_code_of_conduct]
 of
 [The Software Carpentries](https://software-carpentry.org/).
 
-Saying that,  
+Saying that,
 "We are dedicated to providing a welcoming and supportive environment for all people, regardless of background or identity.
 ...
 In order to foster a positive and professional learning environment we encourage the following kinds of behaviours in all platforms and events:
