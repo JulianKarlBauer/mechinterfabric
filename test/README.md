@@ -6,5 +6,4 @@
 
 ## Run tests against local files
 - Install the package and pytest (see steps above)
-- Run tests with `python -m pytest`  
-
+- Run tests with `python -m pytest`

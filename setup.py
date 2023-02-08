@@ -1,6 +1,7 @@
-import setuptools
-from os import path
 import sys
+from os import path
+
+import setuptools
 
 description = "Interpolation of fabric and fiber-orientation tensors"
 
