@@ -43,6 +43,66 @@ class SpectralDecompositionFOT2:
         return np.isclose(first, second, atol=atol, rtol=rtol)
 
 
+class DecompositionSelector:
+    def __init__(self, FOT4_deviator=None, decimals_precision=4):
+        self.decimals_precision = decimals_precision
+        if FOT4_deviator is not None:
+            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
+
+    def _get_rounded_eigenvalues(self):
+        self.eigen_values_rounded = np.around(
+            self.eigen_values, self.decimals_precision
+        )
+
+    def _count_eigenvalues_and_create_lookups(self):
+        self.counter_eigenvalues = Counter(self.eigen_values_rounded)
+        most_common_eigenvalues = self.counter_eigenvalues.most_common()
+        self.eigen_values_counted, self.eigen_values_counted_multiplicity = list(
+            zip(*most_common_eigenvalues)
+        )
+
+        self.eigen_values_indices = [
+            np.argwhere(self.eigen_values_rounded == value).flatten()
+            for value in self.eigen_values_counted
+        ]
+
+    def select(self):
+        self._get_rounded_eigenvalues()
+        self._count_eigenvalues_and_create_lookups()
+        self.symmetry = self._identify_symmetry()
+        print(self.symmetry)
+        return self._get_decomposer()
+
+    def _identify_symmetry(self):
+        match self.eigen_values_counted_multiplicity:
+            case (6,):
+                return "isotropic"
+            case (3, 2, 1):
+                return "cubic"
+            case (2, 1, 1, 1, 1):
+                return "tetragonal"
+            case (2, 2, 1, 1):
+                return "trigonal or transversely isotropic"
+            case (1, 1, 1, 1, 1, 1):
+                return "orthotropic or higher"
+            case _:
+                raise utils.ExceptionMechinterfabric(
+                    f"Unknown symmetry class for multiplicity = "
+                    + "{self.eigen_values_counted_multiplicity}"
+                )
+
+    def _get_decomposer(self):
+        match self.symmetry:
+            case "isotropic":
+                pass
+            case "cubic":
+                return SpectralDecomposititonOfCubicFOT4Deviator
+            case _:
+                raise utils.ExceptionMechinterfabric(
+                    f"No known decomposer for symmetry = " + f"{self.symmetry}"
+                )
+
+
 class SpectralDecomposititonOfCubicFOT4Deviator:
     def __init__(self, FOT4_deviator=None, decimals_precision=4):
         self.decimals_precision = decimals_precision
