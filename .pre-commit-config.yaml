@@ -13,10 +13,14 @@ repos:
     rev: 22.3.0
     hooks:
       - id: black
-  - repo: local
+  - repo: https://github.com/asottile/reorder_python_imports
+    rev: v3.9.0
     hooks:
-      - id: pylint
-        name: pylint
-        entry: pylint
-        language: python
-        types: [python]
+    -   id: reorder-python-imports
+  # - repo: local
+  #   hooks:
+  #     - id: pylint
+  #       name: pylint
+  #       entry: pylint
+  #       language: python
+  #       types: [python]
