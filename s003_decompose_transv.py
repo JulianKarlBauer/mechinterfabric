@@ -1,10 +1,13 @@
-import vofotensors
 from pprint import pprint
-from vofotensors.abc import alpha1, rho1
-import sympy as sp
+
+import mechkit
 import numpy as np
 import scipy.spatial
-import mechkit
+import sympy as sp
+import vofotensors
+from vofotensors.abc import alpha1
+from vofotensors.abc import rho1
+
 import mechinterfabric
 
 factor_alpha1, factor_rho1 = sp.symbols("factor_alpha1 factor_rho1", real=True)

@@ -1,10 +1,12 @@
-import vofotensors
 from pprint import pprint
-from vofotensors.abc import d1
-import sympy as sp
+
+import mechkit
 import numpy as np
 import scipy.spatial
-import mechkit
+import sympy as sp
+import vofotensors
+from vofotensors.abc import d1
+
 import mechinterfabric
 
 np.set_printoptions(linewidth=100000)

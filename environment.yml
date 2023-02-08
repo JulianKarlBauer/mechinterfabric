@@ -71,6 +71,7 @@ dependencies:
       - kiwisolver==1.4.4
       - matplotlib==3.6.3
       - mechinterfabricdev==0.0.0
+      - mechkit==0.4.1
       - mpmath==1.2.1
       - natsort==8.2.0
       - pillow==9.4.0

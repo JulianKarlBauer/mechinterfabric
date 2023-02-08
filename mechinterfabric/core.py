@@ -1,9 +1,11 @@
-import numpy as np
 from collections import Counter
+
 import mechkit
-from . import utils
-from . import decompositions
+import numpy as np
 import scipy
+
+from . import decompositions
+from . import utils
 
 converter = mechkit.notation.Converter()
 

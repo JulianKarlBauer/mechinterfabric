@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-import runpy
-import os
-import pytest
 import glob
+import os
+import runpy
+
 import natsort
+import pytest
 
 
 PROJECT_DIR = os.path.realpath(os.path.dirname(os.path.dirname(__file__)))

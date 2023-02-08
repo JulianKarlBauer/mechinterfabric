@@ -1,6 +1,8 @@
-import numpy as np
 from collections import Counter
+
 import mechkit
+import numpy as np
+
 from . import utils
 
 
