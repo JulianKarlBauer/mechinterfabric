@@ -89,8 +89,8 @@ class DecompositionSelector:
                 return "orthotropic or higher"
             case _:
                 raise utils.ExceptionMechinterfabric(
-                    f"Unknown symmetry class for multiplicity = "
-                    + "{self.eigen_values_counted_multiplicity}"
+                    "Unknown symmetry class for multiplicity = "
+                    + f"{self.eigen_values_counted_multiplicity}"
                 )
 
     def _get_decomposer(self):
@@ -101,7 +101,7 @@ class DecompositionSelector:
                 return SpectralDecomposititonOfCubicFOT4Deviator
             case _:
                 raise utils.ExceptionMechinterfabric(
-                    f"No known decomposer for symmetry = " + f"{self.symmetry}"
+                    "No known decomposer for symmetry = " + f"{self.symmetry}"
                 )
 
 
