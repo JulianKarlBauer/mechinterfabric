@@ -49,16 +49,17 @@ class FOT4Analysis:
     def _get_eigensystem_if_FOT2_isotropic(self):
         self.decomposer_class = decompositions.DecompositionSelector(
             self.FOT4_mandel6_dev
-        ).select()
-        self.decomposer = self.decomposer_class(FOT4_deviator=self.FOT4_mandel6_dev)
-
-        self.eigen_vector_which_contains_eigensystem_info = (
-            self.decomposer.get_eigen_vector_which_contains_eigensystem_info()
         )
+        self.decomposer_class.select()
+        # self.decomposer = self.decomposer_class(FOT4_deviator=self.FOT4_mandel6_dev)
 
-        _, self.eigensystem = np.linalg.eigh(
-            converter.to_tensor(self.eigen_vector_which_contains_eigensystem_info)
-        )
+        # self.eigen_vector_which_contains_eigensystem_info = (
+        #     self.decomposer.get_eigen_vector_which_contains_eigensystem_info()
+        # )
+
+        # _, self.eigensystem = np.linalg.eigh(
+        #     converter.to_tensor(self.eigen_vector_which_contains_eigensystem_info)
+        # )
 
     def _get_eigensystem_if_FOT2_transversely_isotropic(self):
         pass

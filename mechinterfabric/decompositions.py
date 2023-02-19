@@ -73,7 +73,7 @@ class DecompositionSelector:
         self._count_eigenvalues_and_create_lookups()
         self.symmetry = self._identify_symmetry()
         print(self.symmetry)
-        return self._get_decomposer()
+        # return self._get_decomposer()
 
     def _identify_symmetry(self):
         match self.eigen_values_counted_multiplicity:
