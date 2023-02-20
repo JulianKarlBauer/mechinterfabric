@@ -24,8 +24,8 @@ N4 = parametrization(d1=d1)
 
 ######
 # Rotate
-angle = 52
-rotation_vector = np.array([0, 0, 1])
+angle = 360 * np.random.rand(1)
+rotation_vector = np.array(np.random.rand(3))
 rotation = scipy.spatial.transform.Rotation.from_rotvec(
     angle * rotation_vector, degrees=True
 )
