@@ -34,6 +34,7 @@ list_of_tests = [
     (f([-5.0000e-02, -5.0000e-02, 1.2836e-16, 3.3333e-02, 3.3333e-02, 3.3333e-02]), 0),
     (f([-1.3333e-01, -1.3333e-01, 1.6653e-16, 8.8888e-02, 8.8888e-02, 8.8888e-02]), 0),
 ]
+del f
 
 
 @pytest.fixture()
@@ -61,21 +62,25 @@ def func_rotating_FOT4(converter):
 
 
 class TestSpectralDecomposititonOfCubicFOT4Deviator:
-    @pytest.mark.parametrize("eigen_values,first_index", list_of_tests)
+    @pytest.mark.parametrize(
+        "eigen_values,first_index_position_two_fold_ev", list_of_tests
+    )
     def test__get_index_two_fold_eigenvalue_of_cubic_deviator(
-        self, eigen_values, first_index
+        self, eigen_values, first_index_position_two_fold_ev
     ):
 
-        decomposition = (
-            mechinterfabric.decompositions.SpectralDecomposititonOfCubicFOT4Deviator()
-        )
+        decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4()
         decomposition.eigen_values = eigen_values
+
         decomposition._get_rounded_eigenvalues()
-        decomposition._get_most_common_eigenvalues()
-        decomposition._get_index_two_fold_eigenvalue_of_cubic_deviator(
-            select_only_one_vector=True  # Get only first index
+        decomposition._count_eigenvalues_and_create_lookups()
+
+        locator = mechinterfabric.decompositions.EigensystemLocatorIsotropicCubic(
+            decomposition
         )
-        assert decomposition.index_two_fold_eigen_value == first_index
+
+        locator._get_index_of_eigenvector_which_contains_info_on_eigensystem()
+        assert locator.index == first_index_position_two_fold_ev
 
     @pytest.mark.parametrize(
         "cubic_by_d1",
@@ -88,24 +93,23 @@ class TestSpectralDecomposititonOfCubicFOT4Deviator:
         func_rotating_FOT4,
         converter,
     ):
+
         rotated = func_rotating_FOT4(cubic_by_d1)
         analysis = mechinterfabric.FOT4Analysis(FOT4=rotated)
-        analysis.calc_FOT4_deviator()
+        analysis.get_eigensystem()
+        locator = analysis.eigensystem_locator
 
-        analysis.spectral_decomp_FOT_dev = (
-            mechinterfabric.decompositions.SpectralDecomposititonOfCubicFOT4Deviator(
-                FOT4_deviator=analysis.FOT4_mandel6_dev
-            )
-        )
-        analysis.eigen_vector_which_contains_eigensystem_info = analysis.spectral_decomp_FOT_dev.get_eigen_vector_which_contains_eigensystem_info(
-            select_only_one_vector=False  # This triggers returning of both eigen vectors which correspond to two-fold eigen value
-        )
+        eigensystems = [locator.eigensystem]
+
+        locator.index = locator.index + 1
+        locator._get_eigenvector_which_contains_info_on_eigensystem()
+        locator._calc_eigensystem()
+
+        eigensystems.append(locator.eigensystem)
 
         # Compare each of the two eigenvectors with initial rotated FOT4
-        for vector in analysis.eigen_vector_which_contains_eigensystem_info:
-            print("vector=", vector)
-            _, rotation = np.linalg.eigh(converter.to_tensor(vector))
+        for eigensystem in eigensystems:
             assert np.allclose(
                 cubic_by_d1,
-                converter.to_mandel6(utils.rotate(analysis.FOT4_tensor, rotation)),
+                converter.to_mandel6(utils.rotate(analysis.FOT4.tensor, eigensystem)),
             )

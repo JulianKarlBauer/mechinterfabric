@@ -10,17 +10,47 @@ from . import utils
 converter = mechkit.notation.Converter()
 
 
+class FiberOrientationTensor:
+    def __init__(self, FOT):
+        self.tensor = converter.to_tensor(FOT)
+        self.mandel6 = converter.to_mandel6(FOT)
+        self._assert_is_FOT()
+        self.deviator = converter.to_mandel6(
+            mechkit.operators.dev(self.tensor, order=self.order)
+        )
+
+    def _assert_is_FOT(self):
+        assert self.tensor.shape == (3,) * self.order
+
+        # Is completely symmetric
+        assert np.allclose(mechkit.operators.Sym()(self.tensor), self.tensor)
+
+        # Eigenvalues sum to one
+        representation = self.tensor if self.order == 2 else self.mandel6
+        assert np.allclose(np.linalg.eigh(representation)[0].sum(), 1.0)
+
+
+class FiberOrientationTensor2(FiberOrientationTensor):
+    def __init__(self, FOT):
+        self.order = 2
+        super().__init__(FOT)
+
+
+class FiberOrientationTensor4(FiberOrientationTensor):
+    def __init__(self, FOT):
+        self.order = 4
+        super().__init__(FOT)
+
+
 class FOT4Analysis:
     def __init__(self, FOT4):
-        self._assert_is_FOT4(FOT4)
-        self.FOT4_mandel6 = converter.to_mandel6(FOT4)
-        self.FOT4_tensor = converter.to_tensor(FOT4)
+        self.FOT4 = FiberOrientationTensor4(FOT4)
+        self.calc_FOT2()
 
         self._keys_sym_FOT2 = ["isotropic", "transversely_isotropic", "orthotropic"]
 
     def calc_FOT2(self):
-        I2 = np.eye(3)
-        self.FOT2 = np.tensordot(self.FOT4_tensor, I2)
+        self.FOT2 = FiberOrientationTensor2(np.tensordot(self.FOT4.tensor, np.eye(3)))
         return self
 
     def get_symmetry_FOT2(self):
@@ -29,68 +59,48 @@ class FOT4Analysis:
         )
         self.FOT2_symmetry = self.FOT2_spectral_decomposition.get_symmetry()
 
-    def calc_FOT4_deviator(self):
-        self.FOT4_mandel6_dev = self._get_deviator(self.FOT4_tensor)
-        return self
+    def get_symmetry_FOT4(self):
+
+        self.FOT4_spectral_decomposition = (
+            decompositions.SpectralDecompositionDeviator4(
+                FOT4_deviator=self.FOT4.deviator
+            )
+        )
+        self.FOT4_symmetry = self.FOT4_spectral_decomposition.get_symmetry()
 
     def get_eigensystem(self):
-        self.get_eigensystem_func = self._select_get_eigensystem_function()
-        self.get_eigensystem_func()
-        return self
 
-    def _select_get_eigensystem_function(self):
-        return getattr(
-            self,
-            {sym: f"_get_eigensystem_if_FOT2_{sym}" for sym in self._keys_sym_FOT2}[
-                self.FOT2_symmetry
-            ],
+        self.get_symmetry_FOT2()
+        self.get_symmetry_FOT4()
+
+        locators = {
+            (
+                "isotropic",
+                "isotropic",
+            ): decompositions.EigensystemLocatorIsotropicIsotropic,
+            (
+                "isotropic",
+                "cubic",
+            ): decompositions.EigensystemLocatorIsotropicCubic,
+            (
+                "isotropic",
+                "trigonal or transversely isotropic",
+            ): decompositions.EigensystemLocatorIsotropicTransverselyIsotropic,
+        }
+        try:
+            symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)
+            locator = locators[symmetry_combination]
+        except KeyError:
+            raise utils.ExceptionMechinterfabric(
+                f"Locator for symmetry combination {symmetry_combination} not implemented"
+            )
+        self.eigensystem_locator = locator(
+            spectral_decomposition=self.FOT4_spectral_decomposition
         )
-
-    def _get_eigensystem_if_FOT2_isotropic(self):
-        self.decomposer_class = decompositions.DecompositionSelector(
-            self.FOT4_mandel6_dev
-        )
-        self.decomposer_class.select()
-        # self.decomposer = self.decomposer_class(FOT4_deviator=self.FOT4_mandel6_dev)
-
-        # self.eigen_vector_which_contains_eigensystem_info = (
-        #     self.decomposer.get_eigen_vector_which_contains_eigensystem_info()
-        # )
-
-        # _, self.eigensystem = np.linalg.eigh(
-        #     converter.to_tensor(self.eigen_vector_which_contains_eigensystem_info)
-        # )
-
-    def _get_eigensystem_if_FOT2_transversely_isotropic(self):
-        pass
-
-    def _get_eigensystem_if_FOT2_orthotropic(self):
-        pass
-
-    def _get_deviator(self, mandel):
-        tensor = converter.to_tensor(mandel)
-        deviator = mechkit.operators.dev(tensor)
-        return converter.to_mandel6(deviator)
-
-    def _assert_is_FOT4(self, candidate):
-        assert (candidate.shape == (3, 3, 3, 3)) or (candidate.shape == (6, 6))
-        assert np.allclose(mechkit.operators.Sym()(candidate), candidate)
+        self.eigensystem = self.eigensystem_locator.get_eigensystem()
+        return self.eigensystem
 
 
-class FourthOrderFabricAnalyser:
-    def __init__(self):
-        return None
-
-    def analyse(self, FOT4):
-        # Start
-        analysis = self.analysis = FOT4Analysis(FOT4)
-        # Contract
-        analysis.calc_FOT2()
-        # Identify symmetry FOT2
-        analysis.get_symmetry_FOT2()
-
-        # Get eigensystem based on FOT2 and FOT4 information
-        analysis.calc_FOT4_deviator()
-        analysis.get_eigensystem()
-
-        return analysis
+# class FourthOrderFabricAnalyser:
+#     def analyse(self, FOT4):
+#         self.analysis = FOT4Analysis(FOT4)
