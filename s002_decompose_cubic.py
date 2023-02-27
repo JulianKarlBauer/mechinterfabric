@@ -24,8 +24,8 @@ N4 = parametrization(d1=d1)
 
 ######
 # Rotate
-angle = 52
-rotation_vector = np.array([0, 0, 1])
+angle = 360 * np.random.rand(1)
+rotation_vector = np.array(np.random.rand(3))
 rotation = scipy.spatial.transform.Rotation.from_rotvec(
     angle * rotation_vector, degrees=True
 )
@@ -44,13 +44,25 @@ N4_rotated = rotate(N4, Q=Q)
 # print(N4)
 # print(N4_rotated)
 
-analyser = mechinterfabric.FourthOrderFabricAnalyser()
 for d1 in np.linspace(*limits, 5):
     print(f"\n#### d1={d1}")
     FOT4 = parametrization(d1=d1)
     FOT4_rotated = rotate(FOT4, Q=Q)
-    analysis = analyser.analyse(FOT4_rotated)
-    FOT4_reconstructed = converter.to_mandel6(
-        mechinterfabric.utils.rotate(analysis.FOT4_tensor, analysis.eigensystem)
-    )
-    assert np.allclose(FOT4, FOT4_reconstructed)
+    analysis = mechinterfabric.FOT4Analysis(FOT4_rotated)
+    analysis.get_eigensystem()
+
+    for vector in analysis.FOT4_spectral_decomposition.eigen_vectors.T:
+        vals, system = np.linalg.eigh(converter.to_tensor(vector))
+
+        rot = scipy.spatial.transform.Rotation.from_matrix(system)
+        rot_vec = rot.as_rotvec()
+
+        # print(f"vals={vals}")
+        # print(f"system=\n{system}")
+        # print(f"rot_vec={rot_vec}")
+
+        back = converter.to_mandel6(
+            mechinterfabric.utils.rotate(analysis.FOT4.tensor, system)
+        )
+        if np.allclose(FOT4, back, atol=1e-3, rtol=1e-3):
+            print(f"back = {back}")

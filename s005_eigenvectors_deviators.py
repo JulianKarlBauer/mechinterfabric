@@ -12,23 +12,27 @@ con = mechkit.notation.ConverterSymbolic()
 
 deviators = mechinterfabric.deviators.deviators[0:4]
 
+
+def inspect(deviator):
+    matrix = sp.Matrix(deviator)
+
+    eigenvalues = matrix.eigenvals()
+    print("\n###########")
+    print(eigenvalues)
+
+    eigenvectors = matrix.eigenvects()
+    for ev in eigenvectors:
+        print(f"{ev[0]} with multiplicity={ev[1]}")
+        for eigenspace in ev[2]:
+            nicer = np.array([row for row in eigenspace])
+            print(con.to_tensor(nicer))
+    # print(eigenvectors)
+
+
 for dev in deviators:
     if dev.__name__ != "triclinic":
-        deviator = sp.Matrix(dev())
-
-        eigenvalues = deviator.eigenvals()
-        print("\n###########")
         print(dev.__name__)
-        print(eigenvalues)
-
-        eigenvectors = deviator.eigenvects()
-        for ev in eigenvectors:
-            nicer = np.array([row for row in ev[2][0]])
-            print(f"Multiplicity={ev[1]}")
-            print(con.to_tensor(nicer))
-        # print(eigenvectors)
-
-
+        inspect(deviator=dev())
 ######################################################
 # Rotate and inspect again
 
@@ -48,16 +52,7 @@ print("#############")
 
 for dev in deviators:
     if dev.__name__ != "triclinic":
+        print(dev.__name__)
         deviator = sp.Matrix(symbolic.actively_rotate_mandel(dev(), Q))
 
-        eigenvalues = deviator.eigenvals()
-        print("\n###########")
-        print(dev.__name__)
-        print(eigenvalues)
-
-        eigenvectors = deviator.eigenvects()
-        for ev in eigenvectors:
-            nicer = np.array([row for row in ev[2][0]])
-            print(f"Multiplicity={ev[1]}")
-            print(con.to_tensor(nicer))
-        # print(eigenvectors)
+        inspect(deviator=deviator)
