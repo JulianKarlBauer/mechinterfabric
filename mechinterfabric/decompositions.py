@@ -5,6 +5,8 @@ import numpy as np
 
 from . import utils
 
+converter = mechkit.notation.Converter()
+
 
 class SpectralDecompositionFOT2:
     def __init__(self, FOT2):
@@ -18,7 +20,7 @@ class SpectralDecompositionFOT2:
         (
             self.FOT2_eigenvalues,
             self.FOT2_rotation,
-        ) = utils.get_eigenvalues_and_rotation_matrix_into_eigensystem(self.FOT2)
+        ) = utils.get_eigenvalues_and_rotation_matrix_into_eigensystem(self.FOT2.tensor)
         return self
 
     def _identify_symmetry_FOT2(self):
@@ -45,7 +47,7 @@ class SpectralDecompositionFOT2:
         return np.isclose(first, second, atol=atol, rtol=rtol)
 
 
-class DecompositionSelector:
+class SpectralDecompositionDeviator4:
     def __init__(self, FOT4_deviator=None, decimals_precision=4):
         self.decimals_precision = decimals_precision
         if FOT4_deviator is not None:
@@ -58,9 +60,9 @@ class DecompositionSelector:
 
     def _count_eigenvalues_and_create_lookups(self):
         self.counter_eigenvalues = Counter(self.eigen_values_rounded)
-        most_common_eigenvalues = self.counter_eigenvalues.most_common()
+        self.eigenvalues_most_common = self.counter_eigenvalues.most_common()
         self.eigen_values_counted, self.eigen_values_counted_multiplicity = list(
-            zip(*most_common_eigenvalues)
+            zip(*self.eigenvalues_most_common)
         )
 
         self.eigen_values_indices = [
@@ -68,12 +70,11 @@ class DecompositionSelector:
             for value in self.eigen_values_counted
         ]
 
-    def select(self):
+    def get_symmetry(self):
         self._get_rounded_eigenvalues()
         self._count_eigenvalues_and_create_lookups()
         self.symmetry = self._identify_symmetry()
-        print(self.symmetry)
-        return self._get_decomposer()
+        return self.symmetry
 
     def _identify_symmetry(self):
         match self.eigen_values_counted_multiplicity:
@@ -93,42 +94,43 @@ class DecompositionSelector:
                     + f"{self.eigen_values_counted_multiplicity}"
                 )
 
-    def _get_decomposer(self):
-        match self.symmetry:
-            case "isotropic":
-                pass
-            case "cubic":
-                return SpectralDecomposititonOfCubicFOT4Deviator
-            case _:
-                raise utils.ExceptionMechinterfabric(
-                    "No known decomposer for symmetry = " + f"{self.symmetry}"
-                )
+
+class EigensystemLocator:
+    def __init__(self, spectral_decomposition):
+        self.spectral_decomposition = spectral_decomposition
 
 
-class SpectralDecomposititonOfCubicFOT4Deviator:
-    def __init__(self, FOT4_deviator=None, decimals_precision=4):
-        self.decimals_precision = decimals_precision
-        if FOT4_deviator is not None:
-            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
+class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
+    def get_eigensystem(self):
+        return np.eye(3)
 
-    def get_eigen_vector_which_contains_eigensystem_info(
-        self,
-        select_only_one_vector=True,
-    ):
-        self._get_rounded_eigenvalues()
-        self._get_most_common_eigenvalues()
+
+class EigensystemLocatorIsotropicCubic(EigensystemLocator):
+    def __init__(self, spectral_decomposition):
+        super().__init__(spectral_decomposition)
         self._assert_eigenvalues_are_cubic()
-        self._get_index_two_fold_eigenvalue_of_cubic_deviator(
-            select_only_one_vector=select_only_one_vector
+
+    def get_eigensystem(self):
+        self._get_index_of_eigenvector_which_contains_info_on_eigensystem()
+        self._get_eigenvector_which_contains_info_on_eigensystem()
+        self._calc_eigensystem()
+        return self.eigensystem
+
+    def _get_index_of_eigenvector_which_contains_info_on_eigensystem(self):
+        assert self.spectral_decomposition.eigen_values_counted_multiplicity[1] == 2
+        self.index = self.spectral_decomposition.eigen_values_indices[1][0]
+
+    def _get_eigenvector_which_contains_info_on_eigensystem(self):
+        self.eigen_vector_two_fold_eigen_value = (
+            self.spectral_decomposition.eigen_vectors[:, self.index].T
+            # See structure of eigen vectors
+            # https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
         )
-        self._get_eigen_vector_two_fold_eigen_value()
 
-        return self.eigen_vector_two_fold_eigen_value
-
-    def _get_rounded_eigenvalues(self):
-        self.eigen_values_rounded = np.around(
-            self.eigen_values, self.decimals_precision
-        )  # .tolist()
+    def _calc_eigensystem(self):
+        _, self.eigensystem = np.linalg.eigh(
+            converter.to_tensor(self.eigen_vector_two_fold_eigen_value)
+        )
 
     def _assert_eigenvalues_are_cubic(self):
         positions_in_most_common_to_be_asserted = {
@@ -150,29 +152,11 @@ class SpectralDecomposititonOfCubicFOT4Deviator:
             details,
         ) in positions_in_most_common_to_be_asserted.items():
             assert (
-                self.most_common_eigenvalues[position][1] == details["repetition"]
+                self.spectral_decomposition.eigenvalues_most_common[position][1]
+                == details["repetition"]
             ), details["message"]
 
-    def _get_most_common_eigenvalues(self):
-        counter = Counter(self.eigen_values_rounded)
-        self.most_common_eigenvalues = counter.most_common()
 
-    def _get_index_two_fold_eigenvalue_of_cubic_deviator(self, select_only_one_vector):
-        position_of_interest = 1
-        eigen_value_of_interest = self.most_common_eigenvalues[position_of_interest][0]
-        # self.index_two_fold_eigen_value = self.eigen_values_rounded.tolist().index(
-        #     eigen_value_of_interest
-        # )
-        indices = np.argwhere(
-            self.eigen_values_rounded == eigen_value_of_interest
-        ).flatten()
-        self.index_two_fold_eigen_value = (
-            indices[0] if select_only_one_vector else indices
-        )
-
-    def _get_eigen_vector_two_fold_eigen_value(self):
-        # See structure of eigen vectors
-        # https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
-        self.eigen_vector_two_fold_eigen_value = self.eigen_vectors[
-            :, self.index_two_fold_eigen_value
-        ].T
+class EigensystemLocatorIsotropicTransverselyIsotropic(EigensystemLocator):
+    def get_eigensystem(self):
+        return np.eye(3)
