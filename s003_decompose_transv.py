@@ -92,24 +92,27 @@ print(FOT4_rotated)
 print(f"Q=\n{Q}")
 print(f"rot_vec = {angle*rotation_vector}")
 
-analyser = mechinterfabric.FourthOrderFabricAnalyser()
 
-analysis = analyser.analyse(FOT4_rotated)
-decomposer = analysis.decomposer_class
+analysis = mechinterfabric.FOT4Analysis(FOT4_rotated)
+analysis.get_eigensystem()
+decomposition = analysis.FOT4_spectral_decomposition
 
-for index, vector in enumerate(decomposer.eigen_vectors.T):
+
+print("\n\n")
+for index, vector in enumerate(decomposition.eigen_vectors.T):
     vals, system = np.linalg.eigh(converter.to_tensor(vector))
 
     rot = scipy.spatial.transform.Rotation.from_matrix(system)
     rot_vec = rot.as_rotvec()
 
     back = converter.to_mandel6(
-        mechinterfabric.utils.rotate(analysis.FOT4_tensor, system)
+        mechinterfabric.utils.rotate(analysis.FOT4.tensor, system)
     )
 
+    print(f"eigenvalue 4.order = {decomposition.eigen_values[index]}")
     print(f"vals[{index}]={vals}")
-    print(f"system=\n{system}")
-    print(f"rot_vec={rot_vec}")
+    # print(f"system=\n{system}")
+    # print(f"rot_vec={rot_vec}")
     print(f"back = \n{back}")
 
     tol = 1e-2
@@ -120,7 +123,7 @@ for index, vector in enumerate(decomposer.eigen_vectors.T):
         print(f"system=\n{system}")
         print(f"rot_vec={rot_vec}")
         print(f"vector={vector}")
-        print(decomposer.eigen_values[index])
+        print(decomposition.eigen_values[index])
         print("end details\n############\n")
 
     print("\n\n")
