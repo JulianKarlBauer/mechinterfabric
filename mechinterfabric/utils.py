@@ -41,11 +41,9 @@ def get_eigenvalues_and_rotation_matrix_into_eigensystem(tensor):
         else:
             raise ExceptionMechinterfabric("Check this")
 
-    matrix_into_eigen = eigen_vectors
+    assert_orthonormal_right_handed_rotation(matrix=eigen_vectors)
 
-    assert_orthonormal_right_handed_rotation(matrix=matrix_into_eigen)
-
-    return eigen_values, matrix_into_eigen
+    return eigen_values, eigen_vectors
 
 
 def assert_orthonormal_right_handed_rotation(matrix):
