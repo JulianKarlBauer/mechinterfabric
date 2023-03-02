@@ -10,15 +10,11 @@ from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 
-deviator = mechinterfabric.deviators.deviators[4]
-print(deviator.__name__)
-
 
 def inspect(deviator):
     matrix = sp.Matrix(deviator)
 
     eigenvalues = matrix.eigenvals()
-    print("\n###########")
     print(eigenvalues)
 
     eigenvectors = matrix.eigenvects()
@@ -41,4 +37,13 @@ def inspect(deviator):
     # print(eigenvectors)
 
 
-inspect(deviator())
+deviators = [mechinterfabric.deviators.deviators[index] for index in [0, 1, 2, 4]]
+
+for deviator in deviators:
+    print(
+        "################################################################################"
+        + "\n\n"
+    )
+    print(deviator.__name__)
+
+    inspect(deviator())
