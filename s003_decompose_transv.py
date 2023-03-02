@@ -115,7 +115,7 @@ for index, vector in enumerate(decomposition.eigen_vectors.T):
     # print(f"rot_vec={rot_vec}")
     print(f"back = \n{back}")
 
-    tol = 1e-2
+    tol = 1e-4
     if np.allclose(FOT4, back, atol=tol, rtol=tol):
         print("\n############\nstart details")
         print(f"back = \n{back}")
