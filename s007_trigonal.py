@@ -23,7 +23,7 @@ def inspect(deviator):
 
     eigenvectors = matrix.eigenvects()
     for ev in eigenvectors:
-        print(f"{ev[0]} with multiplicity={ev[1]}")
+        print(f"#######################\n{ev[0]} with multiplicity={ev[1]}")
         for eigenspace in ev[2]:
             nicer = np.array([row for row in eigenspace])
             print(con.to_tensor(nicer))
