@@ -10,7 +10,7 @@ from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 
-deviator = mechinterfabric.deviators.deviators[2]
+deviator = mechinterfabric.deviators.deviators[3]
 print(deviator.__name__)
 
 
