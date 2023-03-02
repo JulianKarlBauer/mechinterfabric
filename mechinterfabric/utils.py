@@ -17,6 +17,17 @@ def get_eigenvalues_and_rotation_matrix_into_eigensystem(tensor):
 
     eigen_values, eigen_vectors = np.linalg.eigh(tensor)
 
+    eigen_values, eigen_vectors = sort_eigen_values_and_vectors(
+        eigen_values, eigen_vectors
+    )
+
+    assert_orthonormal_right_handed_rotation(matrix=eigen_vectors)
+
+    return eigen_values, eigen_vectors
+
+
+def sort_eigen_values_and_vectors(eigen_values, eigen_vectors):
+
     # Use arbitrary convention if multiple eigenvalues coincide
     if not len(np.unique(eigen_values)) == 3:
         # Sort by string representation of vectors
@@ -40,8 +51,6 @@ def get_eigenvalues_and_rotation_matrix_into_eigensystem(tensor):
             eigen_vectors[:, 2] = -eigen_vectors[:, 2]
         else:
             raise ExceptionMechinterfabric("Check this")
-
-    assert_orthonormal_right_handed_rotation(matrix=eigen_vectors)
 
     return eigen_values, eigen_vectors
 
