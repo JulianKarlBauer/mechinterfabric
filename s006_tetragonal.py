@@ -10,7 +10,8 @@ from mechinterfabric.abc import *
 
 con = mechkit.notation.ConverterSymbolic()
 
-deviators = mechinterfabric.deviators.deviators[0:4]
+deviator = mechinterfabric.deviators.deviators[2]
+print(deviator.__name__)
 
 
 def inspect(deviator):
@@ -26,33 +27,18 @@ def inspect(deviator):
         for eigenspace in ev[2]:
             nicer = np.array([row for row in eigenspace])
             print(con.to_tensor(nicer))
+
+            eigenvectors_eigenspace = sp.Matrix(
+                con.to_tensor(np.array(eigenspace.tolist())[:, 0])
+            ).eigenvects()
+            for ev_eigenspace in eigenvectors_eigenspace:
+                print(f"\t{ev_eigenspace[0]} with multiplicity={ev_eigenspace[1]}")
+                for eigenspace_eigenspace in ev_eigenspace[2]:
+                    nicer_eigenspace = np.array([row for row in eigenspace_eigenspace])
+                    print(f"\t{nicer_eigenspace}")
+
+            # raise Exception()
     # print(eigenvectors)
 
 
-for dev in deviators:
-    if dev.__name__ != "triclinic":
-        print(dev.__name__)
-        inspect(deviator=dev())
-######################################################
-# Rotate and inspect again
-
-
-alpha = sp.symbols("alpha", real=True)
-
-Q = np.array(
-    (
-        (sp.cos(alpha), -sp.sin(alpha), z),
-        (sp.sin(alpha), sp.cos(alpha), z),
-        (z, z, one),
-    ),
-)
-
-
-print("#############")
-
-for dev in deviators:
-    if dev.__name__ != "triclinic":
-        print(dev.__name__)
-        deviator = sp.Matrix(symbolic.actively_rotate_mandel(dev(), Q))
-
-        inspect(deviator=deviator)
+inspect(deviator())
