@@ -29,7 +29,7 @@ def inspect(deviator):
             print(con.to_tensor(nicer))
 
             eigenvectors_eigenspace = sp.Matrix(
-                con.to_tensor(np.array(eigenspace.tolist())[:, 0])
+                con.to_tensor(symbolic.to_numpy(eigenspace)[:, 0])
             ).eigenvects()
             for ev_eigenspace in eigenvectors_eigenspace:
                 print(f"\t{ev_eigenspace[0]} with multiplicity={ev_eigenspace[1]}")
