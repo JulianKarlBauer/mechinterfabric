@@ -13,7 +13,7 @@ np.random.seed(1)
 
 
 @pytest.fixture()
-def lambdified_parametrization_cubic(request):
+def lambdified_parametrization_cubic():
     parametrization_symbolic = vofotensors.fabric_tensors.N4s_parametric["cubic"]["d1"]
     return sp.lambdify([d1], parametrization_symbolic)
 
@@ -21,24 +21,6 @@ def lambdified_parametrization_cubic(request):
 @pytest.fixture()
 def cubic_by_d1(lambdified_parametrization_cubic, request):
     return lambdified_parametrization_cubic(d1=request.param)
-
-
-def get_rotating_func(angle_in_degree, vector=None):
-    rotation_vector = np.array([0, 0, 1]) if vector is None else np.array(vector)
-
-    rotation = scipy.spatial.transform.Rotation.from_rotvec(
-        angle_in_degree * rotation_vector, degrees=True
-    )
-    Q = rotation.as_matrix()
-    utils.converter = mechkit.notation.Converter()
-
-    def rotate(mandel):
-
-        return utils.converter.to_mandel6(
-            mechinterfabric.utils.rotate(utils.converter.to_tensor(mandel), Q=Q)
-        )
-
-    return rotate
 
 
 class TestFOT4AnalysisCubic:
@@ -52,23 +34,20 @@ class TestFOT4AnalysisCubic:
         analysis.get_symmetry_FOT2()
         assert analysis.FOT2_symmetry == "isotropic"
 
-    @pytest.mark.parametrize("angle", [17, 211, 52, 360 * np.random.rand()])
     @pytest.mark.parametrize(
         "cubic_by_d1",
         (-1 / 15, 2 / 45),
         indirect=True,
     )
-    def test__get_eigensystem_if_FOT4_is_cubic(
+    def test_get_eigensystem_if_FOT4_is_cubic(
         self,
         cubic_by_d1,
-        angle,
     ):
 
         ######
         # Rotate
 
-        rotate = get_rotating_func(angle_in_degree=angle)
-        FOT4_rotated = rotate(cubic_by_d1)
+        FOT4_rotated = utils.rotate_fot4_randomly(cubic_by_d1)
 
         analysis = mechinterfabric.FOT4Analysis(FOT4_rotated)
         analysis.get_eigensystem()
