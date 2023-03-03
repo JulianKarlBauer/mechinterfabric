@@ -1,6 +1,8 @@
 import itertools
 
+import mechkit
 import numpy as np
+import scipy
 
 
 class ExceptionMechinterfabric(Exception):
@@ -81,3 +83,24 @@ def assert_orthonormal_right_handed_rotation(matrix):
 
 def rotate(tensor, Q):
     return np.einsum("...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl", Q, Q, Q, Q, tensor)
+
+
+converter = mechkit.notation.Converter()
+
+
+def rotate_fot4_randomly(fot4):
+    return rotate_to_mandel(fot4, Q=get_random_rotation())
+
+
+def rotate_to_mandel(mandel, Q):
+    return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
+
+
+def get_random_rotation():
+    angle = 2 * np.pi * np.random.rand(1)
+    rotation_vector = np.array(np.random.rand(3))
+
+    rotation = scipy.spatial.transform.Rotation.from_rotvec(
+        angle * rotation_vector, degrees=False
+    )
+    return rotation.as_matrix()
