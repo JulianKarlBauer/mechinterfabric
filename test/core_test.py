@@ -192,7 +192,7 @@ class TestFOT4AnalysisTetragonal:
 
     @pytest.mark.parametrize(
         ("fot4_rotated", "fot4_in_eigensystem"),
-        {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}(
+        (
             pytest.param(
                 mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
                 row["tensor"],
