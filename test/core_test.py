@@ -32,7 +32,7 @@ class TestFOT4AnalysisCubic:
     def test_FOT2_symmetry_cubic(self, cubic_by_d1):
         analysis = mechinterfabric.FOT4Analysis(FOT4=cubic_by_d1)
         analysis.get_symmetry_FOT2()
-        assert analysis.FOT2_symmetry == "isotropic"
+        assert analysis.FOT2_symmetry == "isotropic_or_cubic"
 
     @pytest.mark.parametrize(
         "cubic_by_d1",
