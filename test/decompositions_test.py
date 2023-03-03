@@ -16,7 +16,7 @@ def converter():
 
 
 @pytest.fixture()
-def lambdified_parametrization_cubic(request):
+def lambdified_parametrization_cubic():
     parametrization_symbolic = vofotensors.fabric_tensors.N4s_parametric["cubic"]["d1"]
     return sp.lambdify([d1], parametrization_symbolic)
 
