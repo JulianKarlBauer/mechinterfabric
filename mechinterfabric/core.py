@@ -75,15 +75,15 @@ class FOT4Analysis:
 
         locators = {
             (
-                "isotropic",
+                "isotropic_or_cubic",
                 "isotropic",
             ): decompositions.EigensystemLocatorIsotropicIsotropic,
             (
-                "isotropic",
+                "isotropic_or_cubic",
                 "cubic",
             ): decompositions.EigensystemLocatorIsotropicCubic,
             # (
-            #     "isotropic",
+            #     "transversely_isotropic_or_tetragonal_or_trigonal",
             #     "trigonal or transversely isotropic",
             # ): decompositions.EigensystemLocatorIsotropicTransverselyIsotropic,
         }

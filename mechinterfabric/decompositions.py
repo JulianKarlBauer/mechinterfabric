@@ -35,12 +35,14 @@ class SpectralDecompositionFOT2:
         return self.FOT2_symmetry
 
     def _map_equal_eigenvalue_pairs_to_symmetry(self):
+        # We assume, that eigenvalues are sorted
         return {
-            (True, True): "isotropic",
-            (True, False): "transversely_isotropic",  # Oblate
-            # We assume, that eigenvalues are sorted, so v0 == v2 is only possible, if v0 == v1 as well
-            (False, True): "transversely_isotropic",  # Prolate
-            (False, False): "orthotropic",
+            (True, True): "isotropic_or_cubic",
+            # Oblate
+            (True, False): "transversely_isotropic_or_tetragonal_or_trigonal",
+            # Prolate
+            (False, True): "transversely_isotropic_or_tetragonal_or_trigonal",
+            (False, False): "orthotropic_or_monoclinic_or_triclinic",
         }[self.FOT2_eigenvalues_are_equal]
 
     def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
