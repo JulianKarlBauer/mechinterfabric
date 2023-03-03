@@ -7,11 +7,9 @@ import vofotensors
 from vofotensors.abc import d1
 
 import mechinterfabric
+from . import utils
 
-
-@pytest.fixture()
-def converter():
-    return mechkit.notation.Converter()
+np.random.seed(1)
 
 
 @pytest.fixture()
@@ -32,12 +30,12 @@ def get_rotating_func(angle_in_degree, vector=None):
         angle_in_degree * rotation_vector, degrees=True
     )
     Q = rotation.as_matrix()
-    converter = mechkit.notation.Converter()
+    utils.converter = mechkit.notation.Converter()
 
     def rotate(mandel):
 
-        return converter.to_mandel6(
-            mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
+        return utils.converter.to_mandel6(
+            mechinterfabric.utils.rotate(utils.converter.to_tensor(mandel), Q=Q)
         )
 
     return rotate
@@ -54,7 +52,7 @@ class TestFOT4AnalysisCubic:
         analysis.get_symmetry_FOT2()
         assert analysis.FOT2_symmetry == "isotropic"
 
-    @pytest.mark.parametrize("angle", [17, 211, 52])
+    @pytest.mark.parametrize("angle", [17, 211, 52, 360 * np.random.rand()])
     @pytest.mark.parametrize(
         "cubic_by_d1",
         (-1 / 15, 2 / 45),
@@ -64,7 +62,6 @@ class TestFOT4AnalysisCubic:
         self,
         cubic_by_d1,
         angle,
-        converter,
     ):
 
         ######
@@ -75,7 +72,7 @@ class TestFOT4AnalysisCubic:
 
         analysis = mechinterfabric.FOT4Analysis(FOT4_rotated)
         analysis.get_eigensystem()
-        FOT4_reconstructed = converter.to_mandel6(
+        FOT4_reconstructed = utils.converter.to_mandel6(
             mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
         )
         assert np.allclose(cubic_by_d1, FOT4_reconstructed)
