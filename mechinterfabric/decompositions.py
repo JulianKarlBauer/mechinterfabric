@@ -159,7 +159,7 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
             ), details["message"]
 
 
-class EigensystemLocatorTransvTetra(EigensystemLocator):
+class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
     def get_eigensystem(self):
         self.eigensystem = self.get_eigenvec_with_eigenvalues_m211()
         return self.eigensystem
