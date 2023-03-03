@@ -88,7 +88,71 @@ test_cases_failing = [
 ]
 
 
-class TestFOT4Analysis:
+class TestFOT4AnalysisTransv:
+    @pytest.mark.parametrize(
+        ("fot4_rotated", "fot4_in_eigensystem"),
+        (
+            pytest.param(
+                utils.rotate_fot4_randomly(row["tensor"]), row["tensor"], id=row["id"]
+            )
+            for row in test_cases_passing
+        ),
+    )
+    def test_get_eigensystem(self, fot4_rotated, fot4_in_eigensystem):
+
+        analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+        analysis.get_eigensystem()
+        reconstructed = utils.converter.to_mandel6(
+            mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
+        )
+        assert np.allclose(reconstructed, fot4_in_eigensystem)
+
+    @pytest.mark.parametrize(
+        ("fot4_rotated", "fot4_in_eigensystem"),
+        (
+            pytest.param(
+                utils.rotate_fot4_randomly(row["tensor"]), row["tensor"], id=row["id"]
+            )
+            for row in test_cases_failing
+        ),
+    )
+    def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
+        with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
+            analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+            analysis.get_eigensystem()
+            reconstructed = utils.converter.to_mandel6(
+                mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
+            )
+            # assert np.allclose(reconstructed, fot4_in_eigensystem)
+
+
+###################################################################################
+
+
+def lambdified_parametrization():
+    from vofotensors.abc import alpha1, d1, d3
+
+    return sp.lambdify(
+        [alpha1, d1, d3],
+        vofotensors.fabric_tensors.N4s_parametric["tetragonal"]["alpha1_d1_d3"],
+    )
+
+
+test_cases_passing = []
+
+test_cases_failing = [
+    *[
+        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
+        for id, kwargs in [
+            ("random pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": 0.0243}),
+            ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
+            ("random pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
+        ]
+    ],
+]
+
+
+class TestFOT4AnalysisTetragonal:
     @pytest.mark.parametrize(
         ("fot4_rotated", "fot4_in_eigensystem"),
         (
