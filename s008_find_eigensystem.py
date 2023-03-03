@@ -16,21 +16,19 @@ np.set_printoptions(linewidth=100000)
 
 converter = mechkit.notation.Converter()
 
-parametrization_symbolic = vofotensors.fabric_tensors.N4s_parametric[
-    "transv_isotropic"
-]["alpha1_rho1"]
-parametrization = sp.lambdify([alpha1, rho1], parametrization_symbolic)
 
-################################################
-def rotate(mandel, Q):
-    return converter.to_mandel6(
-        mechinterfabric.utils.rotate(converter.to_tensor(mandel), Q=Q)
+def lambdified_parametrization():
+    from vofotensors.abc import alpha1, d3, d9
+
+    return sp.lambdify(
+        [alpha1, d3, d9],
+        vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
     )
 
 
 ################################################
 
-FOT4 = parametrization(0, 1 / 60)
+FOT4 = lambdified_parametrization()(**{"alpha1": 0, "d3": 0.0125, "d9": 0.0325})
 
 ######
 # Rotate
