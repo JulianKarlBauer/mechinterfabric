@@ -55,3 +55,72 @@ class TestFOT4AnalysisCubic:
             mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
         )
         assert np.allclose(cubic_by_d1, FOT4_reconstructed)
+
+
+def lambdified_parametrization_transv():
+    from vofotensors.abc import alpha1, rho1
+
+    return sp.lambdify(
+        [alpha1, rho1],
+        vofotensors.fabric_tensors.N4s_parametric["transv_isotropic"]["alpha1_rho1"],
+    )
+
+
+test_cases_passing = [
+    {"id": "isotropic", "tensor": sp.lambdify([], vofotensors.basic_tensors.N4_iso)()},
+]
+
+test_cases_failing = [
+    *[
+        {"id": id, "tensor": lambdified_parametrization_transv()(**kwargs)}
+        for id, kwargs in [
+            ("transv variety of FOT, Fig3, brown", {"alpha1": -1 / 3, "rho1": 3 / 280}),
+            ("transv variety of FOT, Fig3, grey", {"alpha1": 0, "rho1": 1 / 60}),
+            ("transv variety of FOT, Fig3, purple", {"alpha1": 0, "rho1": -1 / 90}),
+            ("transv variety of FOT, Fig3, blue", {"alpha1": 2 / 3, "rho1": 1 / 35}),
+            ("transv random, in the middle", {"alpha1": 1 / 6, "rho1": 3 / 280}),
+            (
+                "transv random, upper right",
+                {"alpha1": 3 / 6, "rho1": (1 / 35 + 1 / 60) / 2},
+            ),
+        ]
+    ],
+]
+
+
+class TestFOT4Analysis:
+    @pytest.mark.parametrize(
+        ("fot4_rotated", "fot4_in_eigensystem"),
+        (
+            pytest.param(
+                utils.rotate_fot4_randomly(row["tensor"]), row["tensor"], id=row["id"]
+            )
+            for row in test_cases_passing
+        ),
+    )
+    def test_get_eigensystem(self, fot4_rotated, fot4_in_eigensystem):
+
+        analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+        analysis.get_eigensystem()
+        reconstructed = utils.converter.to_mandel6(
+            mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
+        )
+        assert np.allclose(reconstructed, fot4_in_eigensystem)
+
+    @pytest.mark.parametrize(
+        ("fot4_rotated", "fot4_in_eigensystem"),
+        (
+            pytest.param(
+                utils.rotate_fot4_randomly(row["tensor"]), row["tensor"], id=row["id"]
+            )
+            for row in test_cases_failing
+        ),
+    )
+    def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
+        with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
+            analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+            analysis.get_eigensystem()
+            reconstructed = utils.converter.to_mandel6(
+                mechinterfabric.utils.rotate(analysis.FOT4.tensor, analysis.eigensystem)
+            )
+            # assert np.allclose(reconstructed, fot4_in_eigensystem)
