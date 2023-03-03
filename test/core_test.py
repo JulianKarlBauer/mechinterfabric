@@ -43,7 +43,7 @@ def get_rotating_func(angle_in_degree, vector=None):
     return rotate
 
 
-class TestAnalyser:
+class TestFOT4AnalysisCubic:
     @pytest.mark.parametrize(
         "cubic_by_d1",
         (-1 / 15, 2 / 45),
