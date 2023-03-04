@@ -161,10 +161,10 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
 
 class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
     def get_eigensystem(self):
-        self.eigensystem = self.get_eigenvec_with_eigenvalues_m211()
+        self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
         return self.eigensystem
 
-    def get_eigenvec_with_eigenvalues_m211(self, tol=1e-3):
+    def get_eigenvec_with_specific_eigenvalues(self, tol=1e-3):
         def allclose(A, B):
             return np.allclose(A, B, rtol=tol, atol=tol)
 
@@ -173,14 +173,12 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             tensor = converter.to_tensor(vector)
             vals, vecs = np.linalg.eigh(tensor)
 
-            # Sign of eigenvectors are arbitrary, we expect a specific sign convention,
-            # see variable "reference"
-            # Start with sorting both vals and vecs by increasing absolute values of vals
-            index = np.argsort(np.abs(vals))
-            vals = vals[index]
-            vecs = vecs[:, index]
-            if vals[-1] <= 0:
-                vals = -vals
+            (
+                vals,
+                vecs,
+            ) = self.cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
+                vals, vecs
+            )
 
             reference = 1.0 / np.sqrt(6) * np.array([-1.0, -1.0, 2.0])
 
@@ -188,8 +186,23 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
                 vals_sorted, eigensystem = utils.sort_eigen_values_and_vectors(
                     eigen_values=vals, eigen_vectors=vecs
                 )
+                print(f"vals={vals}")
+                print(f"vals_sorted={vals_sorted}")
 
                 return eigensystem
         raise utils.ExceptionMechinterfabric(
             "None of the eigenvalue triplets matched the reference"
         )
+
+    def cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
+        self, vals, vecs
+    ):
+        # Sign of eigenvectors are arbitrary, we expect a specific sign convention,
+        # see variable "reference"
+        # Start with sorting both vals and vecs by increasing absolute values of vals
+        index = np.argsort(np.abs(vals))
+        vals = vals[index]
+        vecs = vecs[:, index]
+        if vals[-1] <= 0:
+            vals = -vals
+        return vals, vecs
