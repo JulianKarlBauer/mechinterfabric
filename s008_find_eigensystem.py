@@ -56,4 +56,41 @@ reconstructed = mechinterfabric.utils.rotate_to_mandel(
 )
 print(reconstructed)
 
+mins = []
+angle_min = 0
+angle_max = 180
+angle_nbr = 1800
+for angle in np.linspace(angle_min, angle_max, angle_nbr):
+    rotation = scipy.spatial.transform.Rotation.from_rotvec(
+        angle * np.array([1, 0, 0]), degrees=True
+    ).as_matrix()
+    rotated = mechinterfabric.utils.rotate_to_mandel(reconstructed, Q=rotation)
+    difference = FOT4 - rotated
+    # print(f"Difference of rotated by {angle} degree is\n{difference}")
+    mins.append(np.min(difference))
+
+perfect_index = np.argmin(np.abs(mins))
+perfect_angle = perfect_index / angle_nbr * (angle_max - angle_min)
+
+
+perfect_rotation = scipy.spatial.transform.Rotation.from_rotvec(
+    perfect_angle * np.array([1, 0, 0]), degrees=True
+).as_matrix()
+perfect_rotated = mechinterfabric.utils.rotate_to_mandel(
+    reconstructed, Q=perfect_rotation
+)
+print(f"perfect_rotated = \n{perfect_rotated}")
+
+# Consequence: Trigonal FOT are not rotational symmetric around axis of "transversely isotropic" second order part
+# Question: Which additional step for trigonal symmetric FOT4 can be used to obtain the additional rotation around the x-axis?
+
+# trigonal_rotations = [
+#     ((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
+#     ((-1 / 2, -sqrt(3) / 2, 0), (sqrt(3) / 2, -1 / 2, 0), (0, 0, 1)),
+#     ((-1 / 2, sqrt(3) / 2, 0), (-sqrt(3) / 2, -1 / 2, 0), (0, 0, 1)),
+#     ((1 / 2, -sqrt(3) / 2, 0), (-sqrt(3) / 2, -1 / 2, 0), (0, 0, -1)),
+#     ((1 / 2, sqrt(3) / 2, 0), (sqrt(3) / 2, -1 / 2, 0), (0, 0, -1)),
+#     ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
+# ]
+
 assert np.allclose(reconstructed, FOT4)
