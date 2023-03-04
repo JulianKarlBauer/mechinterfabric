@@ -28,33 +28,49 @@ def lambdified_parametrization():
 
 
 fot4 = lambdified_parametrization()(**{"alpha1": 0, "d3": 0.0125, "d9": 0.0325})
-
-# analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-# analysis.get_eigensystem()
-# reconstructed = mechinterfabric.utils.rotate_to_mandel("#######################\
-#     analysis.FOT4.tensor, analysis.eigensystem
-# )
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
+print(f"deviator=\n{deviator}")
+
+rotation = mechinterfabric.utils.get_rotation_by_vector(
+    vector=51 * np.array([1, 0, 0]), degrees=True
+)
+deviator_rotated = mechinterfabric.utils.rotate_to_mandel(deviator, Q=rotation)
+print(f"deviator_rotated=\n{deviator_rotated}")
+
+eigenvalues, eigenvectors = np.linalg.eigh(deviator)
+print("###########")
+print(f"eigenvalues = {eigenvalues}")
 
 
-def inspect(deviator):
+def sort_eigensystem(vals, vecs):
+    locator = mechinterfabric.decompositions.EigensystemLocatorTransvTetraTrigo(
+        spectral_decomposition=None
+    )
+    (
+        vals,
+        vecs,
+    ) = locator.cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
+        vals, vecs
+    )
 
-    eigenvalues, eigenvectors = np.linalg.eigh(deviator)
-    print("\n###########")
-    print(eigenvalues)
-
-    for eval, evec in zip(eigenvalues, eigenvectors.T):
-        print(f"#######################\nEigenvalue {eval} has eigen tensor")
-        tensor = con.to_tensor(evec)
-        print(tensor)
-
-        eigenvalues2, eigenvectors2 = np.linalg.eigh(tensor)
-        for eval2, evec2 in zip(eigenvalues2, eigenvectors2.T):
-            print(f"\t\t Eigenvalue {eval2} has eigen tensor")
-            print(f"\t\t{evec2}")
-
-        # raise Exception()
-    # print(eigenvectors)
+    vals_sorted, eigensystem = mechinterfabric.utils.sort_eigen_values_and_vectors(
+        eigen_values=vals, eigen_vectors=vecs
+    )
+    return vals_sorted, eigensystem
 
 
-inspect(deviator)
+for eval, evec in zip(eigenvalues, eigenvectors.T):
+    print(f"#######################\nEigenvalue {eval} has eigen tensor")
+    tensor = con.to_tensor(evec)
+    print(tensor)
+
+    # eigenvalues2, eigenvectors2 = np.linalg.eigh(tensor)
+    # for eval2, evec2 in zip(eigenvalues2, eigenvectors2.T):
+    #     print(f"\t\t Eigenvalue {eval2} has eigen tensor")
+    #     print(f"\t\t{evec2}")
+
+    vals, vecs = np.linalg.eigh(tensor)
+    vals_sorted, vecs_sorted = sort_eigensystem(vals, vecs)
+
+    candiate = mechinterfabric.utils.rotate_to_mandel(deviator_rotated, Q=vecs_sorted)
+    print(candiate)
