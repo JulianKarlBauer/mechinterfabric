@@ -104,4 +104,5 @@ def get_rotation_by_vector(vector, degrees=False):
 def get_random_rotation():
     angle = 2 * np.pi * np.random.rand(1)
     rotation_vector = np.array(np.random.rand(3))
+    rotation_vector = rotation_vector / np.linalg.norm(rotation_vector)
     return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)
