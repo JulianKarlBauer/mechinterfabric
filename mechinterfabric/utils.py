@@ -96,11 +96,12 @@ def rotate_to_mandel(mandel, Q):
     return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
 
 
+def get_rotation_by_vector(vector, degrees=False):
+    rotation = scipy.spatial.transform.Rotation.from_rotvec(vector, degrees=degrees)
+    return rotation.as_matrix()
+
+
 def get_random_rotation():
     angle = 2 * np.pi * np.random.rand(1)
     rotation_vector = np.array(np.random.rand(3))
-
-    rotation = scipy.spatial.transform.Rotation.from_rotvec(
-        angle * rotation_vector, degrees=False
-    )
-    return rotation.as_matrix()
+    return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)
