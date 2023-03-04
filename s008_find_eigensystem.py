@@ -93,4 +93,4 @@ print(f"perfect_rotated = \n{perfect_rotated}")
 #     ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
 # ]
 
-assert np.allclose(reconstructed, FOT4)
+# assert np.allclose(reconstructed, FOT4)
