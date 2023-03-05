@@ -30,6 +30,7 @@ setuptools.setup(
         "vofotensors >= 1.0.6",
         "natsort",
         "sympy",
+        "matplotlib",
     ],
     classifiers=[
         "Programming Language :: Python",
