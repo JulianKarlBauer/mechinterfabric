@@ -1,6 +1,8 @@
 import itertools
 
+import mechkit
 import numpy as np
+import scipy
 
 
 class ExceptionMechinterfabric(Exception):
@@ -16,6 +18,17 @@ def get_eigenvalues_and_rotation_matrix_into_eigensystem(tensor):
     # differ in sign-conventions, as -v is an eigenvector if v is one
 
     eigen_values, eigen_vectors = np.linalg.eigh(tensor)
+
+    eigen_values, eigen_vectors = sort_eigen_values_and_vectors(
+        eigen_values, eigen_vectors
+    )
+
+    assert_orthonormal_right_handed_rotation(matrix=eigen_vectors)
+
+    return eigen_values, eigen_vectors
+
+
+def sort_eigen_values_and_vectors(eigen_values, eigen_vectors):
 
     # Use arbitrary convention if multiple eigenvalues coincide
     if not len(np.unique(eigen_values)) == 3:
@@ -41,11 +54,7 @@ def get_eigenvalues_and_rotation_matrix_into_eigensystem(tensor):
         else:
             raise ExceptionMechinterfabric("Check this")
 
-    matrix_into_eigen = eigen_vectors
-
-    assert_orthonormal_right_handed_rotation(matrix=matrix_into_eigen)
-
-    return eigen_values, matrix_into_eigen
+    return eigen_values, eigen_vectors
 
 
 def assert_orthonormal_right_handed_rotation(matrix):
@@ -74,3 +83,35 @@ def assert_orthonormal_right_handed_rotation(matrix):
 
 def rotate(tensor, Q):
     return np.einsum("...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl", Q, Q, Q, Q, tensor)
+
+
+converter = mechkit.notation.Converter()
+
+
+def rotate_fot4_randomly(fot4):
+    return rotate_to_mandel(fot4, Q=get_random_rotation())
+
+
+def rotate_to_mandel(mandel, Q):
+    if isinstance(Q, np.ndarray) and (Q.shape == (3, 3)):
+        return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
+    elif isinstance(Q, list):
+        for transform in Q:
+            mandel = converter.to_mandel6(
+                rotate(converter.to_tensor(mandel), Q=transform)
+            )
+        return mandel
+    else:
+        raise ExceptionMechinterfabric("Do not understand argument Q")
+
+
+def get_rotation_by_vector(vector, degrees=False):
+    rotation = scipy.spatial.transform.Rotation.from_rotvec(vector, degrees=degrees)
+    return rotation.as_matrix()
+
+
+def get_random_rotation():
+    angle = 2 * np.pi * np.random.rand(1)
+    rotation_vector = np.array(np.random.rand(3))
+    rotation_vector = rotation_vector / np.linalg.norm(rotation_vector)
+    return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)

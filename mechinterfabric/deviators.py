@@ -69,13 +69,12 @@ def tetragonal():
 
 def trigonal():
     return copy_upper_triangle(
-        d1
-        * np.array(
+        np.array(
             [
                 [sp.S(8) * d3, -sp.S(4) * d3, -sp.S(4) * d3, z, z, z],
                 [z, sp.S(3) * d3, d3, z, z, sqrt_two * d9],
                 [z, z, sp.S(3) * d3, z, z, -sqrt_two * d9],
-                [z, z, z, sp.S(2) * d3, sp.S(2) * d9, z],
+                [z, z, z, sp.S(2) * d3, -sp.S(2) * d9, z],
                 [z, z, z, z, -sp.S(2) * sp.S(4) * d3, z],
                 [z, z, z, z, z, -sp.S(2) * sp.S(4) * d3],
             ],
