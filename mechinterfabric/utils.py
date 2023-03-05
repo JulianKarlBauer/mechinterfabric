@@ -93,7 +93,16 @@ def rotate_fot4_randomly(fot4):
 
 
 def rotate_to_mandel(mandel, Q):
-    return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
+    if isinstance(Q, np.ndarray) and (Q.shape == (3, 3)):
+        return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
+    elif isinstance(Q, list):
+        for transform in Q:
+            mandel = converter.to_mandel6(
+                rotate(converter.to_tensor(mandel), Q=transform)
+            )
+        return mandel
+    else:
+        raise ExceptionMechinterfabric("Do not understand argument Q")
 
 
 def get_rotation_by_vector(vector, degrees=False):

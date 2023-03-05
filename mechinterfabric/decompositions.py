@@ -173,13 +173,16 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
         )
 
         # Make additional step for trigonal case
-        if make_trigonal_check and self.deviator_is_at_least_trigonal():
-            additionl_rotation = self.rotate_into_trigonal_natural_system()
-            self.eigensystem = additionl_rotation @ self.eigensystem
+        if make_trigonal_check and self.deviator_is_trigonal_or_less_symmetric():
+            additional_rotation = self.rotate_into_trigonal_natural_system()
+
+            # The following transformation have to be applied step-wise starting from index 0
+            # See utils.rotate_to_mandel for details
+            self.eigensystem = [self.eigensystem, additional_rotation]
 
         return self.eigensystem
 
-    def deviator_is_at_least_trigonal(self, tol=1e-6):
+    def deviator_is_trigonal_or_less_symmetric(self, tol=1e-6):
         indices_zeros_orthotropic = np.s_[:3, 3:]
         upper_right_quadrant = self.deviator_in_eigensystem[indices_zeros_orthotropic]
         return not np.allclose(
@@ -235,7 +238,6 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             # deviator_final = utils.rotate_to_mandel(deviator_optimized, Q=transform)
 
             additional_rotation = transform @ additional_rotation
-            print("juhusdauifgauisdgvuisdg")
 
         return additional_rotation
 
