@@ -186,8 +186,8 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
                 vals_sorted, eigensystem = utils.sort_eigen_values_and_vectors(
                     eigen_values=vals, eigen_vectors=vecs
                 )
-                print(f"vals={vals}")
-                print(f"vals_sorted={vals_sorted}")
+                # print(f"vals={vals}")
+                # print(f"vals_sorted={vals_sorted}")
 
                 return eigensystem
         raise utils.ExceptionMechinterfabric(
