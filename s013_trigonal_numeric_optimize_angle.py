@@ -31,30 +31,32 @@ fot4 = lambdified_parametrization()(**{"alpha1": 0, "d3": 0.0125, "d9": 0.0325})
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
 print(f"deviator=\n{deviator}")
 
-# Select random rotation
-angle = 52
-rotation = mechinterfabric.utils.get_rotation_by_vector(
-    vector=angle * np.array([1, 0, 0]), degrees=True
-)
-# rotation = mechinterfabric.utils.get_random_rotation()
+# # Select random rotation
+# angle = 52
+# rotation = mechinterfabric.utils.get_rotation_by_vector(
+#     vector=angle * np.array([1, 0, 0]), degrees=True
+# )
+rotation = mechinterfabric.utils.get_random_rotation()
+
 
 # Apply random rotation
 fot4_rotated = mechinterfabric.utils.rotate_to_mandel(fot4, Q=rotation)
 deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotated)))
 
-deviator_reconstructed = deviator_rotated
-# # Apply transv-iso logic
-# analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-# analysis.get_eigensystem()
-# fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
-#     analysis.FOT4.tensor, analysis.eigensystem
-# )
-# deviator_reconstructed = con.to_mandel6(
-#     mechkit.operators.dev(con.to_tensor(fot4_reconstructed))
-# )
+# deviator_reconstructed = deviator_rotated
+# Apply transv-iso logic
+analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+analysis.get_eigensystem()
+fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
+    analysis.FOT4.tensor, analysis.eigensystem
+)
+deviator_reconstructed = con.to_mandel6(
+    mechkit.operators.dev(con.to_tensor(fot4_reconstructed))
+)
 
 
 angles = np.linspace(0, 60, 180)
+angles_difference = angles[1] - angles[0]
 residuum = np.zeros((len(angles)), dtype=np.float64)
 
 
@@ -74,11 +76,11 @@ for index, angle in enumerate(angles):
 
 
 best_index = np.argmin(residuum)
-angle_optimized = angles[best_index]
+best_angle = angles[best_index]
 deviator_optimized = mechinterfabric.utils.rotate_to_mandel(
     deviator_reconstructed,
     Q=mechinterfabric.utils.get_rotation_by_vector(
-        vector=angle_optimized * np.array([1, 0, 0]), degrees=True
+        vector=best_angle * np.array([1, 0, 0]), degrees=True
     ),
 )
 
@@ -87,11 +89,13 @@ print(f"deviator_optimized=\n{deviator_optimized}")
 # Fine tune
 import scipy
 
-index_lower_bound = best_index - 1 if best_index >= 1 else best_index
-index_upper_bound = best_index + 1 if best_index <= len(angles) - 1 else best_index
+
 res = scipy.optimize.minimize_scalar(
     lambda x: calc_residuum(x)[0],
-    bounds=(angles[index_lower_bound], angles[index_upper_bound]),
+    bounds=(
+        angles[best_index] - angles_difference,
+        angles[best_index] + angles_difference,
+    ),
     method="bounded",
 )
 
@@ -108,13 +112,13 @@ index_positive_value = np.s_[1, 5]
 if deviator_perfect[index_positive_value] <= 0.0:
     # Apply orthogonal transform which changes signs of specific column of off-orthogonal part
     transform = np.array([[1, 0, 0], [0, -1, 0], [0, 0, -1]], dtype=np.float64)
-    deviator_perfect_transformed = mechinterfabric.utils.rotate_to_mandel(
+    deviator_perfect = mechinterfabric.utils.rotate_to_mandel(
         deviator_perfect, Q=transform
     )
 
-print(f"deviator_perfect_transformed=\n{deviator_perfect_transformed}")
+print(f"deviator_perfect=\n{deviator_perfect}")
 
-assert np.allclose(deviator, deviator_perfect_transformed)
+assert np.allclose(deviator, deviator_perfect, atol=1e-7, rtol=1e-7)
 
 from matplotlib import pyplot as plt
 
