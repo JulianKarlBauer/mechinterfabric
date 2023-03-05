@@ -168,4 +168,4 @@ for index in range(nbr_entries):
 
 plt.plot(angles[:, 0], -angles[:, 0], color="black", label="reference")
 plt.legend()
-plt.show()
+# plt.show()
