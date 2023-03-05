@@ -2,6 +2,7 @@ from collections import Counter
 
 import mechkit
 import numpy as np
+import scipy
 
 from . import utils
 
@@ -104,7 +105,7 @@ class EigensystemLocator:
 
 
 class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
-    def get_eigensystem(self):
+    def get_eigensystem(self, **kwargs):
         return np.eye(3)
 
 
@@ -113,7 +114,7 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
         super().__init__(spectral_decomposition)
         self._assert_eigenvalues_are_cubic()
 
-    def get_eigensystem(self):
+    def get_eigensystem(self, **kwargs):
         self._get_index_of_eigenvector_which_contains_info_on_eigensystem()
         self._get_eigenvector_which_contains_info_on_eigensystem()
         self._calc_eigensystem()
@@ -161,9 +162,82 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
 
 
 class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
-    def get_eigensystem(self):
+    def get_eigensystem(self, make_trigonal_check=True, **kwargs):
+
+        # Start homogeneously
+        # for orthotropic (i.e., tetra, transv.-iso.) and
+        # non-orthotropic, i.e., trigonal
         self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
+        self.deviator_in_eigensystem = utils.rotate_to_mandel(
+            self.spectral_decomposition.deviator, Q=self.eigensystem
+        )
+
+        # Make additional step for trigonal case
+        if make_trigonal_check and self.deviator_is_at_least_trigonal():
+            additionl_rotation = self.rotate_into_trigonal_natural_system()
+            self.eigensystem = additionl_rotation @ self.eigensystem
+
         return self.eigensystem
+
+    def deviator_is_at_least_trigonal(self, tol=1e-6):
+        indices_zeros_orthotropic = np.s_[:3, 3:]
+        upper_right_quadrant = self.deviator_in_eigensystem[indices_zeros_orthotropic]
+        return not np.allclose(
+            upper_right_quadrant,
+            np.zeros_like(upper_right_quadrant),
+            atol=tol,
+            rtol=tol,
+        )
+
+    def rotate_into_trigonal_natural_system(self):
+        def calc_residuum(angle):
+            rotation = utils.get_rotation_by_vector(
+                vector=angle * np.array([1, 0, 0]), degrees=True
+            )
+            rotated = utils.rotate_to_mandel(self.deviator_in_eigensystem, Q=rotation)
+            indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+            return np.linalg.norm(rotated[indices])
+
+        # Brute force try some angles
+        angles = np.linspace(0, 60, 180)
+        angles_difference = angles[1] - angles[0]
+        residuum = np.zeros((len(angles)), dtype=np.float64)
+        for index, angle in enumerate(angles):
+            residuum[index] = calc_residuum(angle=angle)
+
+        best_index = np.argmin(residuum)
+
+        solution = scipy.optimize.minimize_scalar(
+            calc_residuum,
+            bounds=(
+                angles[best_index] - angles_difference,
+                angles[best_index] + angles_difference,
+            ),
+            method="bounded",
+        )
+
+        optimized_angle = solution.x
+        additional_rotation = utils.get_rotation_by_vector(
+            vector=optimized_angle * np.array([1, 0, 0]), degrees=True
+        )
+        deviator_optimized = utils.rotate_to_mandel(
+            self.deviator_in_eigensystem,
+            Q=additional_rotation,
+        )
+
+        # If necessary, apply orthogonal transform which changes signs
+        # of specific column of off-orthogonal part
+        index_positive_value = np.s_[1, 5]
+        if deviator_optimized[index_positive_value] <= 0.0:
+            transform = np.array(
+                [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]], dtype=np.float64
+            )
+            # deviator_final = utils.rotate_to_mandel(deviator_optimized, Q=transform)
+
+            additional_rotation = transform @ additional_rotation
+            print("juhusdauifgauisdgvuisdg")
+
+        return additional_rotation
 
     def get_eigenvec_with_specific_eigenvalues(self, tol=1e-3):
         def allclose(A, B):

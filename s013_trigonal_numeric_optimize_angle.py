@@ -46,7 +46,7 @@ deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotat
 # deviator_reconstructed = deviator_rotated
 # Apply transv-iso logic
 analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-analysis.get_eigensystem()
+analysis.get_eigensystem(make_trigonal_check=False)
 fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
     analysis.FOT4.tensor, analysis.eigensystem
 )
@@ -125,4 +125,4 @@ from matplotlib import pyplot as plt
 # plt.plot(angles, np.ones_like(angles) * angle, color="black", label="reference")
 plt.plot(angles, residuum)
 plt.legend()
-plt.show()
+# plt.show()

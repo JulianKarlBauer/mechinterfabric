@@ -68,7 +68,7 @@ class FOT4Analysis:
         )
         self.FOT4_symmetry = self.FOT4_spectral_decomposition.get_symmetry()
 
-    def get_eigensystem(self):
+    def get_eigensystem(self, **kwargs):
 
         self.get_symmetry_FOT2()
         self.get_symmetry_FOT4()
@@ -101,7 +101,7 @@ class FOT4Analysis:
         self.eigensystem_locator = locator(
             spectral_decomposition=self.FOT4_spectral_decomposition
         )
-        self.eigensystem = self.eigensystem_locator.get_eigensystem()
+        self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem
 
 
