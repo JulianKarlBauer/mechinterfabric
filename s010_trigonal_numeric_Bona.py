@@ -52,10 +52,6 @@ deviator_reconstructed = con.to_mandel6(
 # print(f"deviator_reconstructed=\n{deviator_reconstructed}")
 
 
-eigenvalues, eigenvectors = np.linalg.eigh(deviator_reconstructed)
-# print("###########")
-# print(f"eigenvalues = {eigenvalues}")
-
 spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
     deviator_reconstructed
 )
@@ -113,8 +109,8 @@ for index in indices_eigenvectors_double_eigenvalues:
 
     # if np.allclose(deviator_reconstructed_rotated, deviator, atol=1e-2, rtol=1e-2):
 
-    print(f"\nDouble Eigenvalue {eval} has eigen tensor")
-    print(tensor)
+    # print(f"\nDouble Eigenvalue {eval} has eigen tensor")
+    # print(tensor)
     # print(f"tensor_rotated = {tensor_rotated}")
 
     # print(f"B={B}")
@@ -125,6 +121,8 @@ for index in indices_eigenvectors_double_eigenvalues:
     print(f"theta={np.rad2deg(theta)}°")
     print(f"angle={np.rad2deg(angle)}°")
 
+    print(f"Coincidence = {np.allclose(deviator_reconstructed_rotated, deviator)}")
     difference = deviator_reconstructed_rotated - deviator
+    print()
 
-    print(f"difference=\n{np.round(difference, 5)}")
+    # print(f"difference=\n{np.round(difference, 5)}")
