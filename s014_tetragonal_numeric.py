@@ -24,7 +24,7 @@ def lambdified_parametrization():
     )
 
 
-fot4 = lambdified_parametrization()(**{"alpha1": 0, "d1": 0.0015, "d3": 0.001})
+fot4 = lambdified_parametrization()(**{"alpha1": 0, "d1": 0.025, "d3": 0.015})
 assert np.min(np.linalg.eigh(fot4)[0]) >= 0, "has to be positive semi definite"
 
 fot2 = np.tensordot(con.to_tensor(fot4), np.eye(3))
