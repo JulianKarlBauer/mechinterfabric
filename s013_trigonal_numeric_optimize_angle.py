@@ -77,12 +77,14 @@ for index, angle in enumerate(angles):
 
 best_index = np.argmin(residuum)
 best_angle = angles[best_index]
+additional_rotation = mechinterfabric.utils.get_rotation_by_vector(
+    vector=best_angle * np.array([1, 0, 0]), degrees=True
+)
 deviator_optimized = mechinterfabric.utils.rotate_to_mandel(
     deviator_reconstructed,
-    Q=mechinterfabric.utils.get_rotation_by_vector(
-        vector=best_angle * np.array([1, 0, 0]), degrees=True
-    ),
+    Q=additional_rotation,
 )
+
 
 print(f"deviator_optimized=\n{deviator_optimized}")
 
@@ -100,14 +102,15 @@ res = scipy.optimize.minimize_scalar(
 )
 
 angle_perfect = res.x
+additional_rotation = mechinterfabric.utils.get_rotation_by_vector(
+    vector=angle_perfect * np.array([1, 0, 0]), degrees=True
+)
 deviator_perfect = mechinterfabric.utils.rotate_to_mandel(
     deviator_reconstructed,
-    Q=mechinterfabric.utils.get_rotation_by_vector(
-        vector=angle_perfect * np.array([1, 0, 0]), degrees=True
-    ),
+    Q=additional_rotation,
 )
 
-
+transform = np.eye(3)
 index_positive_value = np.s_[1, 5]
 if deviator_perfect[index_positive_value] <= 0.0:
     # Apply orthogonal transform which changes signs of specific column of off-orthogonal part
@@ -119,6 +122,31 @@ if deviator_perfect[index_positive_value] <= 0.0:
 print(f"deviator_perfect=\n{deviator_perfect}")
 
 assert np.allclose(deviator, deviator_perfect, atol=1e-7, rtol=1e-7)
+
+###############
+# Test on transform-level
+
+eigensystem = transform @ additional_rotation @ analysis.eigensystem
+
+rot = scipy.spatial.transform.Rotation
+eigensystem_by_rotation = (
+    rot.from_matrix(transform)
+    * rot.from_matrix(additional_rotation)
+    * rot.from_matrix(analysis.eigensystem)
+).as_matrix()
+assert np.allclose(eigensystem, eigensystem_by_rotation)
+
+fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=eigensystem)
+
+tmp = mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=analysis.eigensystem)
+tmp = mechinterfabric.utils.rotate_to_mandel(tmp, Q=additional_rotation)
+fot4_reconstructed_stepwise = mechinterfabric.utils.rotate_to_mandel(tmp, Q=transform)
+
+print(f"fot4={fot4}")
+print(f"fot4_reconstructed={fot4_reconstructed}")
+print(f"fot4_reconstructed_stepwise={fot4_reconstructed_stepwise}")
+# assert np.allclose(fot4_reconstructed, fot4)
+assert np.allclose(fot4_reconstructed_stepwise, fot4)
 
 from matplotlib import pyplot as plt
 
