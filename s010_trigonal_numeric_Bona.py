@@ -37,7 +37,7 @@ rotation = mechinterfabric.utils.get_rotation_by_vector(
 )
 fot4_rotated = mechinterfabric.utils.rotate_to_mandel(fot4, Q=rotation)
 deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotated)))
-print(f"deviator_rotated=\n{deviator_rotated}")
+# print(f"deviator_rotated=\n{deviator_rotated}")
 
 # Apply transv-iso logic
 analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
@@ -48,43 +48,61 @@ fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
 deviator_reconstructed = con.to_mandel6(
     mechkit.operators.dev(con.to_tensor(fot4_reconstructed))
 )
-print(f"deviator_reconstructed=\n{deviator_reconstructed}")
+# print(f"deviator_reconstructed=\n{deviator_reconstructed}")
 
 
-eigenvalues, eigenvectors = np.linalg.eigh(deviator_rotated)
-print("###########")
-print(f"eigenvalues = {eigenvalues}")
+eigenvalues, eigenvectors = np.linalg.eigh(deviator_reconstructed)
+# print("###########")
+# print(f"eigenvalues = {eigenvalues}")
+
+spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
+    deviator_reconstructed
+)
+spectral_decomposition.get_symmetry()
+
+indices_eigenvectors_double_eigenvalues = np.array(
+    spectral_decomposition.eigen_values_indices[0:2]
+).flatten()
 
 
-def sort_eigensystem(vals, vecs):
-    locator = mechinterfabric.decompositions.EigensystemLocatorTransvTetraTrigo(
-        spectral_decomposition=None
-    )
-    (
-        vals,
-        vecs,
-    ) = locator.cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
-        vals, vecs
-    )
+for index in indices_eigenvectors_double_eigenvalues:
+    eval = spectral_decomposition.eigen_values[index]
+    evec = spectral_decomposition.eigen_vectors[:, index]
 
-    vals_sorted, eigensystem = mechinterfabric.utils.sort_eigen_values_and_vectors(
-        eigen_values=vals, eigen_vectors=vecs
-    )
-    return vals_sorted, eigensystem
-
-
-for eval, evec in zip(eigenvalues, eigenvectors.T):
-    print(f"#######################\nEigenvalue {eval} has eigen tensor")
     tensor = con.to_tensor(evec)
+
+    B = tensor[1:, 1:]
+    b = tensor[0, 1:]
+
+    a3 = B[0, 0]
+    a6 = B[0, 1]
+    a4 = b[0]
+    a5 = b[-1]
+
+    eta = np.arccos(a3 / (np.sqrt(a3**2 + a6**2)))
+    theta = np.arccos(a4 / (np.sqrt(a4**2 + a5**2)))
+
+    angle = (theta - eta) / 3.0
+
+    rotation = mechinterfabric.utils.get_rotation_by_vector(
+        vector=angle * np.array([1, 0, 0]), degrees=False
+    )
+    deviator_reconstructed_rotated = mechinterfabric.utils.rotate_to_mandel(
+        spectral_decomposition.deviator, Q=rotation
+    )
+
+    ########################
+
+    # if np.allclose(deviator_reconstructed_rotated, deviator, atol=1e-2, rtol=1e-2):
+
+    print(f"\nDouble Eigenvalue {eval} has eigen tensor")
     print(tensor)
 
-    # eigenvalues2, eigenvectors2 = np.linalg.eigh(tensor)
-    # for eval2, evec2 in zip(eigenvalues2, eigenvectors2.T):
-    #     print(f"\t\t Eigenvalue {eval2} has eigen tensor")
-    #     print(f"\t\t{evec2}")
+    print(f"B={B}")
+    print(f"b={b}")
 
-    vals, vecs = np.linalg.eigh(tensor)
-    vals_sorted, vecs_sorted = sort_eigensystem(vals, vecs)
+    print(f"eta={np.rad2deg(eta)}°")
+    print(f"theta={np.rad2deg(theta)}°")
+    print(f"angle={np.rad2deg(angle)}°")
 
-    candiate = mechinterfabric.utils.rotate_to_mandel(deviator_rotated, Q=vecs_sorted)
-    print(candiate)
+    print(f"deviator_reconstructed_rotated=\n{deviator_reconstructed_rotated}")
