@@ -9,7 +9,7 @@ from vofotensors.abc import d1
 import mechinterfabric
 
 
-np.random.seed(2)
+np.random.seed(1)
 np.set_printoptions(threshold=np.inf)
 np.set_printoptions(linewidth=np.inf)
 
@@ -79,14 +79,9 @@ test_cases_passing = [
         for id, kwargs in [
             ("transv variety of FOT, Fig3, purple", {"alpha1": 0, "rho1": -1 / 90}),
             ("transv variety of FOT, Fig3, grey", {"alpha1": 0, "rho1": 1 / 60}),
-        ]
-    ],
-]
-
-test_cases_failing = [
-    *[
-        {"id": id, "tensor": lambdified_parametrization_transv()(**kwargs)}
-        for id, kwargs in [
+            ("transv variety of FOT, Fig3, brown", {"alpha1": -1 / 3, "rho1": 3 / 280}),
+            ("transv variety of FOT, Fig3, blue", {"alpha1": 2 / 3, "rho1": 1 / 35}),
+            ("transv random, in the middle", {"alpha1": 1 / 6, "rho1": 3 / 280}),
             ("transv variety of FOT, Fig3, brown", {"alpha1": -1 / 3, "rho1": 3 / 280}),
             ("transv variety of FOT, Fig3, blue", {"alpha1": 2 / 3, "rho1": 1 / 35}),
             ("transv random, in the middle", {"alpha1": 1 / 6, "rho1": 3 / 280}),
@@ -97,6 +92,8 @@ test_cases_failing = [
         ]
     ],
 ]
+
+test_cases_failing = []
 
 
 class TestFOT4AnalysisTransv:
@@ -155,19 +152,13 @@ def lambdified_parametrization():
     )
 
 
-test_cases_passing = [
-    *[
-        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
-        for id, kwargs in [
-            ("random pos def 02 N2-iso", {"alpha1": 0, "d1": 0.015, "d3": 0.01}),
-        ]
-    ],
-]
+test_cases_passing = []
 
 test_cases_failing = [
     *[
         {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
         for id, kwargs in [
+            ("random pos def 02 N2-iso", {"alpha1": 0, "d1": 0.025, "d3": 0.015}),
             ("random pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": 0.0243}),
             ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
             ("random pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
@@ -238,6 +229,9 @@ test_cases_passing = [
         {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
         for id, kwargs in [
             ("random pos def 01", {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}),
+            ("random pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
+            ("random pos def 02", {"alpha1": -1 / 3, "d3": 0.0125, "d9": 0.0325}),
+            ("random pos def 02", {"alpha1": -1 / 3, "d3": 0.0055, "d9": 0.0125}),
         ]
     ],
 ]

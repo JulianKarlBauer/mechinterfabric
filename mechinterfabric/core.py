@@ -82,12 +82,20 @@ class FOT4Analysis:
                 "isotropic_or_cubic",
                 "cubic",
             ): decompositions.EigensystemLocatorIsotropicCubic,
+            # (
+            #     "isotropic_or_cubic",
+            #     "tetragonal",
+            # ): decompositions.EigensystemLocatorTransvTetraTrigo,
             (
                 "isotropic_or_cubic",
-                "tetragonal",
+                "trigonal or transversely isotropic",
             ): decompositions.EigensystemLocatorTransvTetraTrigo,
+            # (
+            #     "transversely_isotropic_or_tetragonal_or_trigonal",
+            #     "tetragonal",
+            # ): decompositions.EigensystemLocatorTransvTetraTrigo,
             (
-                "isotropic_or_cubic",
+                "transversely_isotropic_or_tetragonal_or_trigonal",
                 "trigonal or transversely isotropic",
             ): decompositions.EigensystemLocatorTransvTetraTrigo,
         }
