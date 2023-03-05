@@ -9,7 +9,7 @@ from vofotensors.abc import d1
 import mechinterfabric
 
 
-np.random.seed(1)
+np.random.seed(2)
 np.set_printoptions(threshold=np.inf)
 np.set_printoptions(linewidth=np.inf)
 
@@ -155,7 +155,14 @@ def lambdified_parametrization():
     )
 
 
-test_cases_passing = []
+test_cases_passing = [
+    *[
+        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
+        for id, kwargs in [
+            ("random pos def 02 N2-iso", {"alpha1": 0, "d1": 0.015, "d3": 0.01}),
+        ]
+    ],
+]
 
 test_cases_failing = [
     *[
@@ -188,6 +195,8 @@ class TestFOT4AnalysisTetragonal:
         reconstructed = mechinterfabric.utils.rotate_to_mandel(
             analysis.FOT4.tensor, analysis.eigensystem
         )
+        print(f"fot4_in_eigensystem=\n{fot4_in_eigensystem}")
+        print(f"reconstructed=\n{reconstructed}")
         assert np.allclose(reconstructed, fot4_in_eigensystem)
 
     @pytest.mark.parametrize(
@@ -233,8 +242,6 @@ test_cases_passing = [
     ],
 ]
 
-test_cases_failing = []
-
 
 class TestFOT4AnalysisTrigonal:
     @pytest.mark.parametrize(
@@ -258,24 +265,3 @@ class TestFOT4AnalysisTrigonal:
         print(f"fot4_in_eigensystem={fot4_in_eigensystem}")
         print(f"reconstructed={reconstructed}")
         assert np.allclose(reconstructed, fot4_in_eigensystem)
-
-    @pytest.mark.parametrize(
-        ("fot4_rotated", "fot4_in_eigensystem"),
-        (
-            pytest.param(
-                mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
-                row["tensor"],
-                id=row["id"],
-            )
-            for row in test_cases_failing
-        ),
-    )
-    def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
-        with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
-            analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-            analysis.get_eigensystem()
-            reconstructed = mechinterfabric.utils.rotate_to_mandel(
-                analysis.FOT4.tensor, analysis.eigensystem
-            )
-
-            # assert np.allclose(reconstructed, fot4_in_eigensystem)
