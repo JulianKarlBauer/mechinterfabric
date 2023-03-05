@@ -49,9 +49,7 @@ def sort_eigensystem(vals, vecs):
     (
         vals,
         vecs,
-    ) = locator.cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
-        vals, vecs
-    )
+    ) = locator.cast_to_sign_order_convention_of_reference(vals, vecs)
 
     vals_sorted, eigensystem = mechinterfabric.utils.sort_eigen_values_and_vectors(
         eigen_values=vals, eigen_vectors=vecs

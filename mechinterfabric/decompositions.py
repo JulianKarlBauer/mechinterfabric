@@ -251,9 +251,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             (
                 vals,
                 vecs,
-            ) = self.cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
-                vals, vecs
-            )
+            ) = self.cast_to_sign_order_convention_of_reference(vals, vecs)
 
             reference = 1.0 / np.sqrt(6) * np.array([-1.0, -1.0, 2.0])
 
@@ -269,9 +267,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             "None of the eigenvalue triplets matched the reference"
         )
 
-    def cast_eigvalsVects_of_eigenvect_to_sign_order_convention_of_reference(
-        self, vals, vecs
-    ):
+    def cast_to_sign_order_convention_of_reference(self, vals, vecs):
         # Sign of eigenvectors are arbitrary, we expect a specific sign convention,
         # see variable "reference"
         # Start with sorting both vals and vecs by increasing absolute values of vals
