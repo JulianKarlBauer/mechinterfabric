@@ -64,17 +64,26 @@ dependencies:
   - xz=5.2.8=h5eee18b_0
   - zlib=1.2.13=h5eee18b_0
   - pip:
+      - astroid==2.14.1
+      - cfgv==3.3.1
       - contourpy==1.0.7
       - cycler==0.11.0
+      - dill==0.3.6
       - fonttools==4.38.0
+      - identify==2.5.17
       - idna==3.4
+      - isort==5.12.0
       - kiwisolver==1.4.4
+      - lazy-object-proxy==1.9.0
       - matplotlib==3.6.3
       - mechinterfabricdev==0.0.0
       - mechkit==0.4.1
       - mpmath==1.2.1
       - natsort==8.2.0
+      - nodeenv==1.7.0
       - pillow==9.4.0
+      - pre-commit==3.0.4
+      - pylint==2.16.1
       - pyparsing==3.0.9
       - python-dateutil==2.8.2
       - pytz==2022.7.1
@@ -82,5 +91,5 @@ dependencies:
       - scipy==1.10.0
       - symbolic==0.0.1
       - sympy==1.11.1
-      - vofotensors==1.0.5
+      - wrapt==1.14.1
 prefix: /home/julian/miniconda3/envs/mechinterfabric

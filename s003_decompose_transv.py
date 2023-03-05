@@ -100,8 +100,12 @@ decomposition = analysis.FOT4_spectral_decomposition
 
 print("\n\n")
 for index, vector in enumerate(decomposition.eigen_vectors.T):
-    vals, system = np.linalg.eigh(converter.to_tensor(vector))
-
+    (
+        vals,
+        system,
+    ) = mechinterfabric.utils.get_eigenvalues_and_rotation_matrix_into_eigensystem(
+        tensor=converter.to_tensor(vector)
+    )
     rot = scipy.spatial.transform.Rotation.from_matrix(system)
     rot_vec = rot.as_rotvec()
 
@@ -115,7 +119,7 @@ for index, vector in enumerate(decomposition.eigen_vectors.T):
     # print(f"rot_vec={rot_vec}")
     print(f"back = \n{back}")
 
-    tol = 1e-2
+    tol = 1e-4
     if np.allclose(FOT4, back, atol=tol, rtol=tol):
         print("\n############\nstart details")
         print(f"back = \n{back}")
