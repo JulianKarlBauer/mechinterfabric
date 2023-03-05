@@ -165,8 +165,8 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
     def get_eigensystem(self, make_trigonal_check=True, **kwargs):
 
         # Start homogeneously
-        # for orthotropic (i.e., tetra, transv.-iso.) and
-        # non-orthotropic, i.e., trigonal
+        # tetra, transv.-iso. and
+        # trigonal (which is non-orthotropic and which requires a two-step procedure)
         self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
         self.deviator_in_eigensystem = utils.rotate_to_mandel(
             self.spectral_decomposition.deviator, Q=self.eigensystem
@@ -191,6 +191,43 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             atol=tol,
             rtol=tol,
         )
+
+    def get_eigenvec_with_specific_eigenvalues(self, tol=1e-3):
+        def allclose(A, B):
+            return np.allclose(A, B, rtol=tol, atol=tol)
+
+        factor = 1.0 / np.sqrt(6)
+        for vector in self.spectral_decomposition.eigen_vectors.T:
+            tensor = converter.to_tensor(vector)
+            vals, vecs = np.linalg.eigh(tensor)
+
+            (
+                vals,
+                vecs,
+            ) = self.cast_to_sign_order_convention_of_reference(vals, vecs)
+
+            reference = 1.0 / np.sqrt(6) * np.array([-1.0, -1.0, 2.0])
+
+            if allclose(vals, reference):
+                vals_sorted, eigensystem = utils.sort_eigen_values_and_vectors(
+                    eigen_values=vals, eigen_vectors=vecs
+                )
+
+                return eigensystem
+        raise utils.ExceptionMechinterfabric(
+            "None of the eigenvalue triplets matched the reference"
+        )
+
+    def cast_to_sign_order_convention_of_reference(self, vals, vecs):
+        # Sign of eigenvectors are arbitrary, we expect a specific sign convention,
+        # see variable "reference"
+        # Start with sorting both vals and vecs by increasing absolute values of vals
+        index = np.argsort(np.abs(vals))
+        vals = vals[index]
+        vecs = vecs[:, index]
+        if vals[-1] <= 0:
+            vals = -vals
+        return vals, vecs
 
     def rotate_into_trigonal_natural_system(self):
         def calc_residuum(angle):
@@ -235,47 +272,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             transform = np.array(
                 [[1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]], dtype=np.float64
             )
-            # deviator_final = utils.rotate_to_mandel(deviator_optimized, Q=transform)
 
             additional_rotation = transform @ additional_rotation
 
         return additional_rotation
-
-    def get_eigenvec_with_specific_eigenvalues(self, tol=1e-3):
-        def allclose(A, B):
-            return np.allclose(A, B, rtol=tol, atol=tol)
-
-        factor = 1.0 / np.sqrt(6)
-        for vector in self.spectral_decomposition.eigen_vectors.T:
-            tensor = converter.to_tensor(vector)
-            vals, vecs = np.linalg.eigh(tensor)
-
-            (
-                vals,
-                vecs,
-            ) = self.cast_to_sign_order_convention_of_reference(vals, vecs)
-
-            reference = 1.0 / np.sqrt(6) * np.array([-1.0, -1.0, 2.0])
-
-            if allclose(vals, reference):
-                vals_sorted, eigensystem = utils.sort_eigen_values_and_vectors(
-                    eigen_values=vals, eigen_vectors=vecs
-                )
-                # print(f"vals={vals}")
-                # print(f"vals_sorted={vals_sorted}")
-
-                return eigensystem
-        raise utils.ExceptionMechinterfabric(
-            "None of the eigenvalue triplets matched the reference"
-        )
-
-    def cast_to_sign_order_convention_of_reference(self, vals, vecs):
-        # Sign of eigenvectors are arbitrary, we expect a specific sign convention,
-        # see variable "reference"
-        # Start with sorting both vals and vecs by increasing absolute values of vals
-        index = np.argsort(np.abs(vals))
-        vals = vals[index]
-        vecs = vecs[:, index]
-        if vals[-1] <= 0:
-            vals = -vals
-        return vals, vecs
