@@ -30,7 +30,7 @@ assert np.min(np.linalg.eigh(fot4)[0]) >= 0, "has to be positive semi definite"
 
 # fot4 = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
 
-angles = np.linspace(0, 180, 5)
+angles = [270 * i for i in range(5)]
 candidates = []
 for angle in angles:
     rotation = mechinterfabric.utils.get_rotation_by_vector(
@@ -41,9 +41,9 @@ for angle in angles:
 
     indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
     residuum = np.linalg.norm(rotated[indices])
-    if residuum <= 1e-5:
-        print(f"angle={angle}\n {np.round(rotated, 6)}")
-        candidates.append(rotated)
+    # if residuum <= 1e-5:
+    print(f"angle={angle}\n {np.round(rotated, 6)}")
+    candidates.append(rotated)
 
 
 for candidate in candidates:
@@ -54,25 +54,41 @@ for candidate in candidates:
     sym = mechkit.operators.Sym()
     assert np.allclose(sym(candidate), candidate)
 
+    assert np.allclose(candidate, fot4)
+
 
 print("###################")
 
-
+# # Generated from
+# {
+#     "tetragonal": (
+#         (
+#             (-ONE, ZERO, ZERO),
+#             (ZERO, -ONE, ZERO),
+#             (ZERO, ZERO, ONE),
+#         ),
+#         (
+#             (ONE, ZERO, ZERO),
+#             (ZERO, ZERO, ONE),
+#             (ZERO, -ONE, ZERO),
+#         ),
+#     )
+# }
 for matrix in {
     "tetragonal": [
         ((-1, 0, 0), (0, -1, 0), (0, 0, 1)),
+        ((-1, 0, 0), (0, 0, -1), (0, -1, 0)),
+        ((-1, 0, 0), (0, 0, 1), (0, 1, 0)),
         ((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
         ((1, 0, 0), (0, -1, 0), (0, 0, -1)),
+        ((1, 0, 0), (0, 0, -1), (0, 1, 0)),
+        ((1, 0, 0), (0, 0, 1), (0, -1, 0)),
         ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-        # 45 rotations follow
-        ((0, -1, 0), (-1, 0, 0), (0, 0, -1)),
-        ((0, -1, 0), (1, 0, 0), (0, 0, 1)),
-        ((0, 1, 0), (-1, 0, 0), (0, 0, 1)),
-        ((0, 1, 0), (1, 0, 0), (0, 0, -1)),
     ],
 }["tetragonal"]:
 
     rotation = scipy.spatial.transform.Rotation.from_matrix(matrix)
     # print(rotation.as_rotvec())
     rotated = mechinterfabric.utils.rotate_to_mandel(fot4, Q=rotation.as_matrix())
+    assert np.allclose(rotated, fot4)
     print(rotated)
