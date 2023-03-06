@@ -28,7 +28,7 @@ def cubic_by_d1(lambdified_parametrization_cubic, request):
 class TestFOT4AnalysisCubic:
     @pytest.mark.parametrize(
         "cubic_by_d1",
-        (-1 / 15, 2 / 45),
+        (-1 / 15, 2 / 45, 0, 1 / 45),
         indirect=True,
     )
     def test_FOT2_symmetry_cubic(self, cubic_by_d1):
@@ -45,9 +45,6 @@ class TestFOT4AnalysisCubic:
         self,
         cubic_by_d1,
     ):
-
-        ######
-        # Rotate
 
         FOT4_rotated = mechinterfabric.utils.rotate_fot4_randomly(cubic_by_d1)
 
