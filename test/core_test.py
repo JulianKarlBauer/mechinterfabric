@@ -134,8 +134,6 @@ class TestFOT4AnalysisTransv:
                 analysis.FOT4.tensor, analysis.eigensystem
             )
 
-            # assert np.allclose(reconstructed, fot4_in_eigensystem)
-
 
 ###################################################################################
 
@@ -205,8 +203,6 @@ class TestFOT4AnalysisTetragonal:
             reconstructed = mechinterfabric.utils.rotate_to_mandel(
                 analysis.FOT4.tensor, analysis.eigensystem
             )
-
-            # assert np.allclose(reconstructed, fot4_in_eigensystem)
 
 
 ###################################################################################
