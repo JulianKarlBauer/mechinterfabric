@@ -38,7 +38,7 @@ class TestFOT4AnalysisCubic:
 
     @pytest.mark.parametrize(
         "cubic_by_d1",
-        (-1 / 15, 2 / 45),
+        (-1 / 15, 2 / 45, 0, 1 / 45),
         indirect=True,
     )
     def test_get_eigensystem_if_FOT4_is_cubic(
