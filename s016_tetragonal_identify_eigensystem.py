@@ -25,92 +25,118 @@ def lambdified_parametrization():
     )
 
 
-example = {"alpha1": 0, "d1": 0.025, "d3": 0.013}
-fot4 = lambdified_parametrization()(**example)
-assert np.min(np.linalg.eigh(fot4)[0]) >= 0, "has to be positive semi definite"
-
-deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
-
-disturbed = mechinterfabric.utils.rotate_to_mandel(
-    deviator,
-    Q=mechinterfabric.utils.get_rotation_by_vector(
-        vector=np.random.rand() * 360 * np.array([1, 0, 0]), degrees=True
-    ),
-)
+# {"alpha1": 0, "d1": 0.025, "d3": 0.013}
 
 
-def calc_residuum(angle):
-    rotation = mechinterfabric.utils.get_rotation_by_vector(
-        vector=angle * np.array([1, 0, 0]), degrees=True
+def allclose(A, B):
+    tol = 1e-5
+    return np.allclose(A, B, rtol=tol, atol=tol)
+
+
+def handle_near_zero_negatives(value):
+    # Catch problem with very small negative numbers
+    if np.isclose(value, 0.0):
+        value = 0.0
+    return value
+
+
+def run(d1, d3):
+    example = {"alpha1": 0, "d1": d1, "d3": d3}
+    tol = 5
+    print(f"d1={np.round(d1, tol)}\t d3={np.round(d3, tol)}")
+
+    fot4 = lambdified_parametrization()(**example)
+    tmp = handle_near_zero_negatives(np.min(np.linalg.eigh(fot4)[0]))
+    assert tmp >= 0, "has to be positive semi definite"
+
+    deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
+
+    disturbed = mechinterfabric.utils.rotate_to_mandel(
+        deviator,
+        Q=mechinterfabric.utils.get_rotation_by_vector(
+            vector=np.random.rand() * 360 * np.array([1, 0, 0]), degrees=True
+        ),
     )
-    rotated = mechinterfabric.utils.rotate_to_mandel(disturbed, Q=rotation)
-    indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
-    return np.linalg.norm(rotated[indices])
+
+    def calc_residuum(angle):
+        rotation = mechinterfabric.utils.get_rotation_by_vector(
+            vector=angle * np.array([1, 0, 0]), degrees=True
+        )
+        rotated = mechinterfabric.utils.rotate_to_mandel(disturbed, Q=rotation)
+        indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+        return np.linalg.norm(rotated[indices])
+
+    # Brute force try some angles
+    angles = np.linspace(0, 90, 600)
+    angles_difference = angles[1] - angles[0]
+    residuum = np.zeros((len(angles)), dtype=np.float64)
+    for index, angle in enumerate(angles):
+        residuum[index] = calc_residuum(angle=angle)
+
+    best_index = np.argmin(residuum)
+
+    solution = scipy.optimize.minimize_scalar(
+        calc_residuum,
+        bounds=(
+            angles[best_index] - angles_difference,
+            angles[best_index] + angles_difference,
+        ),
+        method="bounded",
+    )
+
+    optimized_angle = solution.x
+    additional_rotation = mechinterfabric.utils.get_rotation_by_vector(
+        vector=optimized_angle * np.array([1, 0, 0]), degrees=True
+    )
+    deviator_optimized = mechinterfabric.utils.rotate_to_mandel(
+        disturbed,
+        Q=additional_rotation,
+    )
+
+    deviator_alternative = mechinterfabric.utils.rotate_to_mandel(
+        deviator_optimized,
+        Q=mechinterfabric.utils.get_rotation_by_vector(
+            vector=45 * np.array([1, 0, 0]), degrees=True
+        ),
+    )
+
+    # print(f"deviator=\n{deviator}")
+    # print(f"deviator_optimized=\n{deviator_optimized}")
+    # print(f"deviator_alternative=\n{deviator_alternative}")
+
+    assert allclose(deviator, deviator_optimized) or allclose(
+        deviator, deviator_alternative
+    )
+    index = np.s_[0, 2]
+    d1 = deviator_optimized[index]
+    assert np.isclose(d1, deviator_alternative[index])
+    index = np.s_[1, 2]
+    m1 = deviator_optimized[index]
+    m2 = deviator_alternative[index]
+
+    tmp = handle_near_zero_negatives(d1**2 / 16 - m1 * m2)
+    summand = np.sqrt(tmp)
+    d3s = {"plus": -d1 / 4.0 + summand, "minus": -d1 / 4.0 - summand}
+    for key, d3 in d3s.items():
+        print(f"d3_{key}   \t={d3}")
+
+    news = {
+        key: lambdified_parametrization()(
+            alpha1=example["alpha1"], d1=example["d1"], d3=d3
+        )
+        for key, d3 in d3s.items()
+    }
+
+    for key, new in news.items():
+        tmp = handle_near_zero_negatives(np.min(np.linalg.eigh(new)[0]))
+        assert tmp >= 0
+    print("Did assert both deviators: Both fine")
+    print()
 
 
-# Brute force try some angles
-angles = np.linspace(0, 90, 600)
-angles_difference = angles[1] - angles[0]
-residuum = np.zeros((len(angles)), dtype=np.float64)
-for index, angle in enumerate(angles):
-    residuum[index] = calc_residuum(angle=angle)
-
-best_index = np.argmin(residuum)
-
-solution = scipy.optimize.minimize_scalar(
-    calc_residuum,
-    bounds=(
-        angles[best_index] - angles_difference,
-        angles[best_index] + angles_difference,
-    ),
-    method="bounded",
-)
-
-optimized_angle = solution.x
-additional_rotation = mechinterfabric.utils.get_rotation_by_vector(
-    vector=optimized_angle * np.array([1, 0, 0]), degrees=True
-)
-deviator_optimized = mechinterfabric.utils.rotate_to_mandel(
-    disturbed,
-    Q=additional_rotation,
-)
-
-deviator_alternative = mechinterfabric.utils.rotate_to_mandel(
-    deviator_optimized,
-    Q=mechinterfabric.utils.get_rotation_by_vector(
-        vector=45 * np.array([1, 0, 0]), degrees=True
-    ),
-)
-
-print(f"deviator=\n{deviator}")
-print(f"deviator_optimized=\n{deviator_optimized}")
-print(f"deviator_alternative=\n{deviator_alternative}")
-
-assert np.allclose(deviator, deviator_optimized) or np.allclose(
-    deviator, deviator_alternative
-)
-index = np.s_[0, 2]
-d1 = deviator_optimized[index]
-assert np.isclose(d1, deviator_alternative[index])
-index = np.s_[1, 2]
-m1 = deviator_optimized[index]
-m2 = deviator_alternative[index]
-
-summand = np.sqrt(d1**2 / 16 - m1 * m2)
-d3s = {"plus": -d1 / 4.0 + summand, "minus": -d1 / 4.0 - summand}
-for key, d3 in d3s.items():
-    print(f"d3_{key}={d3}")
-
-news = {
-    key: lambdified_parametrization()(alpha1=example["alpha1"], d1=example["d1"], d3=d3)
-    for key, d3 in d3s.items()
-}
-
-for key, new in news.items():
-    assert np.min(np.linalg.eigh(new)[0])
-print("Did assert both deviators: Both fine")
-
-# from matplotlib import pyplot as plt
-# plt.plot(angles, residuum, color="black", label="reference")
-# plt.legend()
-# # plt.show()
+d1s = np.linspace(-1 / 15, 2 / 45, 3)
+for d1 in d1s:
+    print("################################")
+    d3s = np.linspace(-1 / 15, (14 - 105 * d1) / 210, 5)
+    for d3 in d3s:
+        run(d1, d3)
