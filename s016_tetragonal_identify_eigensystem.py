@@ -25,7 +25,8 @@ def lambdified_parametrization():
     )
 
 
-fot4 = lambdified_parametrization()(**{"alpha1": 0, "d1": 0.025, "d3": 0.013})
+example = {"alpha1": 0, "d1": 0.025, "d3": 0.013}
+fot4 = lambdified_parametrization()(**example)
 assert np.min(np.linalg.eigh(fot4)[0]) >= 0, "has to be positive semi definite"
 
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
@@ -88,6 +89,26 @@ print(f"deviator_alternative=\n{deviator_alternative}")
 assert np.allclose(deviator, deviator_optimized) or np.allclose(
     deviator, deviator_alternative
 )
+index = np.s_[0, 2]
+d1 = deviator_optimized[index]
+assert np.isclose(d1, deviator_alternative[index])
+index = np.s_[1, 2]
+m1 = deviator_optimized[index]
+m2 = deviator_alternative[index]
+
+summand = np.sqrt(d1**2 / 16 - m1 * m2)
+d3s = {"plus": -d1 / 4.0 + summand, "minus": -d1 / 4.0 - summand}
+for key, d3 in d3s.items():
+    print(f"d3_{key}={d3}")
+
+news = {
+    key: lambdified_parametrization()(alpha1=example["alpha1"], d1=example["d1"], d3=d3)
+    for key, d3 in d3s.items()
+}
+
+for key, new in news.items():
+    assert np.min(np.linalg.eigh(new)[0])
+print("Did assert both deviators: Both fine")
 
 # from matplotlib import pyplot as plt
 # plt.plot(angles, residuum, color="black", label="reference")
