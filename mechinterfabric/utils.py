@@ -95,7 +95,9 @@ def rotate_fot4_randomly(fot4):
 def rotate_to_mandel(mandel, Q):
     if isinstance(Q, np.ndarray) and (Q.shape == (3, 3)):
         return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
-    elif isinstance(Q, list):
+    elif isinstance(Q, list) or (
+        isinstance(Q, np.ndarray) and (Q.shape[-2:] == (3, 3))
+    ):
         for transform in Q:
             mandel = converter.to_mandel6(
                 rotate(converter.to_tensor(mandel), Q=transform)
@@ -103,6 +105,15 @@ def rotate_to_mandel(mandel, Q):
         return mandel
     else:
         raise ExceptionMechinterfabric("Do not understand argument Q")
+
+
+def append_transform(old, new):
+    if isinstance(old, list):
+        return [*old, new]
+    elif isinstance(old, np.ndarray) and (old.shape == (3, 3)):
+        np.concatenate([old[np.nnewaxis, :, :], new[np.newaxis, :, :]], axis=0)
+    elif isinstance(old, np.ndarray) and (old.shape[-2:] == (3, 3)):
+        return np.concatenate([old, new[np.newaxis, :, :]], axis=0)
 
 
 def get_rotation_by_vector(vector, degrees=False):
@@ -115,3 +126,8 @@ def get_random_rotation():
     rotation_vector = np.array(np.random.rand(3))
     rotation_vector = rotation_vector / np.linalg.norm(rotation_vector)
     return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)
+
+
+def dev_in_mandel(mandel):
+    tensor = converter.to_tensor(mandel)
+    return converter.to_mandel6(mechkit.operators.dev(tensor, order=len(tensor.shape)))

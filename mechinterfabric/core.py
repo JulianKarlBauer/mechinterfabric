@@ -82,14 +82,14 @@ class FOT4Analysis:
                 "isotropic_or_cubic",
                 "cubic",
             ): decompositions.EigensystemLocatorIsotropicCubic,
-            # (
-            #     "isotropic_or_cubic",
-            #     "tetragonal",
-            # ): decompositions.EigensystemLocatorTransvTetraTrigo,
+            (
+                "isotropic_or_cubic",
+                "tetragonal",
+            ): decompositions.EigensystemLocatorTetra,
             (
                 "isotropic_or_cubic",
                 "trigonal or transversely isotropic",
-            ): decompositions.EigensystemLocatorTransvTetraTrigo,
+            ): decompositions.EigensystemLocatorTransvTrigo,
             # (
             #     "transversely_isotropic_or_tetragonal_or_trigonal",
             #     "tetragonal",
@@ -97,7 +97,7 @@ class FOT4Analysis:
             (
                 "transversely_isotropic_or_tetragonal_or_trigonal",
                 "trigonal or transversely isotropic",
-            ): decompositions.EigensystemLocatorTransvTetraTrigo,
+            ): decompositions.EigensystemLocatorTransvTrigo,
         }
         try:
             symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)
@@ -106,13 +106,9 @@ class FOT4Analysis:
             raise utils.ExceptionMechinterfabric(
                 f"Locator for symmetry combination {symmetry_combination} not implemented"
             )
+        print(f"Selected locator={locator}")
         self.eigensystem_locator = locator(
             spectral_decomposition=self.FOT4_spectral_decomposition
         )
         self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem
-
-
-# class FourthOrderFabricAnalyser:
-#     def analyse(self, FOT4):
-#         self.analysis = FOT4Analysis(FOT4)
