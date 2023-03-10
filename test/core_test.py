@@ -157,15 +157,13 @@ test_cases_raises = [
     *[
         {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
         for id, kwargs in [
-            # Edge case which is tetragonal, but is intepreted as cubic
-            ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
-        ]
-    ],
-    *[
-        {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
-        for id, kwargs in [
+            # Edge cases which are tetragonal, but are intepreted as cubic
             (
-                "tetra accidentaly cubic",
+                "tetra accidentaly cubic alpha1=1/3",
+                {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01},
+            ),
+            (
+                "tetra accidentaly cubic alpha1=-1/6",
                 {"alpha1": -1 / 6, "d1": -0.06666, "d3": -0.06666},
             ),
         ]
