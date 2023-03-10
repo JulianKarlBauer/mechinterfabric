@@ -51,11 +51,12 @@ def run(d1, d3):
 
     deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
 
+    random_rotation = mechinterfabric.utils.get_rotation_by_vector(
+        vector=np.random.rand() * 360 * np.array([1, 0, 0]), degrees=True
+    )
     disturbed = mechinterfabric.utils.rotate_to_mandel(
         deviator,
-        Q=mechinterfabric.utils.get_rotation_by_vector(
-            vector=np.random.rand() * 360 * np.array([1, 0, 0]), degrees=True
-        ),
+        Q=random_rotation,
     )
 
     def calc_residuum(angle):
