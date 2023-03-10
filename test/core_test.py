@@ -4,7 +4,11 @@ import pytest
 import scipy
 import sympy as sp
 import vofotensors
+from vofotensors.abc import alpha1
 from vofotensors.abc import d1
+from vofotensors.abc import d3
+from vofotensors.abc import d9
+from vofotensors.abc import rho1
 
 import mechinterfabric
 
@@ -14,15 +18,40 @@ np.set_printoptions(threshold=np.inf)
 np.set_printoptions(linewidth=np.inf)
 
 
-@pytest.fixture()
 def lambdified_parametrization_cubic():
-    parametrization_symbolic = vofotensors.fabric_tensors.N4s_parametric["cubic"]["d1"]
-    return sp.lambdify([d1], parametrization_symbolic)
+    return sp.lambdify(
+        [d1],
+        vofotensors.fabric_tensors.N4s_parametric["cubic"]["d1"],
+    )
+
+
+def lambdified_parametrization_transv():
+    return sp.lambdify(
+        [alpha1, rho1],
+        vofotensors.fabric_tensors.N4s_parametric["transv_isotropic"]["alpha1_rho1"],
+    )
+
+
+def lambdified_parametrization_tetragonal():
+    return sp.lambdify(
+        [alpha1, d1, d3],
+        vofotensors.fabric_tensors.N4s_parametric["tetragonal"]["alpha1_d1_d3"],
+    )
+
+
+def lambdified_parametrization_trigonal():
+    return sp.lambdify(
+        [alpha1, d3, d9],
+        vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
+    )
+
+
+###################################################################################
 
 
 @pytest.fixture()
-def cubic_by_d1(lambdified_parametrization_cubic, request):
-    return lambdified_parametrization_cubic(d1=request.param)
+def cubic_by_d1(request):
+    return lambdified_parametrization_cubic()(d1=request.param)
 
 
 class TestFOT4AnalysisCubic:
@@ -36,59 +65,18 @@ class TestFOT4AnalysisCubic:
         analysis.get_symmetry_FOT2()
         assert analysis.FOT2_symmetry == "isotropic_or_cubic"
 
-    @pytest.mark.parametrize(
-        "cubic_by_d1",
-        (-1 / 15, 2 / 45, 0, 1 / 45),
-        indirect=True,
-    )
-    def test_get_eigensystem_if_FOT4_is_cubic(
-        self,
-        cubic_by_d1,
-    ):
-
-        FOT4_rotated = mechinterfabric.utils.rotate_fot4_randomly(cubic_by_d1)
-
-        analysis = mechinterfabric.FOT4Analysis(FOT4_rotated)
-        analysis.get_eigensystem()
-        FOT4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
-            analysis.FOT4.tensor, analysis.eigensystem
-        )
-
-        assert np.allclose(cubic_by_d1, FOT4_reconstructed)
-
 
 ###################################################################################
 
 
-def lambdified_parametrization_transv():
-    from vofotensors.abc import alpha1, rho1
-
-    return sp.lambdify(
-        [alpha1, rho1],
-        vofotensors.fabric_tensors.N4s_parametric["transv_isotropic"]["alpha1_rho1"],
-    )
-
-
-def lambdified_parametrization_tetragonal():
-    from vofotensors.abc import alpha1, d1, d3
-
-    return sp.lambdify(
-        [alpha1, d1, d3],
-        vofotensors.fabric_tensors.N4s_parametric["tetragonal"]["alpha1_d1_d3"],
-    )
-
-
-def lambdified_parametrization_trigonal():
-    from vofotensors.abc import alpha1, d3, d9
-
-    return sp.lambdify(
-        [alpha1, d3, d9],
-        vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
-    )
-
-
 test_cases_passing = [
     {"id": "isotropic", "tensor": sp.lambdify([], vofotensors.basic_tensors.N4_iso)()},
+    *[
+        {"id": id, "tensor": lambdified_parametrization_cubic()(**kwargs)}
+        for id, kwargs in [
+            *[(f"Cubic d1={d1}", {"d1": d1}) for d1 in (-1 / 15, 2 / 45, 0, 1 / 45)],
+        ]
+    ],
     *[
         {"id": id, "tensor": lambdified_parametrization_transv()(**kwargs)}
         for id, kwargs in [
