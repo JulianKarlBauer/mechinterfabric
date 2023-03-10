@@ -146,7 +146,6 @@ def run(d1, d3):
     from matplotlib import pyplot as plt
 
     plt.plot(angles, residuum)
-    plt.legend()
 
 
 # d1s = np.linspace(-1 / 15, 2 / 45, 3)
@@ -156,4 +155,5 @@ def run(d1, d3):
 #     for d3 in d3s:
 #         run(d1, d3)
 
-run(**{"d1": 0.025, "d3": 0.025})
+# run(**{"d1": 0.025, "d3": 0.025})
+run(**{"d1": 0.044444444444444446, "d3": -0.06666666666666667})

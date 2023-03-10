@@ -161,19 +161,23 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
             ), details["message"]
 
 
-class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
-    def get_eigensystem(self, make_trigonal_check=True, **kwargs):
+class EigensystemLocatorTransvTrigo(EigensystemLocator):
+    def get_eigensystem(self, optimize_rotation_around_x_axis=False, **kwargs):
 
         # Start homogeneously
         # tetra, transv.-iso. and
         # trigonal (which is non-orthotropic and which requires a two-step procedure)
         self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
-        self.deviator_in_eigensystem = utils.rotate_to_mandel(
+
+        # Prepare check for additional step
+        self._deviator_in_eigensystem = utils.rotate_to_mandel(
             self.spectral_decomposition.deviator, Q=self.eigensystem
         )
-
         # Make additional step for trigonal case
-        if make_trigonal_check and self.deviator_is_trigonal_or_less_symmetric():
+        if (
+            optimize_rotation_around_x_axis
+            or self.deviator_is_trigonal_or_less_symmetric()
+        ):
             additional_rotation = self.rotate_into_trigonal_natural_system()
 
             # The following transformation have to be applied step-wise starting from index 0
@@ -184,7 +188,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
 
     def deviator_is_trigonal_or_less_symmetric(self, tol=1e-6):
         indices_zeros_orthotropic = np.s_[:3, 3:]
-        upper_right_quadrant = self.deviator_in_eigensystem[indices_zeros_orthotropic]
+        upper_right_quadrant = self._deviator_in_eigensystem[indices_zeros_orthotropic]
         return not np.allclose(
             upper_right_quadrant,
             np.zeros_like(upper_right_quadrant),
@@ -234,12 +238,18 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             rotation = utils.get_rotation_by_vector(
                 vector=angle * np.array([1, 0, 0]), degrees=True
             )
-            rotated = utils.rotate_to_mandel(self.deviator_in_eigensystem, Q=rotation)
+            rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
             indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
             return np.linalg.norm(rotated[indices])
 
         # Brute force try some angles
-        angles = np.linspace(0, 60, 180)
+
+        # Angles optimal for trigonal
+        # angles = np.linspace(0, 60, 180)
+
+        # Angles necessary for tetragonal, acceptable for trigonal
+        angles = np.linspace(0, 90, 270)
+
         angles_difference = angles[1] - angles[0]
         residuum = np.zeros((len(angles)), dtype=np.float64)
         for index, angle in enumerate(angles):
@@ -261,7 +271,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             vector=optimized_angle * np.array([1, 0, 0]), degrees=True
         )
         deviator_optimized = utils.rotate_to_mandel(
-            self.deviator_in_eigensystem,
+            self._deviator_in_eigensystem,
             Q=additional_rotation,
         )
 
@@ -276,3 +286,41 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             additional_rotation = transform @ additional_rotation
 
         return additional_rotation
+
+
+class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
+    def get_eigensystem(self, optimize_rotation_around_x_axis=True, **kwargs):
+        eigensystem_transformation = super().get_eigensystem(
+            optimize_rotation_around_x_axis=optimize_rotation_around_x_axis, **kwargs
+        )
+        deviator = self.spectral_decomposition.deviator
+        candidate = utils.rotate_to_mandel(deviator, eigensystem_transformation)
+
+        index_d1 = np.s_[0, 2]
+        index_d3_first_dandidate = np.s_[1, 2]
+
+        d1 = candidate[index_d1]
+        d3 = candidate[index_d3_first_dandidate]
+        transform = np.eye(3)
+        print(f"d3 = {d3}")
+
+        center_of_d3_range = -d1 / 4.0
+        if center_of_d3_range < d3:
+            d3 = 2.0 * center_of_d3_range - d3
+            rotation_45_degrees = utils.get_rotation_by_vector(
+                vector=45 * np.array([1, 0, 0]), degrees=True
+            )
+            transform = rotation_45_degrees
+
+            # Test
+            print(f"d3 = {d3}")
+            assert np.isclose(
+                utils.rotate_to_mandel(candidate, transform)[index_d3_first_dandidate],
+                d3,
+            )
+
+        self.eigensystem = utils.append_transform(
+            old=eigensystem_transformation, new=transform
+        )
+
+        return self.eigensystem
