@@ -121,6 +121,12 @@ def run(d1, d3):
     for key, d3 in d3s.items():
         print(f"d3_{key}   \t={d3}")
 
+    for d3 in d3s.values():
+        center_of_d3_range = -d1 / 4.0
+        if center_of_d3_range < d3:
+            d3 = 2.0 * center_of_d3_range - d3
+        assert np.isclose(d3s["minus"], d3)
+
     news = {
         key: lambdified_parametrization()(
             alpha1=example["alpha1"], d1=example["d1"], d3=d3
