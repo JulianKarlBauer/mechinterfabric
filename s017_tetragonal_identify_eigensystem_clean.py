@@ -66,13 +66,13 @@ def run(d1, d3):
     analysis = mechinterfabric.FOT4Analysis(disturbed_fot4)
     analysis.get_eigensystem()
     transform_tmp = analysis.eigensystem
-    candiate = mechinterfabric.utils.rotate_to_mandel(disturbed, transform_tmp)
+    candidate = mechinterfabric.utils.rotate_to_mandel(disturbed, transform_tmp)
 
     def calc_residuum(angle):
         rotation = mechinterfabric.utils.get_rotation_by_vector(
             vector=angle * np.array([1, 0, 0]), degrees=True
         )
-        rotated = mechinterfabric.utils.rotate_to_mandel(disturbed, Q=rotation)
+        rotated = mechinterfabric.utils.rotate_to_mandel(candidate, Q=rotation)
         indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
         return np.linalg.norm(rotated[indices])
 
@@ -99,7 +99,7 @@ def run(d1, d3):
         vector=optimized_angle * np.array([1, 0, 0]), degrees=True
     )
     deviator_optimized = mechinterfabric.utils.rotate_to_mandel(
-        disturbed,
+        candidate,
         Q=additional_rotation,
     )
 
@@ -143,10 +143,17 @@ def run(d1, d3):
     print("Did assert both deviators: Both fine")
     print()
 
+    from matplotlib import pyplot as plt
 
-d1s = np.linspace(-1 / 15, 2 / 45, 3)
-for d1 in d1s:
-    print("################################")
-    d3s = np.linspace(-1 / 15, (14 - 105 * d1) / 210, 5)
-    for d3 in d3s:
-        run(d1, d3)
+    plt.plot(angles, residuum)
+    plt.legend()
+
+
+# d1s = np.linspace(-1 / 15, 2 / 45, 3)
+# for d1 in d1s:
+#     print("################################")
+#     d3s = np.linspace(-1 / 15, (14 - 105 * d1) / 210, 5)
+#     for d3 in d3s:
+#         run(d1, d3)
+
+run(**{"d1": 0.025, "d3": 0.025})
