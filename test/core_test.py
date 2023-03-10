@@ -151,11 +151,16 @@ test_cases_passing = [
     *[
         {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
         for id, kwargs in [
-            (f"N2-iso d1={d1}, d3={d3}", {"alpha1": 0, "d1": d1, "d3": d3})
-            for d1 in np.linspace(-1 / 15, 2 / 45, 4)[
-                :-1
-            ]  # Avoid edge case which is tetragonal, but is intepreted as cubic
-            for d3 in np.linspace(-1 / 15, -d1 / 4.0, 3)
+            *[
+                (f"N2-iso d1={d1}, d3={d3}", {"alpha1": 0, "d1": d1, "d3": d3})
+                for d1 in np.linspace(-1 / 15, 2 / 45, 4)[
+                    :-1
+                ]  # Avoid edge case which is tetragonal, but is intepreted as cubic
+                for d3 in np.linspace(-1 / 15, -d1 / 4.0, 3)
+            ],
+            ("random pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": -0.0197999}),
+            ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.01999}),
+            ("random pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
         ]
     ],
 ]
@@ -165,9 +170,8 @@ test_cases_failing = [
     *[
         {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
         for id, kwargs in [
-            ("random pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": 0.0243}),
+            # Edge case which is tetragonal, but is intepreted as cubic
             ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
-            ("random pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
         ]
     ],
 ]
