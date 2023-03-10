@@ -67,6 +67,17 @@ class TestFOT4AnalysisCubic:
 
 
 ###################################################################################
+def limit_d9_trigonal(alpha1, d3):
+    return (
+        np.sqrt(
+            98
+            - 105 * alpha1
+            - 225 * alpha1**2
+            - 4410 * d3
+            + 14175 * alpha1 * d3
+            - 88200 * d3**2
+        )
+    ) / (np.sqrt(2) * 105)
 
 
 test_cases_passing = [
@@ -98,7 +109,7 @@ test_cases_passing = [
         {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
         for id, kwargs in [
             *[
-                (f"N2-iso d1={d1}, d3={d3}", {"alpha1": 0, "d1": d1, "d3": d3})
+                (f"tetra N2-iso d1={d1}, d3={d3}", {"alpha1": 0, "d1": d1, "d3": d3})
                 for d1 in np.linspace(-1 / 15, 2 / 45, 4)[
                     :-1
                 ]  # Avoid edge case which is tetragonal, but is intepreted as cubic
@@ -112,6 +123,19 @@ test_cases_passing = [
     *[
         {"id": id, "tensor": lambdified_parametrization_trigonal()(**kwargs)}
         for id, kwargs in [
+            *[
+                (
+                    f"trig alpha={alpha1}, d3={d3}, d9={d9}",
+                    {"alpha1": 0, "d3": d3, "d9": d9},
+                )
+                for alpha1 in np.linspace(-1 / 3, 2 / 3, 3)[:-1]
+                for d3 in np.linspace(
+                    (-28 - 60 * alpha1 + 315 * alpha1**2) / 2520,
+                    (14 + 15 * alpha1) / 840,
+                    3,
+                )
+                for d9 in np.linspace(0, limit_d9_trigonal(alpha1, d3), 3)
+            ],
             ("trig pos def 01", {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}),
             ("trig pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
             ("trig pos def 03", {"alpha1": -1 / 3, "d3": 0.0125, "d9": 0.0325}),
@@ -122,10 +146,28 @@ test_cases_passing = [
 
 test_cases_failing = [
     *[
+        {"id": id, "tensor": lambdified_parametrization_trigonal()(**kwargs)}
+        for id, kwargs in [
+            ("trig accident cubic", {"alpha1": 0, "d3": -0.01111, "d9": 0.078567420}),
+        ]
+    ],
+]
+
+test_cases_raises = [
+    *[
         {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
         for id, kwargs in [
             # Edge case which is tetragonal, but is intepreted as cubic
             ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
+        ]
+    ],
+    *[
+        {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
+        for id, kwargs in [
+            (
+                "tetra accidentaly cubic",
+                {"alpha1": -1 / 6, "d1": -0.06666, "d3": -0.06666},
+            ),
         ]
     ],
 ]
@@ -170,9 +212,25 @@ class TestFOT4Analysis:
         ),
     )
     def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
+        analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
+        analysis.get_eigensystem()
+        reconstructed = mechinterfabric.utils.rotate_to_mandel(
+            analysis.FOT4.tensor, analysis.eigensystem
+        )
+        assert not np.allclose(reconstructed, fot4_in_eigensystem, atol=1e-7)
+
+    @pytest.mark.parametrize(
+        ("fot4_rotated", "fot4_in_eigensystem"),
+        (
+            pytest.param(
+                mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
+                row["tensor"],
+                id=row["id"],
+            )
+            for row in test_cases_raises
+        ),
+    )
+    def test_get_eigensystem_raises(self, fot4_rotated, fot4_in_eigensystem):
         with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
             analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
             analysis.get_eigensystem()
-            reconstructed = mechinterfabric.utils.rotate_to_mandel(
-                analysis.FOT4.tensor, analysis.eigensystem
-            )
