@@ -69,6 +69,24 @@ def lambdified_parametrization_transv():
     )
 
 
+def lambdified_parametrization_tetragonal():
+    from vofotensors.abc import alpha1, d1, d3
+
+    return sp.lambdify(
+        [alpha1, d1, d3],
+        vofotensors.fabric_tensors.N4s_parametric["tetragonal"]["alpha1_d1_d3"],
+    )
+
+
+def lambdified_parametrization_trigonal():
+    from vofotensors.abc import alpha1, d3, d9
+
+    return sp.lambdify(
+        [alpha1, d3, d9],
+        vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
+    )
+
+
 test_cases_passing = [
     {"id": "isotropic", "tensor": sp.lambdify([], vofotensors.basic_tensors.N4_iso)()},
     *[
@@ -88,68 +106,8 @@ test_cases_passing = [
             ),
         ]
     ],
-]
-
-test_cases_failing = []
-
-
-class TestFOT4AnalysisTransv:
-    @pytest.mark.parametrize(
-        ("fot4_rotated", "fot4_in_eigensystem"),
-        (
-            pytest.param(
-                mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
-                row["tensor"],
-                id=row["id"],
-            )
-            for row in test_cases_passing
-        ),
-    )
-    def test_get_eigensystem(self, fot4_rotated, fot4_in_eigensystem):
-
-        analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-        analysis.get_eigensystem()
-        reconstructed = mechinterfabric.utils.rotate_to_mandel(
-            analysis.FOT4.tensor, analysis.eigensystem
-        )
-
-        assert np.allclose(reconstructed, fot4_in_eigensystem)
-
-    @pytest.mark.parametrize(
-        ("fot4_rotated", "fot4_in_eigensystem"),
-        (
-            pytest.param(
-                mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
-                row["tensor"],
-                id=row["id"],
-            )
-            for row in test_cases_failing
-        ),
-    )
-    def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
-        with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
-            analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-            analysis.get_eigensystem()
-            reconstructed = mechinterfabric.utils.rotate_to_mandel(
-                analysis.FOT4.tensor, analysis.eigensystem
-            )
-
-
-###################################################################################
-
-
-def lambdified_parametrization():
-    from vofotensors.abc import alpha1, d1, d3
-
-    return sp.lambdify(
-        [alpha1, d1, d3],
-        vofotensors.fabric_tensors.N4s_parametric["tetragonal"]["alpha1_d1_d3"],
-    )
-
-
-test_cases_passing = [
     *[
-        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
+        {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
         for id, kwargs in [
             *[
                 (f"N2-iso d1={d1}, d3={d3}", {"alpha1": 0, "d1": d1, "d3": d3})
@@ -158,17 +116,25 @@ test_cases_passing = [
                 ]  # Avoid edge case which is tetragonal, but is intepreted as cubic
                 for d3 in np.linspace(-1 / 15, -d1 / 4.0, 3)
             ],
-            ("random pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": -0.0197999}),
-            ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.01999}),
-            ("random pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
+            ("tetra pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": -0.019799}),
+            ("tetra pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.01999}),
+            ("tetra pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
+        ]
+    ],
+    *[
+        {"id": id, "tensor": lambdified_parametrization_trigonal()(**kwargs)}
+        for id, kwargs in [
+            ("trig pos def 01", {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}),
+            ("trig pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
+            ("trig pos def 03", {"alpha1": -1 / 3, "d3": 0.0125, "d9": 0.0325}),
+            ("trig pos def 04", {"alpha1": -1 / 3, "d3": 0.0055, "d9": 0.0125}),
         ]
     ],
 ]
 
-
 test_cases_failing = [
     *[
-        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
+        {"id": id, "tensor": lambdified_parametrization_tetragonal()(**kwargs)}
         for id, kwargs in [
             # Edge case which is tetragonal, but is intepreted as cubic
             ("random pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01}),
@@ -177,7 +143,7 @@ test_cases_failing = [
 ]
 
 
-class TestFOT4AnalysisTetragonal:
+class TestFOT4Analysis:
     @pytest.mark.parametrize(
         ("fot4_rotated", "fot4_in_eigensystem"),
         (
@@ -199,7 +165,9 @@ class TestFOT4AnalysisTetragonal:
         reconstructed = mechinterfabric.utils.rotate_to_mandel(
             analysis.FOT4.tensor, analysis.eigensystem
         )
+
         print(f"reconstructed=\n{reconstructed}")
+
         assert np.allclose(reconstructed, fot4_in_eigensystem, atol=1e-7)
 
     @pytest.mark.parametrize(
@@ -220,52 +188,3 @@ class TestFOT4AnalysisTetragonal:
             reconstructed = mechinterfabric.utils.rotate_to_mandel(
                 analysis.FOT4.tensor, analysis.eigensystem
             )
-
-
-###################################################################################
-
-
-def lambdified_parametrization():
-    from vofotensors.abc import alpha1, d3, d9
-
-    return sp.lambdify(
-        [alpha1, d3, d9],
-        vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
-    )
-
-
-test_cases_passing = [
-    *[
-        {"id": id, "tensor": lambdified_parametrization()(**kwargs)}
-        for id, kwargs in [
-            ("random pos def 01", {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}),
-            ("random pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
-            ("random pos def 02", {"alpha1": -1 / 3, "d3": 0.0125, "d9": 0.0325}),
-            ("random pos def 02", {"alpha1": -1 / 3, "d3": 0.0055, "d9": 0.0125}),
-        ]
-    ],
-]
-
-
-class TestFOT4AnalysisTrigonal:
-    @pytest.mark.parametrize(
-        ("fot4_rotated", "fot4_in_eigensystem"),
-        (
-            pytest.param(
-                mechinterfabric.utils.rotate_fot4_randomly(row["tensor"]),
-                row["tensor"],
-                id=row["id"],
-            )
-            for row in test_cases_passing
-        ),
-    )
-    def test_get_eigensystem(self, fot4_rotated, fot4_in_eigensystem):
-
-        analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-        analysis.get_eigensystem()
-        reconstructed = mechinterfabric.utils.rotate_to_mandel(
-            analysis.FOT4.tensor, analysis.eigensystem
-        )
-        print(f"fot4_in_eigensystem={fot4_in_eigensystem}")
-        print(f"reconstructed={reconstructed}")
-        assert np.allclose(reconstructed, fot4_in_eigensystem)
