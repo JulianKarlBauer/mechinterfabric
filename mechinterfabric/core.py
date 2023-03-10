@@ -90,10 +90,10 @@ class FOT4Analysis:
                 "isotropic_or_cubic",
                 "trigonal or transversely isotropic",
             ): decompositions.EigensystemLocatorTransvTrigo,
-            # (
-            #     "transversely_isotropic_or_tetragonal_or_trigonal",
-            #     "tetragonal",
-            # ): decompositions.EigensystemLocatorTransvTetraTrigo,
+            (
+                "transversely_isotropic_or_tetragonal_or_trigonal",
+                "tetragonal",
+            ): decompositions.EigensystemLocatorTetra,
             (
                 "transversely_isotropic_or_tetragonal_or_trigonal",
                 "trigonal or transversely isotropic",
