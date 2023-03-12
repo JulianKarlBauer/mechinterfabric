@@ -15,11 +15,16 @@ print(deviator.__name__)
 tensor = deviator()
 
 one = sp.S(1)
-orthotropic_transforms = (
-    [
-        ((-1, 0, 0), (0, -1, 0), (0, 0, 1)),
-        ((-1, 0, 0), (0, 1, 0), (0, 0, -1)),
-        ((1, 0, 0), (0, -1, 0), (0, 0, -1)),
-        ((1, 0, 0), (0, 1, 0), (0, 0, 1)),
-    ],
-)
+zero = sp.S(0)
+orthotropic_transforms = [
+    ((-one, zero, zero), (zero, -one, zero), (zero, zero, one)),
+    ((-one, zero, zero), (zero, one, zero), (zero, zero, -one)),
+    ((one, zero, zero), (zero, -one, zero), (zero, zero, -one)),
+    ((one, zero, zero), (zero, one, zero), (zero, zero, one)),
+]
+
+
+for transform in orthotropic_transforms:
+    rotated = sp.Matrix(symbolic.actively_rotate_mandel(tensor, Q=transform))
+
+    print(rotated.__repr__())
