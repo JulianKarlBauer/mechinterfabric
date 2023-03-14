@@ -32,9 +32,13 @@ def inspect(deviator):
                 con.to_tensor(symbolic.to_numpy(eigenspace)[:, 0])
             ).eigenvects()
             for ev_eigenspace in eigenvectors_eigenspace:
-                print(f"\t{ev_eigenspace[0]} with multiplicity={ev_eigenspace[1]}")
+                print(
+                    f"\t{sp.simplify(ev_eigenspace[0])} with multiplicity={ev_eigenspace[1]}"
+                )
                 for eigenspace_eigenspace in ev_eigenspace[2]:
-                    nicer_eigenspace = np.array([row for row in eigenspace_eigenspace])
+                    nicer_eigenspace = sp.simplify(
+                        np.array([row for row in eigenspace_eigenspace])
+                    )
                     print(f"\t{nicer_eigenspace}")
 
             # raise Exception()
