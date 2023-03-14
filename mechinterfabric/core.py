@@ -73,6 +73,11 @@ class FOT4Analysis:
         self.get_symmetry_FOT2()
         self.get_symmetry_FOT4()
 
+        tmp = [
+            "isotropic_or_cubic",
+            "transversely_isotropic_or_tetragonal_or_trigonal",
+        ]
+
         locators = {
             (
                 "isotropic_or_cubic",
@@ -82,22 +87,20 @@ class FOT4Analysis:
                 "isotropic_or_cubic",
                 "cubic",
             ): decompositions.EigensystemLocatorIsotropicCubic,
-            (
-                "isotropic_or_cubic",
-                "tetragonal",
-            ): decompositions.EigensystemLocatorTetra,
-            (
-                "isotropic_or_cubic",
-                "trigonal or transversely isotropic",
-            ): decompositions.EigensystemLocatorTransvTrigo,
-            (
-                "transversely_isotropic_or_tetragonal_or_trigonal",
-                "tetragonal",
-            ): decompositions.EigensystemLocatorTetra,
-            (
-                "transversely_isotropic_or_tetragonal_or_trigonal",
-                "trigonal or transversely isotropic",
-            ): decompositions.EigensystemLocatorTransvTrigo,
+            **{
+                (
+                    key,
+                    "trigonal or transversely isotropic",
+                ): decompositions.EigensystemLocatorTransvTrigo
+                for key in tmp
+            },
+            **{
+                (
+                    key,
+                    "tetragonal",
+                ): decompositions.EigensystemLocatorTetra
+                for key in tmp
+            },
         }
         try:
             symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)
