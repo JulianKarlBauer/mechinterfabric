@@ -29,16 +29,39 @@ fot4 = lambdified_parametrization_triclinic()(
     d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
 )
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
-print(f"deviator=\n{deviator}")
+# print(f"deviator=\n{deviator}")
+print(f"fot4=\n{fot4}")
+print()
 
-# # Select random rotation
-# angle = 52
-# rotation = mechinterfabric.utils.get_rotation_by_vector(
-#     vector=angle * np.array([1, 0, 0]), degrees=True
-# )
 rotation = mechinterfabric.utils.get_random_rotation()
 
 
 # Apply random rotation
 fot4_rotated = mechinterfabric.utils.rotate_to_mandel(fot4, Q=rotation)
 deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotated)))
+
+spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
+    deviator_rotated
+)
+
+for value, vector in zip(
+    spectral_decomposition.eigen_values, spectral_decomposition.eigen_vectors.T
+):
+    if not np.isclose(value, 0.0):
+        tensor = con.to_tensor(vector)
+        vals, vecs = np.linalg.eigh(tensor)
+
+        one_over_sqrt_two = 1 / np.sqrt(2)
+        if not np.allclose(vals, [-one_over_sqrt_two, 0, one_over_sqrt_two]):
+            print(f"value={value}")
+            # print(vals)
+            (
+                vals_sorted,
+                eigensystem,
+            ) = mechinterfabric.utils.sort_eigen_values_and_vectors(
+                eigen_values=vals, eigen_vectors=vecs
+            )
+            # print(vals_sorted)
+            print(
+                f"back=\n{ mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=eigensystem)}"
+            )
