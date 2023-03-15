@@ -29,8 +29,8 @@ fot4 = lambdified_parametrization_triclinic()(
     d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
 )
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
-# print(f"deviator=\n{deviator}")
-print(f"fot4=\n{fot4}")
+print(f"deviator=\n{deviator}")
+# print(f"fot4=\n{fot4}")
 print()
 
 rotation = mechinterfabric.utils.get_random_rotation()
@@ -62,8 +62,10 @@ for value, vector in zip(
                 eigen_values=vals, eigen_vectors=vecs
             )
             # print(vals_sorted)
-            back = mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=eigensystem)
-            print(f"back=\n{back}")
+            back = mechinterfabric.utils.rotate_to_mandel(
+                deviator_rotated, Q=eigensystem
+            )
+            print(f"back=\n{np.round(back,4)}")
             # for transform in [
             #     [(-1, 0, 0), (0, -1, 0), (0, 0, 1)],
             #     [(-1, 0, 0), (0, 1, 0), (0, 0, -1)],
