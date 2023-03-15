@@ -33,20 +33,15 @@ def allclose(A, B):
     return np.allclose(A, B, rtol=tol, atol=tol)
 
 
-def handle_near_zero_negatives(value):
-    # Catch problem with very small negative numbers
-    if np.isclose(value, 0.0):
-        value = 0.0
-    return value
-
-
 def run(d1, d3):
     example = {"alpha1": 0, "d1": d1, "d3": d3}
     tol = 5
     print(f"d1={np.round(d1, tol)}\t d3={np.round(d3, tol)}")
 
     fot4 = lambdified_parametrization()(**example)
-    tmp = handle_near_zero_negatives(np.min(np.linalg.eigh(fot4)[0]))
+    tmp = mechinterfabric.utils.handle_near_zero_negatives(
+        np.min(np.linalg.eigh(fot4)[0])
+    )
     assert tmp >= 0, "has to be positive semi definite"
 
     deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
@@ -124,7 +119,7 @@ def run(d1, d3):
     m1 = deviator_optimized[index]
     m2 = deviator_alternative[index]
 
-    tmp = handle_near_zero_negatives(d1**2 / 16 - m1 * m2)
+    tmp = mechinterfabric.utils.handle_near_zero_negatives(d1**2 / 16 - m1 * m2)
     summand = np.sqrt(tmp)
     d3s = {"plus": -d1 / 4.0 + summand, "minus": -d1 / 4.0 - summand}
     for key, d3 in d3s.items():
@@ -138,7 +133,9 @@ def run(d1, d3):
     }
 
     for key, new in news.items():
-        tmp = handle_near_zero_negatives(np.min(np.linalg.eigh(new)[0]))
+        tmp = mechinterfabric.utils.handle_near_zero_negatives(
+            np.min(np.linalg.eigh(new)[0])
+        )
         assert tmp >= 0
     print("Did assert both deviators: Both fine")
     print()
