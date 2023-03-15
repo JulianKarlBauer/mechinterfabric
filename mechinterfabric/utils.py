@@ -131,3 +131,10 @@ def get_random_rotation():
 def dev_in_mandel(mandel):
     tensor = converter.to_tensor(mandel)
     return converter.to_mandel6(mechkit.operators.dev(tensor, order=len(tensor.shape)))
+
+
+def handle_near_zero_negatives(value):
+    # Catch problem with very small negative numbers
+    if np.isclose(value, 0.0):
+        value = 0.0
+    return value

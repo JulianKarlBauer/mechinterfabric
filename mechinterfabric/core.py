@@ -27,7 +27,11 @@ class FiberOrientationTensor:
 
         # Eigenvalues sum to one
         representation = self.tensor if self.order == 2 else self.mandel6
-        assert np.allclose(np.linalg.eigh(representation)[0].sum(), 1.0)
+        eigenvalues = np.linalg.eigh(representation)[0]
+        assert np.allclose(eigenvalues.sum(), 1.0)
+
+        # Positive semi-definite
+        assert utils.handle_near_zero_negatives(np.min(eigenvalues)) >= 0.0
 
 
 class FiberOrientationTensor2(FiberOrientationTensor):
@@ -99,6 +103,13 @@ class FOT4Analysis:
                     key,
                     "tetragonal",
                 ): decompositions.EigensystemLocatorTetra
+                for key in tmp
+            },
+            **{
+                (
+                    key,
+                    "orthotropic or higher",
+                ): decompositions.EigensystemLocatorIsotropicOrthotropicHigher
                 for key in tmp
             },
         }

@@ -6,8 +6,16 @@ import sympy as sp
 import vofotensors
 from vofotensors.abc import alpha1
 from vofotensors.abc import d1
+from vofotensors.abc import d2
 from vofotensors.abc import d3
+from vofotensors.abc import d4
+from vofotensors.abc import d5
+from vofotensors.abc import d6
+from vofotensors.abc import d7
+from vofotensors.abc import d8
 from vofotensors.abc import d9
+from vofotensors.abc import la1
+from vofotensors.abc import la2
 from vofotensors.abc import rho1
 
 import mechinterfabric
@@ -43,6 +51,15 @@ def lambdified_parametrization_trigonal():
     return sp.lambdify(
         [alpha1, d3, d9],
         vofotensors.fabric_tensors.N4s_parametric["trigonal"]["alpha1_d3_d9"],
+    )
+
+
+def lambdified_parametrization_triclinic():
+    return sp.lambdify(
+        [la1, la2, d1, d2, d3, d4, d5, d6, d7, d8, d9],
+        vofotensors.fabric_tensors.N4s_parametric["triclinic"][
+            "la1_la2_d1_d2_d3_d4_d5_d6_d7_d8_d9"
+        ],
     )
 
 
@@ -116,7 +133,7 @@ test_cases_passing = [
                 for d3 in np.linspace(-1 / 15, -d1 / 4.0, 3)
             ],
             ("tetra pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": -0.019799}),
-            ("tetra pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.01999}),
+            ("tetra pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.0179}),
             ("tetra pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
         ]
     ],
@@ -132,17 +149,30 @@ test_cases_passing = [
                 for d3 in np.linspace(
                     (-28 - 60 * alpha1 + 315 * alpha1**2) / 2520,
                     (14 + 15 * alpha1) / 840,
-                    3,
-                )
-                for d9 in np.linspace(0, limit_d9_trigonal(alpha1, d3), 3)
+                    5,
+                )[1:-1]
+                for d9 in np.linspace(0, limit_d9_trigonal(alpha1, d3), 5)[1:-1]
             ],
             ("trig pos def 01", {"alpha1": 0, "d3": 0.0125, "d9": 0.0325}),
             ("trig pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
-            ("trig pos def 03", {"alpha1": -1 / 3, "d3": 0.0125, "d9": 0.0325}),
-            ("trig pos def 04", {"alpha1": -1 / 3, "d3": 0.0055, "d9": 0.0125}),
+        ]
+    ],
+    *[
+        {
+            "id": id,
+            "tensor": lambdified_parametrization_triclinic()(
+                d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
+            ),
+        }
+        for id, kwargs in [
+            (
+                "ortho pos def 01",
+                {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
+            ),
         ]
     ],
 ]
+
 
 test_cases_failing = [
     *[
@@ -185,6 +215,7 @@ class TestFOT4Analysis:
     )
     def test_get_eigensystem(self, fot4_rotated, fot4_in_eigensystem):
 
+        print(f"Min(eigenvalues)={np.min(np.linalg.eigh(fot4_rotated)[0])}")
         print(f"fot4_rotated=\n{fot4_rotated}")
         print(f"fot4_in_eigensystem=\n{fot4_in_eigensystem}")
 

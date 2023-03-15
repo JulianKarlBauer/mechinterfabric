@@ -324,3 +324,8 @@ class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
         )
 
         return self.eigensystem
+
+
+class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
+    def get_eigensystem(self, **kwargs):
+        return np.eye(3)
