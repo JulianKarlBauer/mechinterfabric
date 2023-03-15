@@ -62,6 +62,17 @@ for value, vector in zip(
                 eigen_values=vals, eigen_vectors=vecs
             )
             # print(vals_sorted)
-            print(
-                f"back=\n{ mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=eigensystem)}"
-            )
+            back = mechinterfabric.utils.rotate_to_mandel(fot4_rotated, Q=eigensystem)
+            print(f"back=\n{back}")
+            # for transform in [
+            #     [(-1, 0, 0), (0, -1, 0), (0, 0, 1)],
+            #     [(-1, 0, 0), (0, 1, 0), (0, 0, -1)],
+            #     [(1, 0, 0), (0, -1, 0), (0, 0, -1)],
+            #     [(1, 0, 0), (0, 1, 0), (0, 0, 1)],
+            # ]:
+            #     tol = 1e-5
+            #     transformed = mechinterfabric.utils.rotate_to_mandel(
+            #         back, Q=np.array(transform)
+            #     )
+            #     print(transformed)
+            #     print(np.allclose(transformed, fot4, atol=tol, rtol=tol))
