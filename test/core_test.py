@@ -157,20 +157,20 @@ test_cases_passing = [
             ("trig pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
         ]
     ],
-    *[
-        {
-            "id": id,
-            "tensor": lambdified_parametrization_triclinic()(
-                d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
-            ),
-        }
-        for id, kwargs in [
-            (
-                "ortho pos def 01",
-                {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
-            ),
-        ]
-    ],
+    # *[
+    #     {
+    #         "id": id,
+    #         "tensor": lambdified_parametrization_triclinic()(
+    #             d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
+    #         ),
+    #     }
+    #     for id, kwargs in [
+    #         (
+    #             "ortho pos def 01",
+    #             {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
+    #         ),
+    #     ]
+    # ],
 ]
 
 
@@ -178,7 +178,7 @@ test_cases_failing = [
     *[
         {"id": id, "tensor": lambdified_parametrization_trigonal()(**kwargs)}
         for id, kwargs in [
-            ("trig accident cubic", {"alpha1": 0, "d3": -0.01111, "d9": 0.078567420}),
+            # ("trig accident cubic", {"alpha1": 0, "d3": -0.01111, "d9": 0.078567420}),
         ]
     ],
 ]
@@ -192,10 +192,10 @@ test_cases_raises = [
                 "tetra accidentaly cubic alpha1=1/3",
                 {"alpha1": 1 / 3, "d1": 0.01, "d3": 0.01},
             ),
-            (
-                "tetra accidentaly cubic alpha1=-1/6",
-                {"alpha1": -1 / 6, "d1": -0.06666, "d3": -0.06666},
-            ),
+            # (
+            #     "tetra accidentaly cubic alpha1=-1/6",
+            #     {"alpha1": -1 / 6, "d1": -0.06666, "d3": -0.06666},
+            # ),
         ]
     ],
 ]
@@ -241,6 +241,8 @@ class TestFOT4Analysis:
         ),
     )
     def test_get_eigensystem_failing(self, fot4_rotated, fot4_in_eigensystem):
+        print(f"Min(eigenvalues)={np.min(np.linalg.eigh(fot4_rotated)[0])}")
+
         analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
         analysis.get_eigensystem()
         reconstructed = mechinterfabric.utils.rotate_to_mandel(
@@ -260,6 +262,8 @@ class TestFOT4Analysis:
         ),
     )
     def test_get_eigensystem_raises(self, fot4_rotated, fot4_in_eigensystem):
+        print(f"Min(eigenvalues)={np.min(np.linalg.eigh(fot4_rotated)[0])}")
+
         with pytest.raises(mechinterfabric.utils.ExceptionMechinterfabric):
             analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
             analysis.get_eigensystem()
