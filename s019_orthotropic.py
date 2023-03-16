@@ -24,7 +24,13 @@ def lambdified_parametrization_triclinic():
     )
 
 
-kwargs = {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011}
+kwargs = {
+    "la1": 1 / 3,
+    "la2": 1 / 3,
+    "d1": 0.044,
+    "d2": 0.043,
+    "d3": 0.011,
+}  # Assert decrease in d_i for increasing i
 fot4 = lambdified_parametrization_triclinic()(
     d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
 )
@@ -44,6 +50,7 @@ spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDev
     deviator_rotated
 )
 
+transformeds = []
 for value, vector in zip(
     spectral_decomposition.eigen_values, spectral_decomposition.eigen_vectors.T
 ):
@@ -59,22 +66,48 @@ for value, vector in zip(
                 vals_sorted,
                 eigensystem,
             ) = mechinterfabric.utils.sort_eigen_values_and_vectors(
-                eigen_values=vals, eigen_vectors=vecs
+                eigen_values=np.abs(vals), eigen_vectors=vecs
             )
             # print(vals_sorted)
             back = mechinterfabric.utils.rotate_to_mandel(
                 deviator_rotated, Q=eigensystem
             )
-            print(f"back=\n{np.round(back,4)}")
-            # for transform in [
-            #     [(-1, 0, 0), (0, -1, 0), (0, 0, 1)],
-            #     [(-1, 0, 0), (0, 1, 0), (0, 0, -1)],
-            #     [(1, 0, 0), (0, -1, 0), (0, 0, -1)],
-            #     [(1, 0, 0), (0, 1, 0), (0, 0, 1)],
-            # ]:
-            #     tol = 1e-5
-            #     transformed = mechinterfabric.utils.rotate_to_mandel(
-            #         back, Q=np.array(transform)
-            #     )
-            #     print(transformed)
-            #     print(np.allclose(transformed, fot4, atol=tol, rtol=tol))
+            # print(f"back=\n{np.round(back,4)}")
+
+            triplet = back[[0, 0, 1], [1, 2, 2]]
+            order = np.argsort(triplet)[::-1]
+
+            (
+                vals_transform,
+                transform,
+            ) = mechinterfabric.utils.sort_eigen_values_and_vectors(
+                eigen_values=triplet[order], eigen_vectors=eigensystem[:, order]
+            )
+
+            # transform = np.eye(3)[order, :]
+
+            transformed = mechinterfabric.utils.rotate_to_mandel(
+                deviator_rotated, Q=np.array(transform)
+            )
+
+            print(f"triplet={triplet}")
+            print(f"order={order}")
+            print(f"triplet[order]={triplet[order]}")
+            print(f"vals_transform={vals_transform}")
+
+            print(f"eigensystem=\n{eigensystem}")
+            print(f"transform=\n{transform}")
+
+            print(f"transformed=\n{np.round(transformed,4)}")
+            print("####################################")
+
+            transformeds.append(transformed)
+
+for transformed in transformeds:
+    tol = 1e-5
+    assert np.allclose(transformed, deviator, atol=tol)
+
+
+# t = mechkit.operators.Sym()(np.random.rand(3, 3))
+# Q = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
+# np.einsum("ij,kl,jl->ik", Q, Q, t)
