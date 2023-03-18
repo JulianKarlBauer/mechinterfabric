@@ -27,8 +27,8 @@ def lambdified_parametrization_triclinic():
 kwargs = {
     "la1": 1 / 3,
     "la2": 1 / 3,
-    "d1": 0.044,
-    "d2": 0.043,
+    "d1": 0.05,
+    "d2": 0.033,
     "d3": 0.011,
 }  # Assert decrease in d_i for increasing i
 fot4 = lambdified_parametrization_triclinic()(
