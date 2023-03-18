@@ -69,6 +69,7 @@ for value, vector in zip(
             print(f"vals={vals}")
             print(f"vals_sorted={vals_sorted}")
             print(f"vecs=\n{np.round(vecs,4)}")
+
             print(f"eigensystem=\n{np.round(eigensystem,4)}")
             back = mechinterfabric.utils.rotate_to_mandel(
                 deviator_rotated, Q=eigensystem
