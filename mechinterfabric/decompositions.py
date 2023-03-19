@@ -328,4 +328,30 @@ class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
 
 class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
     def get_eigensystem(self, **kwargs):
-        return np.eye(3)
+
+        for value, vector in zip(
+            self.spectral_decomposition.eigen_values,
+            self.spectral_decomposition.eigen_vectors.T,
+        ):
+            if not np.isclose(value, 0.0):
+                tensor = converter.to_tensor(vector)
+                vals, vecs = np.linalg.eigh(tensor)
+
+                one_over_sqrt_two = 1 / np.sqrt(2)
+                if not np.allclose(vals, [-one_over_sqrt_two, 0, one_over_sqrt_two]):
+
+                    (vals_sorted, eigensystem,) = utils.sort_eigen_values_and_vectors(
+                        eigen_values=np.abs(vals), eigen_vectors=vecs
+                    )
+                    deviator_in_unordered_eigensystem = utils.rotate_to_mandel(
+                        self.spectral_decomposition.deviator, Q=eigensystem
+                    )
+
+                    triplet = deviator_in_unordered_eigensystem[[0, 0, 1], [1, 2, 2]]
+                    order = np.argsort(triplet)[::-1]
+
+                    (vals_transform, transform,) = utils.sort_eigen_values_and_vectors(
+                        eigen_values=triplet[order], eigen_vectors=eigensystem[:, order]
+                    )
+
+                    return transform

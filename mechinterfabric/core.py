@@ -105,13 +105,14 @@ class FOT4Analysis:
                 ): decompositions.EigensystemLocatorTetra
                 for key in tmp
             },
-            # **{
-            #     (
-            #         key,
-            #         "orthotropic or higher",
-            #     ): decompositions.EigensystemLocatorIsotropicOrthotropicHigher
-            #     for key in tmp
-            # },
+            (
+                "isotropic_or_cubic",
+                "orthotropic or higher",
+            ): decompositions.EigensystemLocatorIsotropicOrthotropicHigher,
+            # (
+            #     "transversely_isotropic_or_tetragonal_or_trigonal",
+            #     "orthotropic or higher",
+            # ): decompositions.EigensystemLocatorIsotropicOrthotropicHigher,
         }
         try:
             symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)

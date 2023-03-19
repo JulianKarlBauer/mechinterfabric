@@ -157,20 +157,24 @@ test_cases_passing = [
             ("trig pos def 02", {"alpha1": 1 / 3, "d3": 0.0125, "d9": 0.0325}),
         ]
     ],
-    # *[
-    #     {
-    #         "id": id,
-    #         "tensor": lambdified_parametrization_triclinic()(
-    #             d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
-    #         ),
-    #     }
-    #     for id, kwargs in [
-    #         (
-    #             "ortho pos def 01",
-    #             {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
-    #         ),
-    #     ]
-    # ],
+    *[
+        {
+            "id": id,
+            "tensor": lambdified_parametrization_triclinic()(
+                d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
+            ),
+        }
+        for id, kwargs in [
+            (
+                "ortho pos def 01",
+                {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
+            ),
+            (
+                "ortho pos def 02",
+                {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.03, "d2": 0.02, "d3": 0.01},
+            ),
+        ]
+    ],
 ]
 
 
