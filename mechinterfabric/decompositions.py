@@ -164,20 +164,19 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
 class EigensystemLocatorTransvTrigo(EigensystemLocator):
     def get_eigensystem(self, optimize_rotation_around_x_axis=False, **kwargs):
 
-        # Start homogeneously
-        # tetra, transv.-iso. and
-        # trigonal (which is non-orthotropic and which requires a two-step procedure)
+        # Always make first step
         self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
 
         # Prepare check for additional step
         self._deviator_in_eigensystem = utils.rotate_to_mandel(
             self.spectral_decomposition.deviator, Q=self.eigensystem
         )
-        # Make additional step for trigonal case
+        # Check for second step: Optimize rotation around x-axis
         if (
             optimize_rotation_around_x_axis
             or self.deviator_is_trigonal_or_less_symmetric()
         ):
+            # Make additional step for trigonal case
             additional_rotation = self.rotate_into_trigonal_natural_system()
 
             self.eigensystem = utils.chain_rotations(
@@ -289,10 +288,14 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
 
 
 class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
-    def get_eigensystem(self, optimize_rotation_around_x_axis=True, **kwargs):
+    def get_eigensystem(self, **kwargs):
+
+        # Make first two steps
         eigensystem_transformation = super().get_eigensystem(
-            optimize_rotation_around_x_axis=optimize_rotation_around_x_axis, **kwargs
+            optimize_rotation_around_x_axis=True, **kwargs
         )
+
+        # Make third step
         deviator = self.spectral_decomposition.deviator
         candidate = utils.rotate_to_mandel(deviator, eigensystem_transformation)
 
