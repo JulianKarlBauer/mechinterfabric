@@ -180,9 +180,9 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
         ):
             additional_rotation = self.rotate_into_trigonal_natural_system()
 
-            # The following transformation have to be applied step-wise starting from index 0
-            # See utils.rotate_to_mandel for details
-            self.eigensystem = [self.eigensystem, additional_rotation]
+            self.eigensystem = utils.chain_rotations(
+                old=self.eigensystem, new=additional_rotation
+            )
 
         return self.eigensystem
 
@@ -319,7 +319,7 @@ class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
                 d3,
             )
 
-        self.eigensystem = utils.append_transform(
+        self.eigensystem = utils.chain_rotations(
             old=eigensystem_transformation, new=transform
         )
 
