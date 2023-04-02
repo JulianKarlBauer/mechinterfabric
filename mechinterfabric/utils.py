@@ -124,3 +124,15 @@ def handle_near_zero_negatives(value):
     if np.isclose(value, 0.0):
         value = 0.0
     return value
+
+
+def to_lambda1_lambda2(alpha1, alpha3):
+    la1 = 1.0 / 3.0 + alpha1 - alpha3 / 2.0
+    la2 = 1.0 / 3.0 - alpha1 / 2.0 - alpha3 / 2.0
+    return la1, la2
+
+
+def to_alpha1_alpha3_to(la1, la2):
+    alpha1 = 2 / 3 - 2 * la2  # 2 * (la1 + la2 - 2 / 3)
+    alpha3 = -2 * la1 - 4 * la2 + 2
+    return alpha1, alpha3
