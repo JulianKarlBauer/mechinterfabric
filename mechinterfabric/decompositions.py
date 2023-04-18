@@ -235,14 +235,22 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
             vals = -vals
         return vals, vecs
 
+    def _calc_residuum(self, angle):
+        rotated = self._rotate_deviator_from_eigensystem_by_angle(angle)
+        return self._calc_norm_upper_right_quadrant(rotated)
+
+    def _calc_norm_upper_right_quadrant(self, mandel):
+        indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+        return np.linalg.norm(mandel[indices])
+
+    def _rotate_deviator_from_eigensystem_by_angle(self, angle):
+        rotation = utils.get_rotation_by_vector(
+            vector=angle * np.array([1, 0, 0]), degrees=True
+        )
+        rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
+        return rotated
+
     def rotate_into_trigonal_natural_system(self):
-        def calc_residuum(angle):
-            rotation = utils.get_rotation_by_vector(
-                vector=angle * np.array([1, 0, 0]), degrees=True
-            )
-            rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
-            indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
-            return np.linalg.norm(rotated[indices])
 
         # Brute force try some angles
 
@@ -255,12 +263,12 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
         angles_difference = angles[1] - angles[0]
         residuum = np.zeros((len(angles)), dtype=np.float64)
         for index, angle in enumerate(angles):
-            residuum[index] = calc_residuum(angle=angle)
+            residuum[index] = self._calc_residuum(angle=angle)
 
         best_index = np.argmin(residuum)
 
         solution = scipy.optimize.minimize_scalar(
-            calc_residuum,
+            self._calc_residuum,
             bounds=(
                 angles[best_index] - angles_difference,
                 angles[best_index] + angles_difference,
