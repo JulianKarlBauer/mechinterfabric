@@ -123,11 +123,14 @@ class EigensystemLocator:
     def _get_addtional_rotation(self):
 
         optimized_angle = self._get_optimal_angle()
+        additional_rotation = self.rotation_from_angle(angle=optimized_angle)
 
-        additional_rotation = utils.get_rotation_by_vector(
-            vector=optimized_angle * self.rotation_axis, degrees=True
-        )
         return additional_rotation
+
+    def rotation_from_angle(self, angle):
+        return utils.get_rotation_by_vector(
+            vector=angle * self.rotation_axis, degrees=True
+        )
 
     def _get_optimal_angle(self, range_angles=[0, 90]):
         # Brute force try some angles
@@ -167,9 +170,7 @@ class EigensystemLocator:
         return np.linalg.norm(mandel[indices])
 
     def _rotate_deviator_from_eigensystem_by_angle(self, angle):
-        rotation = utils.get_rotation_by_vector(
-            vector=angle * self.rotation_axis, degrees=True
-        )
+        rotation = self.rotation_from_angle(angle=angle)
         rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
         return rotated
 
@@ -349,9 +350,7 @@ class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
         center_of_d3_range = -d1 / 4.0
         if center_of_d3_range < d3:
             d3 = 2.0 * center_of_d3_range - d3
-            rotation_45_degrees = utils.get_rotation_by_vector(
-                vector=45 * self.rotation_axis, degrees=True
-            )
+            rotation_45_degrees = self.rotation_from_angle(angle=45.0)
             transform = rotation_45_degrees
 
             # Test
@@ -388,7 +387,6 @@ class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
                     deviator_in_unordered_eigensystem = utils.rotate_to_mandel(
                         self.FOT4_spectral_decomposition.deviator, Q=eigensystem
                     )
-
                     triplet = deviator_in_unordered_eigensystem[[0, 0, 1], [1, 2, 2]]
                     order = np.argsort(triplet)[::-1]
 
