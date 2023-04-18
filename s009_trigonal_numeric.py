@@ -43,9 +43,7 @@ print(f"eigenvalues = {eigenvalues}")
 
 
 def sort_eigensystem(vals, vecs):
-    locator = mechinterfabric.decompositions.EigensystemLocatorTransvTetraTrigo(
-        spectral_decomposition=None
-    )
+    locator = mechinterfabric.decompositions.EigensystemLocatorTransvTrigo(None, None)
     (
         vals,
         vecs,

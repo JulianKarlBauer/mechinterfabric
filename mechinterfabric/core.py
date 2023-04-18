@@ -27,7 +27,11 @@ class FiberOrientationTensor:
 
         # Eigenvalues sum to one
         representation = self.tensor if self.order == 2 else self.mandel6
-        assert np.allclose(np.linalg.eigh(representation)[0].sum(), 1.0)
+        eigenvalues = np.linalg.eigh(representation)[0]
+        assert np.allclose(eigenvalues.sum(), 1.0)
+
+        # Positive semi-definite
+        assert utils.handle_near_zero_negatives(np.min(eigenvalues)) >= 0.0
 
 
 class FiberOrientationTensor2(FiberOrientationTensor):
@@ -73,6 +77,11 @@ class FOT4Analysis:
         self.get_symmetry_FOT2()
         self.get_symmetry_FOT4()
 
+        tmp = [
+            "isotropic_or_cubic",
+            "transversely_isotropic_or_tetragonal_or_trigonal",
+        ]
+
         locators = {
             (
                 "isotropic_or_cubic",
@@ -82,14 +91,28 @@ class FOT4Analysis:
                 "isotropic_or_cubic",
                 "cubic",
             ): decompositions.EigensystemLocatorIsotropicCubic,
+            **{
+                (
+                    key,
+                    "trigonal or transversely isotropic",
+                ): decompositions.EigensystemLocatorTransvTrigo
+                for key in tmp
+            },
+            **{
+                (
+                    key,
+                    "tetragonal",
+                ): decompositions.EigensystemLocatorTetra
+                for key in tmp
+            },
             (
                 "isotropic_or_cubic",
-                "tetragonal",
-            ): decompositions.EigensystemLocatorTransvTetraTrigo,
+                "orthotropic or higher",
+            ): decompositions.EigensystemLocatorIsotropicOrthotropicHigher,
             (
-                "isotropic_or_cubic",
-                "trigonal or transversely isotropic",
-            ): decompositions.EigensystemLocatorTransvTetraTrigo,
+                "transversely_isotropic_or_tetragonal_or_trigonal",
+                "orthotropic or higher",
+            ): decompositions.EigensystemLocatorTransvOrthotropicHigher,
         }
         try:
             symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)
@@ -98,13 +121,10 @@ class FOT4Analysis:
             raise utils.ExceptionMechinterfabric(
                 f"Locator for symmetry combination {symmetry_combination} not implemented"
             )
+        print(f"Selected locator={locator}")
         self.eigensystem_locator = locator(
-            spectral_decomposition=self.FOT4_spectral_decomposition
+            FOT4_spectral_decomposition=self.FOT4_spectral_decomposition,
+            FOT2_spectral_decomposition=self.FOT2_spectral_decomposition,
         )
         self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem
-
-
-# class FourthOrderFabricAnalyser:
-#     def analyse(self, FOT4):
-#         self.analysis = FOT4Analysis(FOT4)
