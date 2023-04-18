@@ -1,5 +1,6 @@
 from pprint import pprint
 
+import matplotlib.pyplot as plt
 import mechkit
 import numpy as np
 import sympy as sp
@@ -8,6 +9,7 @@ import vofotensors
 import mechinterfabric
 from mechinterfabric import symbolic
 from mechinterfabric.abc import *
+
 
 np.set_printoptions(linewidth=100000, precision=5)
 
@@ -41,6 +43,7 @@ kwargs = {
 #     "d3": 0.02,
 # }
 
+
 if alphas:
     (
         kwargs["la1"],
@@ -54,7 +57,6 @@ fot4 = lambdified_parametrization_triclinic()(
 )
 deviator = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4)))
 print(f"deviator=\n{deviator}")
-# print(f"fot4=\n{fot4}")
 print()
 
 rotation = mechinterfabric.utils.get_random_rotation()
@@ -68,64 +70,62 @@ spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDev
     deviator_rotated
 )
 
-transformeds = []
-for value, vector in zip(
-    spectral_decomposition.eigen_values, spectral_decomposition.eigen_vectors.T
-):
-    if not np.isclose(value, 0.0):
-        tensor = con.to_tensor(vector)
-        vals, vecs = np.linalg.eigh(tensor)
-
-        one_over_sqrt_two = 1 / np.sqrt(2)
-        if not np.allclose(vals, [-one_over_sqrt_two, 0, one_over_sqrt_two]):
-            print(f"value={value}")
-            # print(vals)
-            (
-                vals_sorted,
-                eigensystem,
-            ) = mechinterfabric.utils.sort_eigen_values_and_vectors(
-                eigen_values=np.abs(vals), eigen_vectors=vecs
-            )
-            # print(vals_sorted)
-            back = mechinterfabric.utils.rotate_to_mandel(
-                deviator_rotated, Q=eigensystem
-            )
-            # print(f"back=\n{np.round(back,4)}")
-
-            triplet = back[[0, 0, 1], [1, 2, 2]]
-            order = np.argsort(triplet)[::-1]
-
-            (
-                vals_transform,
-                transform,
-            ) = mechinterfabric.utils.sort_eigen_values_and_vectors(
-                eigen_values=triplet[order], eigen_vectors=eigensystem[:, order]
-            )
-
-            # transform = np.eye(3)[order, :]
-
-            transformed = mechinterfabric.utils.rotate_to_mandel(
-                deviator_rotated, Q=transform
-            )
-
-            print(f"triplet={triplet}")
-            print(f"order={order}")
-            print(f"triplet[order]={triplet[order]}")
-            print(f"vals_transform={vals_transform}")
-
-            print(f"eigensystem=\n{eigensystem}")
-            print(f"transform=\n{transform}")
-
-            print(f"transformed=\n{np.round(transformed,4)}")
-            print("####################################")
-
-            transformeds.append(transformed)
-
-for transformed in transformeds:
-    tol = 1e-5
-    assert np.allclose(transformed, deviator, atol=tol)
+fot2_rotated = np.tensordot(con.to_tensor(fot4_rotated), np.eye(3))
+decomposition_fot2_rotated = mechinterfabric.decompositions.SpectralDecompositionFOT2(
+    mechinterfabric.core.FiberOrientationTensor2(fot2_rotated)
+)
+decomposition_fot2_rotated.get_symmetry()
+eigensystem = decomposition_fot2_rotated.FOT2_rotation
 
 
-# t = mechkit.operators.Sym()(np.random.rand(3, 3))
-# Q = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-# np.einsum("ij,kl,jl->ik", Q, Q, t)
+fot4_in_eigensystem_fot2 = mechinterfabric.utils.rotate_to_mandel(
+    fot4_rotated, eigensystem
+)
+deviator_in_eigensystem_fot2 = mechinterfabric.utils.rotate_to_mandel(
+    deviator_rotated, eigensystem
+)
+
+
+def _calc_norm_upper_right_quadrant(mandel):
+    indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+    return np.linalg.norm(mandel[indices])
+
+
+d_i = {
+    1: [],
+    2: [],
+    3: [],
+}
+norm = []
+indices = {
+    1: np.s_[0, 1],
+    2: np.s_[0, 2],
+    3: np.s_[1, 2],
+}
+angles = np.linspace(0, 180, 180 + 1)
+for angle in angles:
+    rotation = mechinterfabric.utils.get_rotation_by_vector(
+        angle * np.array([1, 0, 0]), degrees=True
+    )
+    rotated = mechinterfabric.utils.rotate_to_mandel(
+        deviator_in_eigensystem_fot2, rotation
+    )
+    for i in [1, 2, 3]:
+        d_i[i].append(rotated[indices[i]])
+    norm.append(_calc_norm_upper_right_quadrant(rotated))
+
+for i in [1, 2, 3]:
+    plt.plot(angles, d_i[i], label=f"d_{i}")
+plt.plot(angles, norm, label=f"Norm upper right quadrant")
+
+plt.gca().set_prop_cycle(None)
+for i in [1, 2, 3]:
+    plt.plot(
+        angles,
+        np.ones_like(angles) * kwargs[f"d{i}"],
+        label=f"given d_{i}",
+        linestyle="dashed",
+    )
+
+
+plt.legend()
