@@ -13,6 +13,21 @@ class SpectralDecompositionFOT2:
     def __init__(self, FOT2):
         self.FOT2 = FOT2
 
+        self.transv_eigenvalue_pair_to_type = {
+            (True, False): "oblate",
+            (False, True): "prolate",
+        }
+        self.eigenvalue_pair_to_symmetry = {
+            **{
+                (True, True): "isotropic_or_cubic",
+                (False, False): "orthotropic_or_monoclinic_or_triclinic",
+            },
+            **{
+                key: "transversely_isotropic_or_tetragonal_or_trigonal"
+                for key in self.transv_eigenvalue_pair_to_type.keys()
+            },
+        }
+
     def get_symmetry(self):
         self._decompose()
         return self._identify_symmetry_FOT2()
@@ -37,17 +52,13 @@ class SpectralDecompositionFOT2:
 
     def _map_equal_eigenvalue_pairs_to_symmetry(self):
         # We assume, that eigenvalues are sorted
-        return {
-            (True, True): "isotropic_or_cubic",
-            # Oblate
-            (True, False): "transversely_isotropic_or_tetragonal_or_trigonal",
-            # Prolate
-            (False, True): "transversely_isotropic_or_tetragonal_or_trigonal",
-            (False, False): "orthotropic_or_monoclinic_or_triclinic",
-        }[self.FOT2_eigenvalues_are_equal]
+        return self.eigenvalue_pair_to_symmetry[self.FOT2_eigenvalues_are_equal]
 
     def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
         return np.isclose(first, second, atol=atol, rtol=rtol)
+
+    def _map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy(self):
+        return self.transv_eigenvalue_pair_to_type[self.FOT2_eigenvalues_are_equal]
 
 
 class SpectralDecompositionDeviator4:
@@ -100,8 +111,67 @@ class SpectralDecompositionDeviator4:
 
 
 class EigensystemLocator:
-    def __init__(self, spectral_decomposition):
-        self.spectral_decomposition = spectral_decomposition
+    def __init__(self, FOT4_spectral_decomposition, FOT2_spectral_decomposition):
+        self.FOT4_spectral_decomposition = FOT4_spectral_decomposition
+        self.FOT2_spectral_decomposition = FOT2_spectral_decomposition
+
+        self.rotation_axis = np.array([1, 0, 0])
+        self.indices_vanishing_upper_right_part = np.s_[
+            [0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]
+        ]
+
+    def _get_addtional_rotation(self):
+
+        optimized_angle = self._get_optimal_angle()
+        additional_rotation = self.rotation_from_angle(angle=optimized_angle)
+
+        return additional_rotation
+
+    def rotation_from_angle(self, angle):
+        return utils.get_rotation_by_vector(
+            vector=angle * self.rotation_axis, degrees=True
+        )
+
+    def _get_optimal_angle(self, range_angles=[0, 90]):
+        # Brute force try some angles
+
+        # Angles optimal for trigonal
+        # angles = np.linspace(0, 60, 180)
+
+        # Angles necessary for tetragonal, acceptable for trigonal
+        # angles = np.linspace(0, 90, 270)
+        angles = np.linspace(*range_angles, range_angles[1] * 3 + 1)
+
+        angles_difference = angles[1] - angles[0]
+        residuum = np.zeros((len(angles)), dtype=np.float64)
+        for index, angle in enumerate(angles):
+            residuum[index] = self._calc_residuum(angle=angle)
+
+        best_index = np.argmin(residuum)
+
+        solution = scipy.optimize.minimize_scalar(
+            self._calc_residuum,
+            bounds=(
+                angles[best_index] - angles_difference,
+                angles[best_index] + angles_difference,
+            ),
+            method="bounded",
+        )
+
+        optimized_angle = solution.x
+        return optimized_angle
+
+    def _calc_residuum(self, angle):
+        rotated = self._rotate_deviator_from_eigensystem_by_angle(angle)
+        return self._calc_norm_upper_right_quadrant(rotated)
+
+    def _calc_norm_upper_right_quadrant(self, mandel):
+        return np.linalg.norm(mandel[self.indices_vanishing_upper_right_part])
+
+    def _rotate_deviator_from_eigensystem_by_angle(self, angle):
+        rotation = self.rotation_from_angle(angle=angle)
+        rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
+        return rotated
 
 
 class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
@@ -110,8 +180,8 @@ class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
 
 
 class EigensystemLocatorIsotropicCubic(EigensystemLocator):
-    def __init__(self, spectral_decomposition):
-        super().__init__(spectral_decomposition)
+    def __init__(self, FOT4_spectral_decomposition, FOT2_spectral_decomposition):
+        super().__init__(FOT4_spectral_decomposition, FOT2_spectral_decomposition)
         self._assert_eigenvalues_are_cubic()
 
     def get_eigensystem(self, **kwargs):
@@ -121,12 +191,14 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
         return self.eigensystem
 
     def _get_index_of_eigenvector_which_contains_info_on_eigensystem(self):
-        assert self.spectral_decomposition.eigen_values_counted_multiplicity[1] == 2
-        self.index = self.spectral_decomposition.eigen_values_indices[1][0]
+        assert (
+            self.FOT4_spectral_decomposition.eigen_values_counted_multiplicity[1] == 2
+        )
+        self.index = self.FOT4_spectral_decomposition.eigen_values_indices[1][0]
 
     def _get_eigenvector_which_contains_info_on_eigensystem(self):
         self.eigen_vector_two_fold_eigen_value = (
-            self.spectral_decomposition.eigen_vectors[:, self.index].T
+            self.FOT4_spectral_decomposition.eigen_vectors[:, self.index].T
             # See structure of eigen vectors
             # https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
         )
@@ -156,35 +228,38 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
             details,
         ) in positions_in_most_common_to_be_asserted.items():
             assert (
-                self.spectral_decomposition.eigenvalues_most_common[position][1]
+                self.FOT4_spectral_decomposition.eigenvalues_most_common[position][1]
                 == details["repetition"]
             ), details["message"]
 
 
-class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
-    def get_eigensystem(self, make_trigonal_check=True, **kwargs):
+class EigensystemLocatorTransvTrigo(EigensystemLocator):
+    def get_eigensystem(self, optimize_rotation_around_x_axis=False, **kwargs):
 
-        # Start homogeneously
-        # tetra, transv.-iso. and
-        # trigonal (which is non-orthotropic and which requires a two-step procedure)
+        # Always make first step
         self.eigensystem = self.get_eigenvec_with_specific_eigenvalues()
-        self.deviator_in_eigensystem = utils.rotate_to_mandel(
-            self.spectral_decomposition.deviator, Q=self.eigensystem
-        )
 
-        # Make additional step for trigonal case
-        if make_trigonal_check and self.deviator_is_trigonal_or_less_symmetric():
+        # Prepare check for additional step
+        self._deviator_in_eigensystem = utils.rotate_to_mandel(
+            self.FOT4_spectral_decomposition.deviator, Q=self.eigensystem
+        )
+        # Check for second step: Optimize rotation around x-axis
+        if (
+            optimize_rotation_around_x_axis
+            or self.deviator_is_trigonal_or_less_symmetric()
+        ):
+            # Make additional step for trigonal case
             additional_rotation = self.rotate_into_trigonal_natural_system()
 
-            # The following transformation have to be applied step-wise starting from index 0
-            # See utils.rotate_to_mandel for details
-            self.eigensystem = [self.eigensystem, additional_rotation]
+            self.eigensystem = utils.chain_rotations(
+                old=self.eigensystem, new=additional_rotation
+            )
 
         return self.eigensystem
 
     def deviator_is_trigonal_or_less_symmetric(self, tol=1e-6):
         indices_zeros_orthotropic = np.s_[:3, 3:]
-        upper_right_quadrant = self.deviator_in_eigensystem[indices_zeros_orthotropic]
+        upper_right_quadrant = self._deviator_in_eigensystem[indices_zeros_orthotropic]
         return not np.allclose(
             upper_right_quadrant,
             np.zeros_like(upper_right_quadrant),
@@ -197,7 +272,7 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             return np.allclose(A, B, rtol=tol, atol=tol)
 
         factor = 1.0 / np.sqrt(6)
-        for vector in self.spectral_decomposition.eigen_vectors.T:
+        for vector in self.FOT4_spectral_decomposition.eigen_vectors.T:
             tensor = converter.to_tensor(vector)
             vals, vecs = np.linalg.eigh(tensor)
 
@@ -230,38 +305,11 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
         return vals, vecs
 
     def rotate_into_trigonal_natural_system(self):
-        def calc_residuum(angle):
-            rotation = utils.get_rotation_by_vector(
-                vector=angle * np.array([1, 0, 0]), degrees=True
-            )
-            rotated = utils.rotate_to_mandel(self.deviator_in_eigensystem, Q=rotation)
-            indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
-            return np.linalg.norm(rotated[indices])
 
-        # Brute force try some angles
-        angles = np.linspace(0, 60, 180)
-        angles_difference = angles[1] - angles[0]
-        residuum = np.zeros((len(angles)), dtype=np.float64)
-        for index, angle in enumerate(angles):
-            residuum[index] = calc_residuum(angle=angle)
+        additional_rotation = self._get_addtional_rotation()
 
-        best_index = np.argmin(residuum)
-
-        solution = scipy.optimize.minimize_scalar(
-            calc_residuum,
-            bounds=(
-                angles[best_index] - angles_difference,
-                angles[best_index] + angles_difference,
-            ),
-            method="bounded",
-        )
-
-        optimized_angle = solution.x
-        additional_rotation = utils.get_rotation_by_vector(
-            vector=optimized_angle * np.array([1, 0, 0]), degrees=True
-        )
         deviator_optimized = utils.rotate_to_mandel(
-            self.deviator_in_eigensystem,
+            self._deviator_in_eigensystem,
             Q=additional_rotation,
         )
 
@@ -276,3 +324,137 @@ class EigensystemLocatorTransvTetraTrigo(EigensystemLocator):
             additional_rotation = transform @ additional_rotation
 
         return additional_rotation
+
+
+class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
+    def get_eigensystem(self, **kwargs):
+
+        # Make first two steps
+        eigensystem_transformation = super().get_eigensystem(
+            optimize_rotation_around_x_axis=True, **kwargs
+        )
+
+        # Make third step
+        deviator = self.FOT4_spectral_decomposition.deviator
+        candidate = utils.rotate_to_mandel(deviator, eigensystem_transformation)
+
+        index_d1 = np.s_[0, 2]
+        index_d3_first_dandidate = np.s_[1, 2]
+
+        d1 = candidate[index_d1]
+        d3 = candidate[index_d3_first_dandidate]
+        transform = np.eye(3)
+        print(f"d3 = {d3}")
+
+        center_of_d3_range = -d1 / 4.0
+        if center_of_d3_range < d3:
+            d3 = 2.0 * center_of_d3_range - d3
+            rotation_45_degrees = self.rotation_from_angle(angle=45.0)
+            transform = rotation_45_degrees
+
+            # Test
+            print(f"d3 = {d3}")
+            assert np.isclose(
+                utils.rotate_to_mandel(candidate, transform)[index_d3_first_dandidate],
+                d3,
+            )
+
+        self.eigensystem = utils.chain_rotations(
+            old=eigensystem_transformation, new=transform
+        )
+
+        return self.eigensystem
+
+
+class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
+    def get_eigensystem(self, **kwargs):
+
+        for value, vector in zip(
+            self.FOT4_spectral_decomposition.eigen_values,
+            self.FOT4_spectral_decomposition.eigen_vectors.T,
+        ):
+            if not np.isclose(value, 0.0):
+                tensor = converter.to_tensor(vector)
+                vals, vecs = np.linalg.eigh(tensor)
+
+                one_over_sqrt_two = 1 / np.sqrt(2)
+                if not np.allclose(vals, [-one_over_sqrt_two, 0, one_over_sqrt_two]):
+
+                    (vals_sorted, eigensystem,) = utils.sort_eigen_values_and_vectors(
+                        eigen_values=np.abs(vals), eigen_vectors=vecs
+                    )
+                    deviator_in_unordered_eigensystem = utils.rotate_to_mandel(
+                        self.FOT4_spectral_decomposition.deviator, Q=eigensystem
+                    )
+                    triplet = deviator_in_unordered_eigensystem[[0, 0, 1], [1, 2, 2]]
+                    order = np.argsort(triplet)[::-1]
+
+                    (vals_transform, transform,) = utils.sort_eigen_values_and_vectors(
+                        eigen_values=triplet[order], eigen_vectors=eigensystem[:, order]
+                    )
+
+                    return transform
+
+
+class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
+    def get_d_parameters(self, deviator):
+        indices = {
+            1: np.s_[0, 1],
+            2: np.s_[0, 2],
+            3: np.s_[1, 2],
+        }
+        return {key: deviator[value] for key, value in indices.items()}
+
+    def get_eigensystem(self, **kwargs):
+
+        FOT2_eigensystem = self.FOT2_spectral_decomposition.FOT2_rotation
+
+        self._deviator_in_eigensystem = utils.rotate_to_mandel(
+            self.FOT4_spectral_decomposition.deviator, FOT2_eigensystem
+        )
+        type_transv_isotropy = (
+            self.FOT2_spectral_decomposition._map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy()
+        )
+
+        print(f"Type={type_transv_isotropy}")
+
+        if type_transv_isotropy == "prolate":
+            rotation_axis = [1, 0, 0]
+        elif type_transv_isotropy == "oblate":
+            rotation_axis = [0, 0, 1]
+        else:
+            raise Exception("Unknown type")
+
+        self.rotation_axis = np.array(rotation_axis)
+        self.indices_vanishing_upper_right_part = np.s_[
+            [0, 0, 0, 1, 1, 1, 2, 2, 2], [3, 4, 5, 3, 4, 5, 3, 4, 5]
+        ]
+
+        optimized_angle = self._get_optimal_angle()
+        deviator = self._rotate_deviator_from_eigensystem_by_angle(
+            angle=optimized_angle
+        )
+
+        d_parameters = self.get_d_parameters(deviator=deviator)
+
+        if type_transv_isotropy == "prolate":
+            larger = d_parameters[1]
+            smaller = d_parameters[2]
+        elif type_transv_isotropy == "oblate":
+            larger = d_parameters[2]
+            smaller = d_parameters[3]
+        else:
+            raise Exception("Unknown type")
+
+        condition = smaller <= larger
+        print(f"smaller={smaller}")
+        print(f"larger={larger}")
+        print(f"condition={condition}")
+
+        if not condition:
+            optimized_angle += 90.0
+
+        additional_rotation = self.rotation_from_angle(angle=optimized_angle)
+
+        # raise Exception()
+        return FOT2_eigensystem @ additional_rotation

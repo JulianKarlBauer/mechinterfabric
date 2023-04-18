@@ -4,6 +4,8 @@ import mechkit
 import numpy as np
 import scipy
 
+converter = mechkit.notation.Converter()
+
 
 class ExceptionMechinterfabric(Exception):
     """Exception wrapping all exceptions of this package"""
@@ -85,7 +87,8 @@ def rotate(tensor, Q):
     return np.einsum("...mi, ...nj, ...ok, ...pl, ...mnop->...ijkl", Q, Q, Q, Q, tensor)
 
 
-converter = mechkit.notation.Converter()
+def chain_rotations(old, new):
+    return old @ new
 
 
 def rotate_fot4_randomly(fot4):
@@ -95,12 +98,6 @@ def rotate_fot4_randomly(fot4):
 def rotate_to_mandel(mandel, Q):
     if isinstance(Q, np.ndarray) and (Q.shape == (3, 3)):
         return converter.to_mandel6(rotate(converter.to_tensor(mandel), Q=Q))
-    elif isinstance(Q, list):
-        for transform in Q:
-            mandel = converter.to_mandel6(
-                rotate(converter.to_tensor(mandel), Q=transform)
-            )
-        return mandel
     else:
         raise ExceptionMechinterfabric("Do not understand argument Q")
 
@@ -115,3 +112,27 @@ def get_random_rotation():
     rotation_vector = np.array(np.random.rand(3))
     rotation_vector = rotation_vector / np.linalg.norm(rotation_vector)
     return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)
+
+
+def dev_in_mandel(mandel):
+    tensor = converter.to_tensor(mandel)
+    return converter.to_mandel6(mechkit.operators.dev(tensor, order=len(tensor.shape)))
+
+
+def handle_near_zero_negatives(value):
+    # Catch problem with very small negative numbers
+    if np.isclose(value, 0.0):
+        value = 0.0
+    return value
+
+
+def to_lambda1_lambda2(alpha1, alpha3):
+    la1 = 1.0 / 3.0 + alpha1 - alpha3 / 2.0
+    la2 = 1.0 / 3.0 - alpha1 / 2.0 - alpha3 / 2.0
+    return la1, la2
+
+
+def to_alpha1_alpha3_to(la1, la2):
+    alpha1 = 2 / 3 * (la1 - la2)
+    alpha3 = 4 / 3 * (1 / 2 - la1 / 2 - la2)
+    return alpha1, alpha3

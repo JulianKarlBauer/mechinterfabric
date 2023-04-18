@@ -21,7 +21,7 @@ def inspect(deviator):
     for ev in eigenvectors:
         print(f"#######################\n{ev[0]} with multiplicity={ev[1]}")
         for eigenspace in ev[2]:
-            nicer = np.array([row for row in eigenspace])
+            nicer = sp.simplify(np.array([row for row in eigenspace]))
             print(con.to_tensor(nicer))
 
             eigenvectors_eigenspace = sp.Matrix(

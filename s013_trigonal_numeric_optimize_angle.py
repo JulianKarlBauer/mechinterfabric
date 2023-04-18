@@ -46,7 +46,7 @@ deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotat
 # deviator_reconstructed = deviator_rotated
 # Apply transv-iso logic
 analysis = mechinterfabric.FOT4Analysis(fot4_rotated)
-analysis.get_eigensystem(make_trigonal_check=False)
+analysis.get_eigensystem()  # Note, this step nowadays always does optimization on trigonal data
 fot4_reconstructed = mechinterfabric.utils.rotate_to_mandel(
     analysis.FOT4.tensor, analysis.eigensystem
 )
