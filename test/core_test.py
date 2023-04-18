@@ -135,6 +135,7 @@ test_cases_passing = [
             ("tetra pos def 01", {"alpha1": 1 / 6, "d1": -0.009, "d3": -0.019799}),
             ("tetra pos def 02", {"alpha1": 1 / 3, "d1": 0.01, "d3": -0.0179}),
             ("tetra pos def 03", {"alpha1": -1 / 6, "d1": 0.01, "d3": -0.09}),
+            ("tetra pos def 04", {"alpha1": 1 / 2, "d1": -0.09, "d3": 0.01}),
         ]
     ],
     *[
