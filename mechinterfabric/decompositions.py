@@ -100,8 +100,9 @@ class SpectralDecompositionDeviator4:
 
 
 class EigensystemLocator:
-    def __init__(self, spectral_decomposition):
-        self.spectral_decomposition = spectral_decomposition
+    def __init__(self, FOT4_spectral_decomposition, FOT2_spectral_decomposition):
+        self.FOT4_spectral_decomposition = FOT4_spectral_decomposition
+        self.FOT2_spectral_decomposition = FOT2_spectral_decomposition
 
 
 class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
@@ -110,8 +111,8 @@ class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
 
 
 class EigensystemLocatorIsotropicCubic(EigensystemLocator):
-    def __init__(self, spectral_decomposition):
-        super().__init__(spectral_decomposition)
+    def __init__(self, FOT4_spectral_decomposition, FOT2_spectral_decomposition):
+        super().__init__(FOT4_spectral_decomposition, FOT2_spectral_decomposition)
         self._assert_eigenvalues_are_cubic()
 
     def get_eigensystem(self, **kwargs):
@@ -121,12 +122,14 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
         return self.eigensystem
 
     def _get_index_of_eigenvector_which_contains_info_on_eigensystem(self):
-        assert self.spectral_decomposition.eigen_values_counted_multiplicity[1] == 2
-        self.index = self.spectral_decomposition.eigen_values_indices[1][0]
+        assert (
+            self.FOT4_spectral_decomposition.eigen_values_counted_multiplicity[1] == 2
+        )
+        self.index = self.FOT4_spectral_decomposition.eigen_values_indices[1][0]
 
     def _get_eigenvector_which_contains_info_on_eigensystem(self):
         self.eigen_vector_two_fold_eigen_value = (
-            self.spectral_decomposition.eigen_vectors[:, self.index].T
+            self.FOT4_spectral_decomposition.eigen_vectors[:, self.index].T
             # See structure of eigen vectors
             # https://numpy.org/doc/stable/reference/generated/numpy.linalg.eigh.html
         )
@@ -156,7 +159,7 @@ class EigensystemLocatorIsotropicCubic(EigensystemLocator):
             details,
         ) in positions_in_most_common_to_be_asserted.items():
             assert (
-                self.spectral_decomposition.eigenvalues_most_common[position][1]
+                self.FOT4_spectral_decomposition.eigenvalues_most_common[position][1]
                 == details["repetition"]
             ), details["message"]
 
@@ -169,7 +172,7 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
 
         # Prepare check for additional step
         self._deviator_in_eigensystem = utils.rotate_to_mandel(
-            self.spectral_decomposition.deviator, Q=self.eigensystem
+            self.FOT4_spectral_decomposition.deviator, Q=self.eigensystem
         )
         # Check for second step: Optimize rotation around x-axis
         if (
@@ -200,7 +203,7 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
             return np.allclose(A, B, rtol=tol, atol=tol)
 
         factor = 1.0 / np.sqrt(6)
-        for vector in self.spectral_decomposition.eigen_vectors.T:
+        for vector in self.FOT4_spectral_decomposition.eigen_vectors.T:
             tensor = converter.to_tensor(vector)
             vals, vecs = np.linalg.eigh(tensor)
 
@@ -296,7 +299,7 @@ class EigensystemLocatorTetra(EigensystemLocatorTransvTrigo):
         )
 
         # Make third step
-        deviator = self.spectral_decomposition.deviator
+        deviator = self.FOT4_spectral_decomposition.deviator
         candidate = utils.rotate_to_mandel(deviator, eigensystem_transformation)
 
         index_d1 = np.s_[0, 2]
@@ -333,8 +336,8 @@ class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
     def get_eigensystem(self, **kwargs):
 
         for value, vector in zip(
-            self.spectral_decomposition.eigen_values,
-            self.spectral_decomposition.eigen_vectors.T,
+            self.FOT4_spectral_decomposition.eigen_values,
+            self.FOT4_spectral_decomposition.eigen_vectors.T,
         ):
             if not np.isclose(value, 0.0):
                 tensor = converter.to_tensor(vector)
@@ -347,7 +350,7 @@ class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
                         eigen_values=np.abs(vals), eigen_vectors=vecs
                     )
                     deviator_in_unordered_eigensystem = utils.rotate_to_mandel(
-                        self.spectral_decomposition.deviator, Q=eigensystem
+                        self.FOT4_spectral_decomposition.deviator, Q=eigensystem
                     )
 
                     triplet = deviator_in_unordered_eigensystem[[0, 0, 1], [1, 2, 2]]

@@ -123,7 +123,8 @@ class FOT4Analysis:
             )
         print(f"Selected locator={locator}")
         self.eigensystem_locator = locator(
-            spectral_decomposition=self.FOT4_spectral_decomposition
+            FOT4_spectral_decomposition=self.FOT4_spectral_decomposition,
+            FOT2_spectral_decomposition=self.FOT2_spectral_decomposition,
         )
         self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem

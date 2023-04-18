@@ -76,7 +76,8 @@ class TestSpectralDecomposititonOfCubicFOT4Deviator:
         decomposition._count_eigenvalues_and_create_lookups()
 
         locator = mechinterfabric.decompositions.EigensystemLocatorIsotropicCubic(
-            decomposition
+            FOT4_spectral_decomposition=decomposition,
+            FOT2_spectral_decomposition=None,
         )
 
         locator._get_index_of_eigenvector_which_contains_info_on_eigensystem()
