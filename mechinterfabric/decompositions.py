@@ -104,6 +104,50 @@ class EigensystemLocator:
         self.FOT4_spectral_decomposition = FOT4_spectral_decomposition
         self.FOT2_spectral_decomposition = FOT2_spectral_decomposition
 
+    def _calc_residuum(self, angle):
+        rotated = self._rotate_deviator_from_eigensystem_by_angle(angle)
+        return self._calc_norm_upper_right_quadrant(rotated)
+
+    def _calc_norm_upper_right_quadrant(self, mandel):
+        indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+        return np.linalg.norm(mandel[indices])
+
+    def _rotate_deviator_from_eigensystem_by_angle(self, angle):
+        rotation = utils.get_rotation_by_vector(
+            vector=angle * np.array([1, 0, 0]), degrees=True
+        )
+        rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
+        return rotated
+
+    def _get_optimal_angle(self, range_angles=[0, 90]):
+        # Brute force try some angles
+
+        # Angles optimal for trigonal
+        # angles = np.linspace(0, 60, 180)
+
+        # Angles necessary for tetragonal, acceptable for trigonal
+        # angles = np.linspace(0, 90, 270)
+        angles = np.linspace(*range_angles, range_angles[1] * 3)
+
+        angles_difference = angles[1] - angles[0]
+        residuum = np.zeros((len(angles)), dtype=np.float64)
+        for index, angle in enumerate(angles):
+            residuum[index] = self._calc_residuum(angle=angle)
+
+        best_index = np.argmin(residuum)
+
+        solution = scipy.optimize.minimize_scalar(
+            self._calc_residuum,
+            bounds=(
+                angles[best_index] - angles_difference,
+                angles[best_index] + angles_difference,
+            ),
+            method="bounded",
+        )
+
+        optimized_angle = solution.x
+        return optimized_angle
+
 
 class EigensystemLocatorIsotropicIsotropic(EigensystemLocator):
     def get_eigensystem(self, **kwargs):
@@ -235,48 +279,9 @@ class EigensystemLocatorTransvTrigo(EigensystemLocator):
             vals = -vals
         return vals, vecs
 
-    def _calc_residuum(self, angle):
-        rotated = self._rotate_deviator_from_eigensystem_by_angle(angle)
-        return self._calc_norm_upper_right_quadrant(rotated)
-
-    def _calc_norm_upper_right_quadrant(self, mandel):
-        indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
-        return np.linalg.norm(mandel[indices])
-
-    def _rotate_deviator_from_eigensystem_by_angle(self, angle):
-        rotation = utils.get_rotation_by_vector(
-            vector=angle * np.array([1, 0, 0]), degrees=True
-        )
-        rotated = utils.rotate_to_mandel(self._deviator_in_eigensystem, Q=rotation)
-        return rotated
-
     def rotate_into_trigonal_natural_system(self):
+        optimized_angle = self._get_optimal_angle()
 
-        # Brute force try some angles
-
-        # Angles optimal for trigonal
-        # angles = np.linspace(0, 60, 180)
-
-        # Angles necessary for tetragonal, acceptable for trigonal
-        angles = np.linspace(0, 90, 270)
-
-        angles_difference = angles[1] - angles[0]
-        residuum = np.zeros((len(angles)), dtype=np.float64)
-        for index, angle in enumerate(angles):
-            residuum[index] = self._calc_residuum(angle=angle)
-
-        best_index = np.argmin(residuum)
-
-        solution = scipy.optimize.minimize_scalar(
-            self._calc_residuum,
-            bounds=(
-                angles[best_index] - angles_difference,
-                angles[best_index] + angles_difference,
-            ),
-            method="bounded",
-        )
-
-        optimized_angle = solution.x
         additional_rotation = utils.get_rotation_by_vector(
             vector=optimized_angle * np.array([1, 0, 0]), degrees=True
         )
