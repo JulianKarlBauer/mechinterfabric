@@ -115,10 +115,10 @@ class EigensystemLocator:
         self.FOT4_spectral_decomposition = FOT4_spectral_decomposition
         self.FOT2_spectral_decomposition = FOT2_spectral_decomposition
 
-        self.set_rotation_axis()
-
-    def set_rotation_axis(self, vector=[1, 0, 0]):
-        self.rotation_axis = np.array(vector)
+        self.rotation_axis = np.array([1, 0, 0])
+        self.indices_vanishing_upper_right_part = np.s_[
+            [0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]
+        ]
 
     def _get_addtional_rotation(self):
 
@@ -166,8 +166,7 @@ class EigensystemLocator:
         return self._calc_norm_upper_right_quadrant(rotated)
 
     def _calc_norm_upper_right_quadrant(self, mandel):
-        indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
-        return np.linalg.norm(mandel[indices])
+        return np.linalg.norm(mandel[self.indices_vanishing_upper_right_part])
 
     def _rotate_deviator_from_eigensystem_by_angle(self, angle):
         rotation = self.rotation_from_angle(angle=angle)
@@ -395,3 +394,67 @@ class EigensystemLocatorIsotropicOrthotropicHigher(EigensystemLocator):
                     )
 
                     return transform
+
+
+class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
+    def get_d_parameters(self, deviator):
+        indices = {
+            1: np.s_[0, 1],
+            2: np.s_[0, 2],
+            3: np.s_[1, 2],
+        }
+        return {key: deviator[value] for key, value in indices.items()}
+
+    def get_eigensystem(self, **kwargs):
+
+        FOT2_eigensystem = self.FOT2_spectral_decomposition.FOT2_rotation
+
+        self._deviator_in_eigensystem = utils.rotate_to_mandel(
+            self.FOT4_spectral_decomposition.deviator, FOT2_eigensystem
+        )
+        type_transv_isotropy = (
+            self.FOT2_spectral_decomposition._map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy()
+        )
+
+        print(f"Type={type_transv_isotropy}")
+
+        if type_transv_isotropy == "prolate":
+            rotation_axis = [1, 0, 0]
+        elif type_transv_isotropy == "oblate":
+            rotation_axis = [0, 0, 1]
+        else:
+            raise Exception("Unknown type")
+
+        self.rotation_axis = np.array(rotation_axis)
+        self.indices_vanishing_upper_right_part = np.s_[
+            [0, 0, 0, 1, 1, 1, 2, 2, 2], [3, 4, 5, 3, 4, 5, 3, 4, 5]
+        ]
+
+        optimized_angle = self._get_optimal_angle()
+        deviator = self._rotate_deviator_from_eigensystem_by_angle(
+            angle=optimized_angle
+        )
+
+        d_parameters = self.get_d_parameters(deviator=deviator)
+
+        if type_transv_isotropy == "prolate":
+            larger = d_parameters[1]
+            smaller = d_parameters[2]
+        elif type_transv_isotropy == "oblate":
+            larger = d_parameters[2]
+            smaller = d_parameters[3]
+        else:
+            raise Exception("Unknown type")
+
+        condition = smaller <= larger
+        print(f"smaller={smaller}")
+        print(f"larger={larger}")
+        print(f"condition={condition}")
+
+        if not condition:
+            optimized_angle += 90.0
+
+        additional_rotation = self.rotation_from_angle(angle=optimized_angle)
+
+        # raise Exception()
+        return FOT2_eigensystem @ additional_rotation

@@ -5,6 +5,7 @@ import scipy
 import sympy as sp
 import vofotensors
 from vofotensors.abc import alpha1
+from vofotensors.abc import alpha3
 from vofotensors.abc import d1
 from vofotensors.abc import d2
 from vofotensors.abc import d3
@@ -59,6 +60,15 @@ def lambdified_parametrization_triclinic():
         [la1, la2, d1, d2, d3, d4, d5, d6, d7, d8, d9],
         vofotensors.fabric_tensors.N4s_parametric["triclinic"][
             "la1_la2_d1_d2_d3_d4_d5_d6_d7_d8_d9"
+        ],
+    )
+
+
+def lambdified_parametrization_triclinic_alpha():
+    return sp.lambdify(
+        [alpha1, alpha3, d1, d2, d3, d4, d5, d6, d7, d8, d9],
+        vofotensors.fabric_tensors.N4s_parametric["triclinic"][
+            "alpha1_alpha3_d1_d2_d3_d4_d5_d6_d7_d8_d9"
         ],
     )
 
@@ -167,16 +177,64 @@ test_cases_passing = [
         }
         for id, kwargs in [
             (
-                "ortho pos def 01",
+                "ortho N2-iso 01",
                 {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.05, "d2": 0.033, "d3": 0.011},
             ),
             (
-                "ortho pos def 02",
+                "ortho N2-iso 02",
                 {"la1": 1 / 3, "la2": 1 / 3, "d1": 0.03, "d2": 0.02, "d3": 0.01},
+            ),
+            (
+                "ortho N2-transv prolate 01",
+                {"la1": 1 / 2, "la2": 1 / 4, "d1": 0.015, "d2": 0.01, "d3": 0.005},
+            ),
+        ]
+    ],
+    *[
+        {
+            "id": id,
+            "tensor": lambdified_parametrization_triclinic_alpha()(
+                d4=0, d5=0, d6=0, d7=0, d8=0, d9=0, **kwargs
+            ),
+        }
+        for id, kwargs in [
+            (
+                "ortho N2-transv prolate 02",
+                {
+                    "alpha1": 1 / 2,
+                    "alpha3": 0,
+                    "d1": -0.085,
+                    "d2": -0.09,
+                    "d3": 0.035,
+                },
+            ),
+            (
+                "ortho N2-transv oblate 01",
+                {
+                    "alpha1": 0,
+                    "alpha3": -1 / 6,
+                    "d1": -0.06,
+                    "d2": 0.02,
+                    "d3": -0.015,
+                },
+            ),
+            (
+                "ortho N2-transv oblate 02",
+                {
+                    "alpha1": 0,
+                    "alpha3": -1 / 4,
+                    "d1": -0.05,
+                    "d2": -0.01,
+                    "d3": -0.02,
+                },
             ),
         ]
     ],
 ]
+
+# sp.Matrix(
+#     vofotensors.fabric_tensors.N2s_parametric["orthotropic"]["alpha1_alpha3"]
+# ).subs({alpha1: sp.S(1) / sp.S(6), alpha3: sp.S(0)})
 
 
 test_cases_failing = [
