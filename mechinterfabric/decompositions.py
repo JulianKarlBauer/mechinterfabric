@@ -13,6 +13,21 @@ class SpectralDecompositionFOT2:
     def __init__(self, FOT2):
         self.FOT2 = FOT2
 
+        self.transv_eigenvalue_pair_to_type = {
+            (True, False): "oblate",
+            (False, True): "prolate",
+        }
+        self.eigenvalue_pair_to_symmetry = {
+            **{
+                (True, True): "isotropic_or_cubic",
+                (False, False): "orthotropic_or_monoclinic_or_triclinic",
+            },
+            **{
+                key: "transversely_isotropic_or_tetragonal_or_trigonal"
+                for key in self.transv_eigenvalue_pair_to_type.keys()
+            },
+        }
+
     def get_symmetry(self):
         self._decompose()
         return self._identify_symmetry_FOT2()
@@ -37,17 +52,13 @@ class SpectralDecompositionFOT2:
 
     def _map_equal_eigenvalue_pairs_to_symmetry(self):
         # We assume, that eigenvalues are sorted
-        return {
-            (True, True): "isotropic_or_cubic",
-            # Oblate
-            (True, False): "transversely_isotropic_or_tetragonal_or_trigonal",
-            # Prolate
-            (False, True): "transversely_isotropic_or_tetragonal_or_trigonal",
-            (False, False): "orthotropic_or_monoclinic_or_triclinic",
-        }[self.FOT2_eigenvalues_are_equal]
+        return self.eigenvalue_pair_to_symmetry[self.FOT2_eigenvalues_are_equal]
 
     def _pair_of_eigenvalues_is_equal(self, first, second, atol=1e-4, rtol=1e-4):
         return np.isclose(first, second, atol=atol, rtol=rtol)
+
+    def _map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy(self):
+        return self.transv_eigenvalue_pair_to_type[self.FOT2_eigenvalues_are_equal]
 
 
 class SpectralDecompositionDeviator4:
