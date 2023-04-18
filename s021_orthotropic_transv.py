@@ -42,6 +42,14 @@ kwargs = {
 #     "d2": -0.015,
 #     "d3": 0.02,
 # }
+alphas = True
+kwargs = {
+    "alpha1": 0,
+    "alpha3": -1 / 4,
+    "d1": -0.05,
+    "d2": -0.01,
+    "d3": -0.02,
+}
 
 
 if alphas:
@@ -77,6 +85,16 @@ decomposition_fot2_rotated = mechinterfabric.decompositions.SpectralDecompositio
 decomposition_fot2_rotated.get_symmetry()
 eigensystem = decomposition_fot2_rotated.FOT2_rotation
 
+type_transv_isotropy = (
+    decomposition_fot2_rotated._map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy()
+)
+if type_transv_isotropy == "prolate":
+    rotation_axis = [1, 0, 0]
+elif type_transv_isotropy == "oblate":
+    rotation_axis = [0, 0, 1]
+else:
+    raise Exception("Unknown type")
+
 
 fot4_in_eigensystem_fot2 = mechinterfabric.utils.rotate_to_mandel(
     fot4_rotated, eigensystem
@@ -87,7 +105,7 @@ deviator_in_eigensystem_fot2 = mechinterfabric.utils.rotate_to_mandel(
 
 
 def _calc_norm_upper_right_quadrant(mandel):
-    indices = np.s_[[0, 0, 0, 1, 1, 2, 2], [3, 4, 5, 3, 4, 3, 4]]
+    indices = np.s_[[0, 0, 0, 1, 1, 1, 2, 2, 2], [3, 4, 5, 3, 4, 5, 3, 4, 5]]
     return np.linalg.norm(mandel[indices])
 
 
@@ -105,7 +123,7 @@ indices = {
 angles = np.linspace(0, 180, 180 + 1)
 for angle in angles:
     rotation = mechinterfabric.utils.get_rotation_by_vector(
-        angle * np.array([1, 0, 0]), degrees=True
+        angle * np.array(rotation_axis), degrees=True
     )
     rotated = mechinterfabric.utils.rotate_to_mandel(
         deviator_in_eigensystem_fot2, rotation
