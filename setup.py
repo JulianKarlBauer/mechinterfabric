@@ -27,7 +27,7 @@ setuptools.setup(
         "numpy",
         "mechkit",
         "scipy",
-        "vofotensors >= 1.0.6",
+        "vofotensors >= 1.0.7",
         "natsort",
         "sympy",
         "matplotlib",
