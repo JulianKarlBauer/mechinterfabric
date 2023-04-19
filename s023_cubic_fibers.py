@@ -66,36 +66,59 @@ cubic_transformations = [
     ]
 ]
 
-fibers = [
-    np.array(tup)
-    for tup in [
-        (1, 1, 1),
-        (1, 0, 0),
-    ]
-]
-workload = list(zip(*list(itertools.product(cubic_transformations, fibers))))
-cubic_fibers = list(map(operator.matmul, *workload))
 
+# fibers = [
+#     np.array(tup)
+#     for tup in [
+#         (1, 1, 1),
+#         # (1, 0, 0),
+#     ]
+# ]
+# fibers = evenly_distributed_vectors_on_sphere(100)
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-
-fig = plt.figure()
-ax = fig.add_subplot(111, projection="3d")
-for fiber in cubic_fibers:
-    ax.quiver(0, 0, 0, *fiber)
-ax.set_xlim([-1, 1])
-ax.set_ylim([-1, 1])
-ax.set_zlim([-1, 1])
-
-fot4 = mechkit.fabric_tensors.first_kind_discrete(orientations=cubic_fibers, order=4)
-fot4_mandel = con.to_mandel6(fot4)
-dev4 = mechkit.operators.dev(fot4)
-dev4_mandel = con.to_mandel6(dev4)
-
-print(f"fot4_mandel=\n{fot4_mandel}")
-print(f"dev4_mandel=\n{dev4_mandel}")
 print(f"{-1/15}< cubics <{2/45}")
+
+experiments = {
+    "min": [
+        np.array(tup)
+        for tup in [
+            (1, 0, 0),
+        ]
+    ],
+    "iso": evenly_distributed_vectors_on_sphere(100),
+    "max": [
+        np.array(tup)
+        for tup in [
+            (1, 1, 1),
+        ]
+    ],
+}
+
+for name, fibers in experiments.items():
+    workload = list(zip(*list(itertools.product(cubic_transformations, fibers))))
+    cubic_fibers = list(map(operator.matmul, *workload))
+
+    import matplotlib.pyplot as plt
+    from mpl_toolkits.mplot3d import Axes3D
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection="3d")
+    for fiber in cubic_fibers:
+        ax.quiver(0, 0, 0, *fiber)
+    ax.set_xlim([-1, 1])
+    ax.set_ylim([-1, 1])
+    ax.set_zlim([-1, 1])
+    ax.set_title(name)
+
+    fot4 = mechkit.fabric_tensors.first_kind_discrete(
+        orientations=cubic_fibers, order=4
+    )
+    fot4_mandel = con.to_mandel6(fot4)
+    dev4 = mechkit.operators.dev(fot4)
+    dev4_mandel = con.to_mandel6(dev4)
+
+    # print(f"fot4_mandel=\n{fot4_mandel}")
+    print(f"{name}:\n{dev4_mandel}")
 
 
 # d_i = {
