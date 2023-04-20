@@ -86,6 +86,9 @@ def analyse(tensor):
 
 print(f"\n{-1/15}< cubics <{2/45}\n")
 
+vec_min = cast_and_normalize([1, 0, 0])
+vec_max = cast_and_normalize([1, 1, 1])
+
 experiments = {
     "min": [
         (1, 0, 0),
@@ -94,12 +97,16 @@ experiments = {
     "max": [
         (1, 1, 1),
     ],
+    # **{
+    #     f"circles_{length_x}": [
+    #         (length_x, np.cos(phi), np.sin(phi))
+    #         for phi in np.deg2rad(np.linspace(0, 360, 6, endpoint=False))
+    #     ]
+    #     for length_x in [0.5, 1, 3, 5, 10]
+    # },
     **{
-        f"circles_{length_x}": [
-            (length_x, np.cos(phi), np.sin(phi))
-            for phi in np.deg2rad(np.linspace(0, 360, 6, endpoint=False))
-        ]
-        for length_x in [0.5, 1, 3, 5, 10]
+        f"linear_{factor:.2f}": [vec_min + factor * (vec_max - vec_min)]
+        for factor in np.linspace(0.1, 0.9, 5)
     },
 }
 
@@ -159,4 +166,4 @@ for name, fibers in experiments.items():
     ax.set_xlim([-1, 1])
     ax.set_ylim([-1, 1])
     ax.set_zlim([-1, 1])
-    ax.set_title(" ".join([name, f"{ingest[name]['d_1']:.2f}"]))
+    ax.set_title(" ".join([name, f"{ingest[name]['d_1']:.3f}"]))
