@@ -67,95 +67,88 @@ cubic_transformations = [
 ]
 
 
-# fibers = [
-#     np.array(tup)
-#     for tup in [
-#         (1, 1, 1),
-#         # (1, 0, 0),
-#     ]
-# ]
-# fibers = evenly_distributed_vectors_on_sphere(100)
+def cast_and_normalize(vec):
+    vec = np.array(vec)
+    return vec / np.linalg.norm(vec)
 
-print(f"{-1/15}< cubics <{2/45}")
+
+def make_cubic(fibers):
+    workload = list(zip(*list(itertools.product(cubic_transformations, fibers))))
+    cubic_fibers = list(map(operator.matmul, *workload))
+    return cubic_fibers
+
+
+def analyse(tensor):
+    analysis = mechinterfabric.FOT4Analysis(tensor).analyse()
+
+
+###############################################
+
+print(f"\n{-1/15}< cubics <{2/45}\n")
 
 experiments = {
     "min": [
-        np.array(tup)
-        for tup in [
-            (1, 0, 0),
-        ]
+        (1, 0, 0),
     ],
     "iso": evenly_distributed_vectors_on_sphere(100),
     "max": [
-        np.array(tup)
-        for tup in [
-            (1, 1, 1),
-        ]
+        (1, 1, 1),
     ],
+    **{
+        f"circles_{length_x}": [
+            (length_x, np.cos(phi), np.sin(phi))
+            for phi in np.deg2rad(np.linspace(0, 360, 6, endpoint=False))
+        ]
+        for length_x in [0.5, 1, 3, 5, 10]
+    },
 }
 
+# Cast
+experiments = {
+    key: [cast_and_normalize(fiber) for fiber in fibers]
+    for key, fibers in experiments.items()
+}
+
+# Make cubic
+experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
+
+
+ingest = {}
 for name, fibers in experiments.items():
-    workload = list(zip(*list(itertools.product(cubic_transformations, fibers))))
-    cubic_fibers = list(map(operator.matmul, *workload))
+    fot4 = mechkit.fabric_tensors.first_kind_discrete(orientations=fibers, order=4)
+    fot4_mandel = con.to_mandel6(fot4)
+    dev4 = mechkit.operators.dev(fot4)
+    dev4_mandel = con.to_mandel6(dev4)
+
+    analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
+
+    ingest[name] = {
+        "fot4_mandel": fot4_mandel,
+        "dev4_mandel": dev4_mandel,
+        "analysis": analysis,
+    }
+
+    # print(f"fot4_mandel=\n{fot4_mandel}")
+    print(f"\n\n{name}:")
+    print(f"dev4_mandel:\n{dev4_mandel}")
+    print(f"dev(analysis.reconstructed_dev):\n{analysis.reconstructed_dev}")
+
+for name, fibers in experiments.items():
 
     import matplotlib.pyplot as plt
     from mpl_toolkits.mplot3d import Axes3D
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    for fiber in cubic_fibers:
-        ax.quiver(0, 0, 0, *fiber)
+
+    origin = np.zeros(3)
+    for fiber in fibers:
+        ax.quiver(
+            *origin,
+            *fiber,
+            arrow_length_ratio=0.01,
+        )
     ax.set_xlim([-1, 1])
     ax.set_ylim([-1, 1])
     ax.set_zlim([-1, 1])
     ax.set_title(name)
-
-    fot4 = mechkit.fabric_tensors.first_kind_discrete(
-        orientations=cubic_fibers, order=4
-    )
-    fot4_mandel = con.to_mandel6(fot4)
-    dev4 = mechkit.operators.dev(fot4)
-    dev4_mandel = con.to_mandel6(dev4)
-
-    # print(f"fot4_mandel=\n{fot4_mandel}")
-    print(f"{name}:\n{dev4_mandel}")
-
-
-# d_i = {
-#     1: [],
-#     2: [],
-#     3: [],
-# }
-# norm = []
-# indices = {
-#     1: np.s_[0, 1],
-#     2: np.s_[0, 2],
-#     3: np.s_[1, 2],
-# }
-# angles = np.linspace(0, 180, 180 + 1)
-# for angle in angles:
-#     rotation = mechinterfabric.utils.get_rotation_by_vector(
-#         angle * np.array(rotation_axis), degrees=True
-#     )
-#     rotated = mechinterfabric.utils.rotate_to_mandel(
-#         deviator_in_eigensystem_fot2, rotation
-#     )
-#     for i in [1, 2, 3]:
-#         d_i[i].append(rotated[indices[i]])
-#     norm.append(_calc_norm_upper_right_quadrant(rotated))
-
-# for i in [1, 2, 3]:
-#     plt.plot(angles, d_i[i], label=f"d_{i}")
-# plt.plot(angles, norm, label=f"Norm upper right quadrant")
-
-# plt.gca().set_prop_cycle(None)
-# for i in [1, 2, 3]:
-#     plt.plot(
-#         angles,
-#         np.ones_like(angles) * kwargs[f"d{i}"],
-#         label=f"given d_{i}",
-#         linestyle="dashed",
-#     )
-
-
-# plt.legend()
