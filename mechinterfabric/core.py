@@ -128,3 +128,10 @@ class FOT4Analysis:
         )
         self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem
+
+    def analyse(self):
+        self.get_eigensystem()
+        self.reconstructed = utils.rotate_to_mandel(self.FOT4.tensor, self.eigensystem)
+        self.reconstructed_dev = utils.dev_in_mandel(self.reconstructed)
+
+        return self
