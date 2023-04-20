@@ -121,7 +121,7 @@ class FOT4Analysis:
             raise utils.ExceptionMechinterfabric(
                 f"Locator for symmetry combination {symmetry_combination} not implemented"
             )
-        print(f"Selected locator={locator}")
+        # print(f"Selected locator={locator}")
         self.eigensystem_locator = locator(
             FOT4_spectral_decomposition=self.FOT4_spectral_decomposition,
             FOT2_spectral_decomposition=self.FOT2_spectral_decomposition,
