@@ -113,6 +113,7 @@ experiments = {
 experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
 
 
+# Ingest tensor
 ingest = {}
 for name, fibers in experiments.items():
     fot4 = mechkit.fabric_tensors.first_kind_discrete(orientations=fibers, order=4)
@@ -120,19 +121,26 @@ for name, fibers in experiments.items():
     dev4 = mechkit.operators.dev(fot4)
     dev4_mandel = con.to_mandel6(dev4)
 
-    analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
-
     ingest[name] = {
         "fot4_mandel": fot4_mandel,
         "dev4_mandel": dev4_mandel,
-        "analysis": analysis,
+        "d_1": dev4_mandel[0, 1],
     }
+
+    analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
+    ingest[name].update(
+        {
+            "analysis": analysis,
+        }
+    )
 
     # print(f"fot4_mandel=\n{fot4_mandel}")
     print(f"\n\n{name}:")
     print(f"dev4_mandel:\n{dev4_mandel}")
     print(f"dev(analysis.reconstructed_dev):\n{analysis.reconstructed_dev}")
 
+
+# Plot
 for name, fibers in experiments.items():
 
     import matplotlib.pyplot as plt
@@ -151,4 +159,4 @@ for name, fibers in experiments.items():
     ax.set_xlim([-1, 1])
     ax.set_ylim([-1, 1])
     ax.set_zlim([-1, 1])
-    ax.set_title(name)
+    ax.set_title(" ".join([name, f"{ingest[name]['d_1']:.2f}"]))
