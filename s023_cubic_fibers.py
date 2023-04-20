@@ -136,16 +136,16 @@ for name, fibers in experiments.items():
         "d_1": dev4_mandel[0, 1],
     }
 
+    # print(f"fot4_mandel=\n{fot4_mandel}")
+    print(f"\n\n{name}:")
+    print(f"dev4_mandel:\n{dev4_mandel}")
+
     analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
     ingest[name].update(
         {
             "analysis": analysis,
         }
     )
-
-    # print(f"fot4_mandel=\n{fot4_mandel}")
-    print(f"\n\n{name}:")
-    print(f"dev4_mandel:\n{dev4_mandel}")
     print(f"dev(analysis.reconstructed_dev):\n{analysis.reconstructed_dev}")
 
 
