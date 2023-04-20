@@ -89,6 +89,8 @@ print(f"\n{-1/15}< cubics <{2/45}\n")
 vec_min = cast_and_normalize([1, 0, 0])
 vec_max = cast_and_normalize([1, 1, 1])
 
+factors = [1 / 3, 1 / 2, 2 / 3]  # np.linspace(0.1, 0.9, 5)
+
 experiments = {
     "min": [
         (1, 0, 0),
@@ -106,7 +108,7 @@ experiments = {
     # },
     **{
         f"linear_{factor:.2f}": [vec_min + factor * (vec_max - vec_min)]
-        for factor in np.linspace(0.1, 0.9, 5)
+        for factor in factors
     },
 }
 
@@ -167,3 +169,20 @@ for name, fibers in experiments.items():
     ax.set_ylim([-1, 1])
     ax.set_zlim([-1, 1])
     ax.set_title(" ".join([name, f"{ingest[name]['d_1']:.3f}"]))
+
+# Plot grid
+fig, ax = plt.subplots()
+ax.set_yticks([0.0], minor=False)
+ax.yaxis.grid(True, which="major")
+
+ax.set_xticks(
+    [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
+    + [-1 / 15, 0, 2 / 45],
+    minor=False,
+)
+ax.xaxis.grid(True, which="major")
+ax.set_xlabel("$d_1$")
+tol = 1 / 90
+ax.set_xlim([-1 / 15 - tol, 2 / 45 + tol])
+# ax.set_yticks([0.3, 0.55, 0.7], minor=True)
+# ax.yaxis.grid(True, which="minor")
