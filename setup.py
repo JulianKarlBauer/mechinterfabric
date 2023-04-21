@@ -5,21 +5,14 @@ import setuptools
 
 description = "Interpolation of fabric and fiber-orientation tensors"
 
-if sys.version_info > (3, 0):
-    this_directory = path.abspath(path.dirname(__file__))
-    with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
-        long_description = f.read()
-else:
-    long_description = description
 
 setuptools.setup(
     name="mechinterfabric",
     version="0.0.1",
     author="Julian Karl Bauer",
-    author_email="JulianKarlBauer@gmx.de",
+    author_email="juliankarlbauer@gmx.de",
     description=description,
-    long_description=long_description,
-    long_description_content_type="text/markdown",
+    long_description=description,
     url="https://github.com/JulianKarlBauer/mechinterfabric",
     packages=setuptools.find_packages(),
     install_requires=[
@@ -31,6 +24,8 @@ setuptools.setup(
         "natsort",
         "sympy",
         "matplotlib",
+        "pandas",
+        "natsort",
     ],
     classifiers=[
         "Programming Language :: Python",
