@@ -91,6 +91,5 @@ dependencies:
       - scipy==1.10.0
       - symbolic==0.0.1
       - sympy==1.11.1
-      - vofotensors==1.0.6
       - wrapt==1.14.1
 prefix: /home/julian/miniconda3/envs/mechinterfabric
