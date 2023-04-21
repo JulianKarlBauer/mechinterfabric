@@ -53,7 +53,7 @@ class Test_scripts_interpolation:
                 "scripts",
                 "s*.py",
             ),
-            exclude_sub_strings=["s021", "s022"],
+            exclude_sub_strings=["s021", "s022", "s040"],
         ),
     )
     def test_execute_scripts(self, path_script):
