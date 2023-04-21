@@ -26,30 +26,34 @@ def lambdified_parametrization_triclinic():
     )
 
 
-alphas = False
-kwargs = {
-    "la1": 1 / 2,
-    "la2": 1 / 4,
-    "d1": 0.05,
-    "d2": 0.033,
-    "d3": 0.011,
-}  # Assert decrease in d_i for increasing i
-# alphas = True
-# kwargs = {
-#     "alpha1": 0,
-#     "alpha3": -1 / 6,
-#     "d1": -0.06,
-#     "d2": -0.015,
-#     "d3": 0.02,
-# }
-# alphas = True
-# kwargs = {
-#     "alpha1": 0,
-#     "alpha3": -1 / 4,
-#     "d1": -0.05,
-#     "d2": -0.01,
-#     "d3": -0.02,
-# }
+flag = "oblate"
+
+if flag == "prolate":
+    alphas = False
+    kwargs = {
+        "la1": 1 / 2,
+        "la2": 1 / 4,
+        "d1": 0.05,
+        "d2": 0.033,
+        "d3": 0.011,
+    }  # Assert decrease in d_i for increasing i
+    # alphas = True
+    # kwargs = {
+    #     "alpha1": 0,
+    #     "alpha3": -1 / 6,
+    #     "d1": -0.06,
+    #     "d2": -0.015,
+    #     "d3": 0.02,
+    # }
+elif flag == "oblate":
+    alphas = True
+    kwargs = {
+        "alpha1": 0,
+        "alpha3": -1 / 4,
+        "d1": -0.05,
+        "d2": -0.01,
+        "d3": -0.02,
+    }
 
 
 if alphas:
@@ -120,7 +124,7 @@ indices = {
     2: np.s_[0, 2],
     3: np.s_[1, 2],
 }
-angles = np.linspace(0, 180, 4 * 180 + 1)
+angles = np.linspace(0, 180, 5 * 180 + 1)
 for angle in angles:
     rotation = mechinterfabric.utils.get_rotation_by_vector(
         angle * np.array(rotation_axis), degrees=True
@@ -147,5 +151,23 @@ for i in [1, 2, 3]:
 plt.grid()
 plt.xlabel("$\phi$ in degree")
 # plt.ylabel("-")
-# plt.legend(loc="upper right")
-# plt.legend(loc="lower right")
+if flag == "prolate":
+    plt.legend(loc="upper right")
+elif flag == "oblate":
+    plt.legend(loc="lower right")
+
+import pandas as pd
+
+df = pd.DataFrame(angles, columns=["angles"])
+df["norm"] = norm
+for i in [1, 2, 3]:
+    df[f"d{i}"] = d_i[i]
+
+for i in [1, 2, 3]:
+    df[f"d{i}ref"] = np.ones_like(angles) * kwargs[f"d{i}"]
+
+
+path = f"output/s021_{flag}.csv"
+
+with open(path, "w") as file:
+    df.to_csv(file, index=False)
