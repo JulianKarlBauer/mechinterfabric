@@ -133,7 +133,7 @@ def to_lambda1_lambda2(alpha1, alpha3):
     return la1, la2
 
 
-def to_alpha1_alpha3_to(la1, la2):
+def to_alpha1_alpha3(la1, la2):
     alpha1 = 2 / 3 * (la1 - la2)
     alpha3 = 4 / 3 * (1 / 2 - la1 / 2 - la2)
     return alpha1, alpha3
