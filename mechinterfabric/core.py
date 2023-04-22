@@ -141,4 +141,28 @@ class FOT4Analysis:
         self.reconstructed = utils.rotate_to_mandel(self.FOT4.tensor, self.eigensystem)
         self.reconstructed_dev = utils.dev_in_mandel(self.reconstructed)
 
+        self.parameters = self.identify_parameters(
+            mandel_in_eigensystem=self.reconstructed
+        )
+
         return self
+
+    def identify_parameters(self, mandel_in_eigensystem):
+        N4 = mandel_in_eigensystem
+        N2 = self.contract_N4_to_N2(converter.to_tensor(N4))
+
+        dev4 = utils.dev_in_mandel(N4)
+
+        return {
+            "la1": N2[0, 0],
+            "la2": N2[1, 1],
+            "d1": dev4[0, 1],
+            "d2": dev4[0, 2],
+            "d3": dev4[1, 2],
+            "d4": dev4[1, 3],
+            "d5": dev4[2, 3],
+            "d6": dev4[0, 4],
+            "d7": dev4[2, 4],
+            "d8": dev4[0, 5],
+            "d9": dev4[1, 5],
+        }
