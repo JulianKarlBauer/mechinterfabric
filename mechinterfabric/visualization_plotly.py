@@ -27,7 +27,28 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100):
     return xyz, scalars_limited
 
 
-def add_N4_plotly(fig, N4, origin=[0, 0, 0], nbr_points=100, options={}, method="fodf"):
+def add_N4_plotly(
+    fig,
+    N4,
+    origin=[0, 0, 0],
+    nbr_points=100,
+    options=None,
+    method="fodf",
+):
+
+    if options is None:
+        ############################
+        # Define colors
+
+        colorscale = [
+            [0, "rgb(1.0, 0.5, 0.05)"],
+            [1, "rgb(0.2, 0.7, 0.2)"],
+        ]
+
+        options = dict(
+            showscale=False,
+            colorscale=colorscale,
+        )
 
     xyz, scalars = get_data(N4=N4, origin=origin, nbr_points=nbr_points, method=method)
 
