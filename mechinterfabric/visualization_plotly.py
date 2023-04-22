@@ -8,7 +8,7 @@ from mechinterfabric import visualization
 con = mechkit.notation.Converter()
 
 
-def get_data(N4, method, origin=[0, 0, 0], nbr_points=100):
+def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
 
     vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
 
@@ -23,7 +23,7 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100):
         raise mechinterfabric.utils.ExceptionMechinterfabric(
             "Unknown projection method requested"
         )
-    scalars_limited = visualization.limit_scaling(scalars, limit_scalar=0.55)
+    scalars_limited = visualization.limit_scaling(scalars, limit_scalar=limit_scalar)
 
     xyz = visualization.shift_b_origin(xyz=scalars_limited * vectors, origin=origin)
 
@@ -37,6 +37,7 @@ def add_N4_plotly(
     nbr_points=100,
     options=None,
     method="fodf",
+    limit_scalar=0.55,
 ):
 
     if options is None:
@@ -53,7 +54,13 @@ def add_N4_plotly(
             colorscale=colorscale,
         )
 
-    xyz, scalars = get_data(N4=N4, origin=origin, nbr_points=nbr_points, method=method)
+    xyz, scalars = get_data(
+        N4=N4,
+        origin=origin,
+        nbr_points=nbr_points,
+        method=method,
+        limit_scalar=limit_scalar,
+    )
 
     # Problem: If all signs of given FODF are homogeneous,
     # the color is neither max nor min of colorscheme but middle
@@ -75,7 +82,7 @@ def add_N4_plotly(
 
 
 def plot_stepwise_interpolation_N4_along_x(
-    fig, N1, N2, nbr_points=5, scale=1, method=None, nbr_vectors=100
+    fig, N1, N2, nbr_points=5, scale=1, method=None, nbr_vectors=100, limit_scalar=0.55
 ):
 
     if method is None:
@@ -105,6 +112,7 @@ def plot_stepwise_interpolation_N4_along_x(
             N4=N4_av,
             origin=origin,
             nbr_points=nbr_vectors,
+            limit_scalar=limit_scalar,
         )
 
     return fig
