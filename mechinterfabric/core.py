@@ -54,8 +54,13 @@ class FOT4Analysis:
         self._keys_sym_FOT2 = ["isotropic", "transversely_isotropic", "orthotropic"]
 
     def calc_FOT2(self):
-        self.FOT2 = FiberOrientationTensor2(np.tensordot(self.FOT4.tensor, np.eye(3)))
+        self.FOT2 = FiberOrientationTensor2(
+            self.contract_N4_to_N2(N4_tensor=self.FOT4.tensor)
+        )
         return self
+
+    def contract_N4_to_N2(self, N4_tensor):
+        return np.tensordot(N4_tensor, np.eye(3))
 
     def get_symmetry_FOT2(self):
         self.FOT2_spectral_decomposition = decompositions.SpectralDecompositionFOT2(
@@ -66,9 +71,7 @@ class FOT4Analysis:
     def get_symmetry_FOT4(self):
 
         self.FOT4_spectral_decomposition = (
-            decompositions.SpectralDecompositionDeviator4(
-                FOT4_deviator=self.FOT4.deviator
-            )
+            decompositions.SpectralDecompositionDeviator4(FOT4=self.FOT4)
         )
         self.FOT4_symmetry = self.FOT4_spectral_decomposition.get_symmetry()
 
