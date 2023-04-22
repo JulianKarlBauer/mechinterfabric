@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
 
-import mechinterfabric
+import mechinterfabric.visualization_matplotlib
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
