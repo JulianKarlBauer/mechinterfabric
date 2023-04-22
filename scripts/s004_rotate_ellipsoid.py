@@ -61,7 +61,7 @@ ax.cos3D(
     matrix=N1_matrix,
 )
 
-mechinterfabric.visualization.plot_ellipsoid(
+mechinterfabric.visualization_matplotlib.plot_ellipsoid(
     ax=ax,
     origin=origin,
     radii_in_eigen=N1_eigenvals,
@@ -74,7 +74,7 @@ mechinterfabric.visualization.plot_ellipsoid(
 
 origin = [1, 0, 0]
 
-arrow_x = mechinterfabric.visualization.Arrow3D(
+arrow_x = mechinterfabric.visualization_matplotlib.Arrow3D(
     *origin, *rotation.as_rotvec() * 0.3, ec="black", fc="black"
 )
 ax.add_artist(arrow_x)
@@ -96,7 +96,7 @@ ax.cos3D(
     matrix=N2_matrix,
 )
 
-mechinterfabric.visualization.plot_ellipsoid(
+mechinterfabric.visualization_matplotlib.plot_ellipsoid(
     ax=ax,
     origin=origin,
     radii_in_eigen=N2_eigenvals,

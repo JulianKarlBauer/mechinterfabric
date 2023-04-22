@@ -5,9 +5,8 @@ import mechkit
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-import mechinterfabric
+import mechinterfabric.visualization_matplotlib
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
-
 
 np.set_printoptions(linewidth=100000)
 
@@ -94,7 +93,7 @@ for key, (N4_1, N4_2) in pairs.items():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+    mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
         ax=ax, N1=N4_1, N2=N4_2, nbr_points=5, scale=3
     )
 

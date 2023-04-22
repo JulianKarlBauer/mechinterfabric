@@ -7,8 +7,10 @@ from scipy.linalg import logm
 from scipy.spatial.transform import Rotation
 
 import mechinterfabric
-from mechinterfabric.visualization import plot_bunch_of_cos3D_along_x
-from mechinterfabric.visualization import plot_stepwise_interpolation_rotations_along_x
+from mechinterfabric.visualization_matplotlib import plot_bunch_of_cos3D_along_x
+from mechinterfabric.visualization_matplotlib import (
+    plot_stepwise_interpolation_rotations_along_x,
+)
 
 np.set_printoptions(linewidth=100000)
 

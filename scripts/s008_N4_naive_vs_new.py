@@ -4,8 +4,7 @@ import matplotlib.pyplot as plt
 import mechkit
 import numpy as np
 
-import mechinterfabric
-
+import mechinterfabric.visualization_matplotlib
 
 np.set_printoptions(linewidth=100000)
 
@@ -80,7 +79,7 @@ for key, (N4_1, N4_2) in pairs.items():
 
     plot_func_key = "cos_projection_fodf"
 
-    mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+    mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
         ax=ax,
         N1=N4_1,
         N2=N4_2,
@@ -92,7 +91,7 @@ for key, (N4_1, N4_2) in pairs.items():
         plot_func_key=plot_func_key,
     )
 
-    mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+    mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
         ax=ax,
         N1=N4_1,
         N2=N4_2,
