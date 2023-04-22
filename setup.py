@@ -26,6 +26,7 @@ setuptools.setup(
         "matplotlib",
         "pandas",
         "natsort",
+        "plotly",
     ],
     classifiers=[
         "Programming Language :: Python",
