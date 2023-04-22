@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -16,21 +17,48 @@ z = b * np.sin(v) * (c * np.cos(u) - d) / (a - c * np.cos(u) * np.cos(v))
 
 fig = make_subplots(
     rows=1,
-    cols=2,
-    specs=[[{"is_3d": True}, {"is_3d": True}]],
+    cols=1,
+    specs=[[{"is_3d": True}]],
     subplot_titles=[
-        "Color corresponds to z",
-        "Color corresponds to distance to origin",
+        "Subplot title",
     ],
 )
+
+cmap = plt.get_cmap("tab10")
+# colorscale = [[0, "rgb" + str(cmap(1)[0:3])], [1, "rgb" + str(cmap(2)[0:3])]]
+colorscale = [
+    [0, "rgb(1.0, 0.5, 0.05)"],
+    [1, "rgb(0.17, 0.63, 0.17)"],
+]
+
+
 offset = 5
-fig.add_trace(go.Surface(x=x, y=y, z=z, colorbar_x=-0.07), 1, 1)
+options = dict(
+    surfacecolor=np.ones_like(x),
+    showscale=False,
+    colorscale=colorscale,
+)
+
 fig.add_trace(
     go.Surface(
-        x=x + offset, y=y + offset, z=z + offset, surfacecolor=x**2 + y**2 + z**2
+        x=x,
+        y=y,
+        z=z,
+        colorbar_x=-0.07,
+        **options,
     ),
     1,
     1,
 )
-fig.update_layout(title_text="Ring cyclide")
+fig.add_trace(
+    go.Surface(
+        x=x + offset,
+        y=y,
+        z=z,
+        **options,
+    ),
+    1,
+    1,
+)
+fig.update_layout(title_text="Title")
 fig.show()
