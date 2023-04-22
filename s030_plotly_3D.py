@@ -1,7 +1,10 @@
 import matplotlib.pyplot as plt
+import mechkit
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
+
+import mechinterfabric
 
 # Equation of ring cyclide
 # see https://en.wikipedia.org/wiki/Dupin_cyclide
@@ -32,33 +35,87 @@ colorscale = [
 ]
 
 
-offset = 5
+offset = 1
 options = dict(
     surfacecolor=np.ones_like(x),
     showscale=False,
     colorscale=colorscale,
 )
 
+
+# fig.add_trace(
+#     go.Surface(
+#         x=x,
+#         y=y,
+#         z=z,
+#         **options,
+#     ),
+#     1,
+#     1,
+# )
+
+############################
+# N4
+
+
+def get_data(
+    N4,
+    origin=[0, 0, 0],
+    nbr_points=100,
+):
+
+    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+
+    distribution = mechinterfabric.visualization.DistributionDensityTruncateAfter4(
+        N4=N4
+    )
+
+    scalars = distribution.calc_scalars(vectors)
+
+    maximum_scalar = np.max(scalars)
+    limit_scalar = 0.55
+    if np.max(scalars) > limit_scalar:
+        scalars = scalars * (limit_scalar / maximum_scalar)
+
+    xyz = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
+
+    return xyz, scalars
+
+
+N4 = mechkit.fabric_tensors.Basic().N4["iso"]
+xyz, scalars = get_data(N4=N4)
+
 fig.add_trace(
     go.Surface(
-        x=x,
-        y=y,
-        z=z,
-        colorbar_x=-0.07,
+        x=xyz[0],
+        y=xyz[1],
+        z=xyz[2],
         **options,
     ),
     1,
     1,
 )
+
 fig.add_trace(
     go.Surface(
-        x=x + offset,
-        y=y,
-        z=z,
+        x=xyz[0] + offset,
+        y=xyz[1],
+        z=xyz[2],
         **options,
     ),
     1,
     1,
 )
-fig.update_layout(title_text="Title")
+
+fig.layout.scene.update(
+    aspectmode="data",
+    # aspectmode="cube",
+    # aspectratio=dict(x=1, y=1, z=1),
+)
+# fig.update_layout(title_text="Title")
+# fig.update_layout(scene_aspectmode="cube")
+# fig.update_layout(scene_aspectmode="manual", scene_aspectratio=dict(x=1, y=1, z=2))
+# fig.update_layout(scene_aspectmode="data")
+
+
 fig.show()
