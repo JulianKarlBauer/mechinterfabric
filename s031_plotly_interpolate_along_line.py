@@ -11,7 +11,7 @@ from mechinterfabric import visualization_plotly
 from mechinterfabric.abc import *
 
 
-for seed in [5, 10]:  # [0 , 6, 14]:  # [5, 10]:
+for seed in [5]:  # [0 , 6, 14]:  # [5, 10]:
     ############################
     # Set figure
 
@@ -66,7 +66,7 @@ for seed in [5, 10]:  # [0 , 6, 14]:  # [5, 10]:
 
         eigensystem = analysis.eigensystem_rotation.as_rotvec()
         parameters = {
-            key: np.round(value, 9) for key, value in analysis.parameters.items()
+            key: np.round(value, 4) for key, value in analysis.parameters.items()
         }
         print(f"{name} = N4({parameters}) \n Eigensystem={eigensystem}\n")
 
