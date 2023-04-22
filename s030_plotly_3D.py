@@ -75,11 +75,19 @@ def add_N4_plotly(fig, N4, origin=[0, 0, 0], nbr_points=100, options={}):
 
     xyz, scalars = get_data(N4=N4, origin=origin, nbr_points=nbr_points)
 
+    # Problem: If all signs of given FODF are homogeneous,
+    # the color is neither max nor min of colorscheme but middle
+    # Hacky solution: Set one single point to alternative color to
+    # get both +1 and -1 as limits of color mpa
+    surfacecolor = np.sign(scalars)
+    if np.all(surfacecolor == surfacecolor[0, 0]):
+        surfacecolor[0, 0] = -surfacecolor[0, 0]
+
     surface = go.Surface(
         x=xyz[0],
         y=xyz[1],
         z=xyz[2],
-        surfacecolor=np.sign(scalars),
+        surfacecolor=surfacecolor,
         **options,
     )
 
