@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-import mechinterfabric
+from mechinterfabric.visualization_matplotlib import plot_bunch_of_cos3D_along_x
 
 directory = os.path.join("output", "s020")
 os.makedirs(directory, exist_ok=True)
@@ -43,7 +43,7 @@ for i in range(10):
 
         ax.view_init(elev=elev, azim=azim)
 
-        mechinterfabric.visualization_matplotlib.plot_bunch_of_cos3D_along_x(
+        plot_bunch_of_cos3D_along_x(
             ax=ax,
             bunch=list(
                 map(
@@ -54,7 +54,7 @@ for i in range(10):
             shift_y=-0.2,
         )
 
-        mechinterfabric.visualization_matplotlib.plot_bunch_of_cos3D_along_x(
+        plot_bunch_of_cos3D_along_x(
             ax=ax,
             bunch=list(
                 map(
