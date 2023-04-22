@@ -5,6 +5,7 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 import mechinterfabric
+from mechinterfabric.visualization_matplotlib import plot_ellipsoid
 
 directory = os.path.join("output", "s003")
 os.makedirs(directory, exist_ok=True)
@@ -29,7 +30,7 @@ ax.set_ylabel("y")
 ax.set_zlabel("z")
 
 
-mechinterfabric.visualization.plot_ellipsoid(
+plot_ellipsoid(
     ax=ax,
     origin=[0, 0, 0],
     radii_in_eigen=N1_eigenvals,
@@ -39,7 +40,7 @@ mechinterfabric.visualization.plot_ellipsoid(
 
 ax.cos3D(origin=[0, 0, 0], length=1 / 2, matrix=N1_matrix)
 
-mechinterfabric.visualization.plot_ellipsoid(
+plot_ellipsoid(
     ax=ax,
     origin=[1, 0, 0],
     radii_in_eigen=N2_eigenvals,
@@ -56,7 +57,7 @@ u1, s1, vh1 = np.linalg.svd(N1)
 u2, s2, vh2 = np.linalg.svd(N2)
 print(f"u2=\n{u2}\n s2=\n{s2}\n vh2=\n{vh2}")
 
-mechinterfabric.visualization.plot_ellipsoid(
+plot_ellipsoid(
     ax=ax,
     origin=[0, 1, 0],
     radii_in_eigen=s1,
@@ -64,7 +65,7 @@ mechinterfabric.visualization.plot_ellipsoid(
     color="blue",
 )
 
-mechinterfabric.visualization.plot_ellipsoid(
+plot_ellipsoid(
     ax=ax,
     origin=[1, 1, 0],
     radii_in_eigen=s2,

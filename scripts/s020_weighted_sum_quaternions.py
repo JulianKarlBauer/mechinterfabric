@@ -43,7 +43,7 @@ for i in range(10):
 
         ax.view_init(elev=elev, azim=azim)
 
-        mechinterfabric.visualization.plot_bunch_of_cos3D_along_x(
+        mechinterfabric.visualization_matplotlib.plot_bunch_of_cos3D_along_x(
             ax=ax,
             bunch=list(
                 map(
@@ -54,7 +54,7 @@ for i in range(10):
             shift_y=-0.2,
         )
 
-        mechinterfabric.visualization.plot_bunch_of_cos3D_along_x(
+        mechinterfabric.visualization_matplotlib.plot_bunch_of_cos3D_along_x(
             ax=ax,
             bunch=list(
                 map(

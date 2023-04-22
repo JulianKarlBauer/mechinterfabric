@@ -174,8 +174,8 @@ for interpolation_method in [
     # Plot
 
     for visualization_method in [
-        # mechinterfabric.visualization.plot_projection_of_N4_onto_sphere,
-        mechinterfabric.visualization.plot_approx_FODF_by_N4,
+        # mechinterfabric.visualization_matplotlib.plot_projection_of_N4_onto_sphere,
+        mechinterfabric.visualization_matplotlib.plot_approx_FODF_by_N4,
     ]:
 
         fig = plt.figure()

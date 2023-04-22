@@ -85,7 +85,7 @@ for key, (N4_1, N4_2) in pairs.items():
     plot_func_key = "cos_projection_fodf"
 
     try:
-        mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+        mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
             ax=ax,
             N1=N4_1,
             N2=N4_2,
@@ -104,7 +104,7 @@ for key, (N4_1, N4_2) in pairs.items():
         )
         ax.text(0, -2, 0, "unique", "x")
 
-        mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+        mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
             ax=ax,
             N1=N4_1,
             N2=N4_2,

@@ -6,8 +6,8 @@ import numpy as np
 from scipy.spatial.transform import Rotation
 
 import mechinterfabric
+from mechinterfabric import visualization_matplotlib
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
-
 
 np.set_printoptions(linewidth=100000)
 
@@ -90,7 +90,7 @@ for key, (N4_1, N4_2) in pairs.items():
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
 
-    plot_N4 = mechinterfabric.visualization.plot_N4_COS_projection_FODF
+    plot_N4 = visualization_matplotlib.plot_N4_COS_projection_FODF
 
     ################
     plot_N4(

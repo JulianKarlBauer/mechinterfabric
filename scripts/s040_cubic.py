@@ -82,7 +82,7 @@ ax = fig.add_subplot(111, projection="3d")
 
 plot_func_key = "cos_fodf"
 
-mechinterfabric.visualization.plot_stepwise_interpolation_N4_along_x(
+mechinterfabric.visualization_matplotlib.plot_stepwise_interpolation_N4_along_x(
     ax=ax,
     N1=low_num,
     N2=high_num,
