@@ -5,17 +5,21 @@ import mechinterfabric
 from mechinterfabric import visualization
 
 
-def get_data(
-    N4,
-    origin=[0, 0, 0],
-    nbr_points=100,
-):
+def get_data(N4, method, origin=[0, 0, 0], nbr_points=100):
 
     vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
 
-    distribution = visualization.DistributionDensityTruncateAfter4(N4=N4)
-
-    scalars = distribution.calc_scalars(vectors)
+    if method == "fodf":
+        distribution = visualization.DistributionDensityTruncateAfter4(N4=N4)
+        scalars = distribution.calc_scalars(vectors)
+    elif method == "glyph":
+        scalars = visualization.project_vectors_onto_N4_to_scalars(
+            N4=N4, vectors=vectors
+        )
+    else:
+        raise mechinterfabric.utils.ExceptionMechinterfabric(
+            "Unknown projection method requested"
+        )
     scalars_limited = visualization.limit_scaling(scalars, limit_scalar=0.55)
 
     xyz = visualization.shift_b_origin(xyz=scalars_limited * vectors, origin=origin)
@@ -23,9 +27,9 @@ def get_data(
     return xyz, scalars_limited
 
 
-def add_N4_plotly(fig, N4, origin=[0, 0, 0], nbr_points=100, options={}):
+def add_N4_plotly(fig, N4, origin=[0, 0, 0], nbr_points=100, options={}, method="fodf"):
 
-    xyz, scalars = get_data(N4=N4, origin=origin, nbr_points=nbr_points)
+    xyz, scalars = get_data(N4=N4, origin=origin, nbr_points=nbr_points, method=method)
 
     # Problem: If all signs of given FODF are homogeneous,
     # the color is neither max nor min of colorscheme but middle

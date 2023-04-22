@@ -84,6 +84,7 @@ visualization_plotly.add_N4_plotly(
     N4=N4,
     origin=[0, 0, 0],
     options=options,
+    method="fodf",
 )
 
 
@@ -104,6 +105,7 @@ visualization_plotly.add_N4_plotly(
     ),
     origin=[-0.5, 0, 0],
     options=options,
+    method="fodf",
 )
 
 visualization_plotly.add_N4_plotly(
@@ -112,11 +114,6 @@ visualization_plotly.add_N4_plotly(
     origin=[-1, 0, 0],
     options=options,
 )
-
-# tmp = mechinterfabric.visualization.get_glyph(
-#     N4=N4,
-#     origin=[-0.5, 0, 0],
-# )
 
 
 # fig.show()

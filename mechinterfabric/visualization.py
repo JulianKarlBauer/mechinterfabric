@@ -53,6 +53,17 @@ def project_vectors_onto_N4(N4, vectors):
     )
 
 
+def project_vectors_onto_N4_to_scalars(N4, vectors):
+    return np.einsum(
+        "ijkl, i..., j..., k..., l...->...",
+        con.to_tensor(N4),
+        vectors,
+        vectors,
+        vectors,
+        vectors,
+    )
+
+
 def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
     vectors = get_unit_vectors(nbr_points=nbr_points)
 
