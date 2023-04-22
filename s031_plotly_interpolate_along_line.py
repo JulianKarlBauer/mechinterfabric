@@ -82,4 +82,4 @@ for seed in [5, 10]:  # [0 , 6, 14]:  # [5, 10]:
 
     print("##############\n\n")
 
-    fig.show()
+    # fig.show()
