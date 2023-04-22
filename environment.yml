@@ -56,6 +56,7 @@ dependencies:
       - execnet==1.9.0
       - fonttools==4.39.3
       - identify==2.5.22
+      - idna==3.4
       - kiwisolver==1.4.4
       - matplotlib==3.7.1
       - mechkit==0.4.1
@@ -63,6 +64,7 @@ dependencies:
       - nodeenv==1.7.0
       - numpy==1.24.2
       - pillow==9.5.0
+      - plotly==5.14.1
       - pre-commit==3.2.2
       - pyparsing==3.0.9
       - pytest==7.3.1
@@ -73,5 +75,6 @@ dependencies:
       - scipy==1.10.1
       - symbolic==0.0.1
       - sympy==1.11.1
+      - tenacity==8.2.2
       - vofotensors==1.0.7
 prefix: /home/julian/miniconda3/envs/mechinterfabric
