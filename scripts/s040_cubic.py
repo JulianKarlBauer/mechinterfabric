@@ -1,4 +1,3 @@
-# 03.11.22, 17:47
 import os
 from pprint import pprint
 
@@ -13,7 +12,7 @@ from symbolic.numbers import one
 from symbolic.numbers import z
 from vofotensors.abc import d1
 
-import mechinterfabric.visualization_matplotlib
+import mechinterfabric
 
 N4 = vofotensors.fabric_tensors.N4s_parametric["cubic"]["d1"]
 
@@ -50,34 +49,21 @@ combined = w * low + (sp.S(1) - w) * high
 #########################
 # Rotate
 
-Q_around_z = np.array(
-    (
-        (sp.cos(alpha), -sp.sin(alpha), z),
-        (sp.sin(alpha), sp.cos(alpha), z),
-        (z, z, one),
-    ),
-)
-
-N4_rotated = sp.Matrix(sp.trigsimp(sb.actively_rotate_mandel(mandel=N4, Q=Q_around_z)))
-
-pprint(N4_rotated)
-
-
-def contract(A):
-    I2 = sb.get_I2()
-    return sb.mandel(np.tensordot(sb.tensorr(A), sb.to_numpy(I2)))
-
-
-N2 = contract(N4)
-
-N2_rotated = contract(N4_rotated)
-
-
-def matrix_are_equal(A, B):
-    return sp.Matrix(A).equals(sp.Matrix(B))
-
-
-assert matrix_are_equal(N2, N2_rotated)
+# Q_around_z = np.array(
+#     (
+#         (sp.cos(alpha), -sp.sin(alpha), z),
+#         (sp.sin(alpha), sp.cos(alpha), z),
+#         (z, z, one),
+#     ),
+# )
+#
+# N4_rotated = sp.Matrix(sp.trigsimp(sb.actively_rotate_mandel(mandel=N4, Q=Q_around_z)))
+#
+# pprint(N4_rotated)
+#
+# I2 = sb.get_I2()
+#
+# N2 = sb.mandel(np.tensordot(sb.tensorr(N4), sb.to_numpy(sb.get_I2())))
 
 #########################
 # Plot
@@ -140,7 +126,7 @@ ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_ma
 key = "cubic"
 
 ax.set_title(key)
-directory = os.path.join("output", "s001")
+directory = os.path.join("output", "s040")
 os.makedirs(directory, exist_ok=True)
 path_picture = os.path.join(directory, key + ".png")
 plt.savefig(path_picture)

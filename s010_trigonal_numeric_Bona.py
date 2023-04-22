@@ -53,7 +53,7 @@ deviator_reconstructed = con.to_mandel6(
 
 
 spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
-    deviator_reconstructed
+    mechinterfabric.core.FiberOrientationTensor4(FOT=fot4_reconstructed)
 )
 spectral_decomposition.get_symmetry()
 

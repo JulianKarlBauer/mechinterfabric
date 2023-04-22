@@ -230,6 +230,30 @@ test_cases_passing = [
             ),
         ]
     ],
+    *[
+        {
+            "id": id,
+            "tensor": lambdified_parametrization_triclinic()(**kwargs),
+        }
+        for id, kwargs in [
+            (
+                "tricl from random fibers 01",
+                {
+                    "la1": 0.6504,
+                    "la2": 0.23199,
+                    "d1": -0.01158,
+                    "d2": -0.00754,
+                    "d3": -0.00449,
+                    "d4": 0.01866,
+                    "d5": -0.00673,
+                    "d6": 0.02392,
+                    "d7": -0.0145,
+                    "d8": 0.01395,
+                    "d9": -0.01621,
+                },
+            ),
+        ]
+    ],
 ]
 
 # sp.Matrix(
