@@ -1,8 +1,11 @@
+import mechkit
 import numpy as np
 import plotly.graph_objects as go
 
 import mechinterfabric
 from mechinterfabric import visualization
+
+con = mechkit.notation.Converter()
 
 
 def get_data(N4, method, origin=[0, 0, 0], nbr_points=100):
@@ -69,3 +72,43 @@ def add_N4_plotly(
     )
 
     fig.add_trace(surface)
+
+
+def plot_stepwise_interpolation_N4_along_x(
+    fig,
+    N1,
+    N2,
+    nbr_points=5,
+    scale=1,
+    method=None,
+):
+
+    if method is None:
+        method = mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation
+
+    weights_N2 = np.linspace(0, 1, nbr_points)
+    weights = np.array([1.0 - weights_N2, weights_N2]).T
+
+    origins = np.vstack(
+        [
+            np.linspace(0, scale, nbr_points),
+            np.zeros((nbr_points)),
+            np.zeros((nbr_points)),
+        ]
+    ).T
+
+    for index in range(nbr_points):
+
+        N4s = np.array([con.to_tensor(N4) for N4 in [N1, N2]])
+        current_weights = weights[index]
+        origin = origins[index]
+
+        N4_av = method(N4s=N4s, weights=current_weights)
+
+        add_N4_plotly(
+            fig=fig,
+            N4=N4_av,
+            origin=origin,
+        )
+
+    return fig

@@ -37,9 +37,6 @@ fig.update_layout(
 # N4
 
 
-#################################################
-
-
 def lambdified_parametrization_triclinic():
     return sp.lambdify(
         [la1, la2, d1, d2, d3, d4, d5, d6, d7, d8, d9],
@@ -76,35 +73,27 @@ second = lambdified_parametrization_triclinic()(
     d8=0,
     d9=0,
 )
-converter = mechkit.notation.ExplicitConverter()
-N4s = converter.convert(
-    source="mandel6",
-    target="tensor",
-    quantity="stiffness",
-    inp=np.array([first, second]),
-)
 
-N4 = mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
-    N4s=N4s, weights=np.array([0.5, 0.5])
-)
+# converter = mechkit.notation.ExplicitConverter()
+# N4s = converter.convert(
+#     source="mandel6",
+#     target="tensor",
+#     quantity="stiffness",
+#     inp=np.array([first, second]),
+# )
 
-visualization_plotly.add_N4_plotly(
+# N4 = mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation(
+#     N4s=N4s, weights=np.array([0.5, 0.5])
+# )
+
+
+visualization_plotly.plot_stepwise_interpolation_N4_along_x(
     fig=fig,
-    N4=first,
-    origin=[-1, 0, 0],
+    N1=first,
+    N2=second,
+    nbr_points=5,
+    scale=2,
+    method=None,
 )
-
-visualization_plotly.add_N4_plotly(
-    fig=fig,
-    N4=N4,
-    origin=[0, 0, 0],
-)
-
-visualization_plotly.add_N4_plotly(
-    fig=fig,
-    N4=second,
-    origin=[1, 0, 0],
-)
-
 
 fig.show()
