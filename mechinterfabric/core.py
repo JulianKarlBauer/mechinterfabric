@@ -157,7 +157,7 @@ class FOT4Analysis:
 
         dev4 = utils.dev_in_mandel(N4)
 
-        return {
+        parameters = {
             "la1": N2[0, 0],
             "la2": N2[1, 1],
             "d1": dev4[0, 1],
@@ -170,3 +170,5 @@ class FOT4Analysis:
             "d8": dev4[0, 5],
             "d9": dev4[1, 5],
         }
+
+        return parameters
