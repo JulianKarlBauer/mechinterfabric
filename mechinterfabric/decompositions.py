@@ -459,3 +459,11 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
 
         # raise Exception()
         return FOT2_eigensystem @ additional_rotation
+
+
+class EigensystemLocatorTriclin(EigensystemLocator):
+    def get_eigensystem(self, **kwargs):
+        eigensystem = utils.get_rotation_matrix_into_unique_N4_eigensystem(
+            N4s=np.array([self.FOT4_spectral_decomposition.FOT4.tensor])
+        )
+        return eigensystem[0]
