@@ -11,7 +11,7 @@ from mechinterfabric import visualization_plotly
 from mechinterfabric.abc import *
 
 
-for seed in [0, 6, 14]:  # [5, 10]:
+for seed in [5, 10]:  # [0 , 6, 14]:  # [5, 10]:
     ############################
     # Set figure
 
@@ -40,25 +40,25 @@ for seed in [0, 6, 14]:  # [5, 10]:
 
     np.random.seed(seed)
 
-    # first = mechkit.fabric_tensors.first_kind_discrete(
-    #     orientations=np.random.rand(8, 3), order=4
-    # )
-    # second = mechkit.fabric_tensors.first_kind_discrete(
-    #     orientations=np.random.rand(5, 3), order=4
-    # )
-
     first = mechkit.fabric_tensors.first_kind_discrete(
-        orientations=np.array(
-            [mechinterfabric.utils.get_random_vector() for i in range(8)]
-        ),
-        order=4,
+        orientations=np.random.rand(8, 3), order=4
     )
     second = mechkit.fabric_tensors.first_kind_discrete(
-        orientations=np.array(
-            [mechinterfabric.utils.get_random_vector() for i in range(5)]
-        ),
-        order=4,
+        orientations=np.random.rand(5, 3), order=4
     )
+
+    # first = mechkit.fabric_tensors.first_kind_discrete(
+    #     orientations=np.array(
+    #         [mechinterfabric.utils.get_random_vector() for i in range(8)]
+    #     ),
+    #     order=4,
+    # )
+    # second = mechkit.fabric_tensors.first_kind_discrete(
+    #     orientations=np.array(
+    #         [mechinterfabric.utils.get_random_vector() for i in range(5)]
+    #     ),
+    #     order=4,
+    # )
 
     for name, tensor in zip(["first", "second"], [first, second]):
         analysis = mechinterfabric.FOT4Analysis(FOT4=tensor)
@@ -66,7 +66,7 @@ for seed in [0, 6, 14]:  # [5, 10]:
 
         eigensystem = analysis.eigensystem_rotation.as_rotvec()
         parameters = {
-            key: np.round(value, 5) for key, value in analysis.parameters.items()
+            key: np.round(value, 9) for key, value in analysis.parameters.items()
         }
         print(f"{name} = N4({parameters}) \n Eigensystem={eigensystem}\n")
 
