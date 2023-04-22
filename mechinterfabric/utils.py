@@ -115,6 +115,12 @@ def get_random_rotation():
     return get_rotation_by_vector(vector=angle * rotation_vector, degrees=False)
 
 
+def get_random_vector():
+    rotation_vector = np.array(np.random.rand(3))
+    rotation = get_random_rotation()
+    return np.einsum("ij,  j->i", rotation, rotation_vector)
+
+
 def dev_in_mandel(mandel):
     tensor = converter.to_tensor(mandel)
     return converter.to_mandel6(mechkit.operators.dev(tensor, order=len(tensor.shape)))

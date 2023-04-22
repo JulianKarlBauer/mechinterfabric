@@ -145,6 +145,10 @@ class FOT4Analysis:
             mandel_in_eigensystem=self.reconstructed
         )
 
+        self.eigensystem_rotation = scipy.spatial.transform.Rotation.from_matrix(
+            self.eigensystem
+        )
+
         return self
 
     def identify_parameters(self, mandel_in_eigensystem):
