@@ -75,12 +75,7 @@ def add_N4_plotly(
 
 
 def plot_stepwise_interpolation_N4_along_x(
-    fig,
-    N1,
-    N2,
-    nbr_points=5,
-    scale=1,
-    method=None,
+    fig, N1, N2, nbr_points=5, scale=1, method=None, nbr_vectors=100
 ):
 
     if method is None:
@@ -109,6 +104,7 @@ def plot_stepwise_interpolation_N4_along_x(
             fig=fig,
             N4=N4_av,
             origin=origin,
+            nbr_points=nbr_vectors,
         )
 
     return fig
