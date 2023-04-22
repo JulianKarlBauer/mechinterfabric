@@ -54,8 +54,13 @@ class FOT4Analysis:
         self._keys_sym_FOT2 = ["isotropic", "transversely_isotropic", "orthotropic"]
 
     def calc_FOT2(self):
-        self.FOT2 = FiberOrientationTensor2(np.tensordot(self.FOT4.tensor, np.eye(3)))
+        self.FOT2 = FiberOrientationTensor2(
+            self.contract_N4_to_N2(N4_tensor=self.FOT4.tensor)
+        )
         return self
+
+    def contract_N4_to_N2(self, N4_tensor):
+        return np.tensordot(N4_tensor, np.eye(3))
 
     def get_symmetry_FOT2(self):
         self.FOT2_spectral_decomposition = decompositions.SpectralDecompositionFOT2(
@@ -66,9 +71,7 @@ class FOT4Analysis:
     def get_symmetry_FOT4(self):
 
         self.FOT4_spectral_decomposition = (
-            decompositions.SpectralDecompositionDeviator4(
-                FOT4_deviator=self.FOT4.deviator
-            )
+            decompositions.SpectralDecompositionDeviator4(FOT4=self.FOT4)
         )
         self.FOT4_symmetry = self.FOT4_spectral_decomposition.get_symmetry()
 
@@ -113,6 +116,10 @@ class FOT4Analysis:
                 "transversely_isotropic_or_tetragonal_or_trigonal",
                 "orthotropic or higher",
             ): decompositions.EigensystemLocatorTransvOrthotropicHigher,
+            (
+                "orthotropic_or_monoclinic_or_triclinic",
+                "orthotropic or higher",
+            ): decompositions.EigensystemLocatorTriclin,
         }
         try:
             symmetry_combination = (self.FOT2_symmetry, self.FOT4_symmetry)
@@ -121,10 +128,47 @@ class FOT4Analysis:
             raise utils.ExceptionMechinterfabric(
                 f"Locator for symmetry combination {symmetry_combination} not implemented"
             )
-        print(f"Selected locator={locator}")
+        # print(f"Selected locator={locator}")
         self.eigensystem_locator = locator(
             FOT4_spectral_decomposition=self.FOT4_spectral_decomposition,
             FOT2_spectral_decomposition=self.FOT2_spectral_decomposition,
         )
         self.eigensystem = self.eigensystem_locator.get_eigensystem(**kwargs)
         return self.eigensystem
+
+    def analyse(self):
+        self.get_eigensystem()
+        self.reconstructed = utils.rotate_to_mandel(self.FOT4.tensor, self.eigensystem)
+        self.reconstructed_dev = utils.dev_in_mandel(self.reconstructed)
+
+        self.parameters = self.identify_parameters(
+            mandel_in_eigensystem=self.reconstructed
+        )
+
+        self.eigensystem_rotation = scipy.spatial.transform.Rotation.from_matrix(
+            self.eigensystem
+        )
+
+        return self
+
+    def identify_parameters(self, mandel_in_eigensystem):
+        N4 = mandel_in_eigensystem
+        N2 = self.contract_N4_to_N2(converter.to_tensor(N4))
+
+        dev4 = utils.dev_in_mandel(N4)
+
+        parameters = {
+            "la1": N2[0, 0],
+            "la2": N2[1, 1],
+            "d1": dev4[0, 1],
+            "d2": dev4[0, 2],
+            "d3": dev4[1, 2],
+            "d4": dev4[1, 3],
+            "d5": dev4[2, 3],
+            "d6": dev4[0, 4],
+            "d7": dev4[2, 4],
+            "d8": dev4[0, 5],
+            "d9": dev4[1, 5],
+        }
+
+        return parameters

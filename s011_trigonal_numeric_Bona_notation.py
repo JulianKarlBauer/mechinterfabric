@@ -79,8 +79,13 @@ deviator_bona_rotated = mechinterfabric.utils.rotate_to_mandel(
     deviator_bona, Q=rotation
 )
 
+# This is a hack to circumvent change of interface
+tmp = mechinterfabric.core.FiberOrientationTensor4(
+    FOT=mechkit.fabric_tensors.Basic().N4["iso"]
+)
+tmp.deviator = deviator_bona_rotated
 spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
-    deviator_bona_rotated
+    tmp
 )
 spectral_decomposition.get_symmetry()
 

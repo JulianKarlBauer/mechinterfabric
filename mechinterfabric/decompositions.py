@@ -62,11 +62,12 @@ class SpectralDecompositionFOT2:
 
 
 class SpectralDecompositionDeviator4:
-    def __init__(self, FOT4_deviator=None, decimals_precision=4):
+    def __init__(self, FOT4=None, decimals_precision=4):
         self.decimals_precision = decimals_precision
-        if FOT4_deviator is not None:
-            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
-        self.deviator = FOT4_deviator
+        if FOT4 is not None:
+            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4.deviator)
+            self.deviator = FOT4.deviator
+        self.FOT4 = FOT4
 
     def _get_rounded_eigenvalues(self):
         self.eigen_values_rounded = np.around(
@@ -458,3 +459,11 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
 
         # raise Exception()
         return FOT2_eigensystem @ additional_rotation
+
+
+class EigensystemLocatorTriclin(EigensystemLocator):
+    def get_eigensystem(self, **kwargs):
+        eigensystem = utils.get_rotation_matrix_into_unique_N4_eigensystem(
+            N4s=np.array([self.FOT4_spectral_decomposition.FOT4.tensor])
+        )
+        return eigensystem[0]

@@ -47,7 +47,7 @@ fot4_rotated = mechinterfabric.utils.rotate_to_mandel(fot4, Q=rotation)
 deviator_rotated = con.to_mandel6(mechkit.operators.dev(con.to_tensor(fot4_rotated)))
 
 spectral_decomposition = mechinterfabric.decompositions.SpectralDecompositionDeviator4(
-    deviator_rotated
+    mechinterfabric.core.FiberOrientationTensor4(FOT=fot4_rotated)
 )
 
 transformeds = []
