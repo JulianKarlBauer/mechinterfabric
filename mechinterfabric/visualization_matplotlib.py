@@ -133,18 +133,21 @@ def plot_ellipsoid(
 
 def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **kwargs):
 
-    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
-
     # Project
-    vectors = (
-        np.einsum(
-            "ijkl, j..., k..., l...->i...", con.to_tensor(N4), vectors, vectors, vectors
-        )
-        + np.array(origin)[:, np.newaxis, np.newaxis]
+    vectors = mechinterfabric.visualization.get_glyph(
+        N4=N4,
+        origin=origin,
+        nbr_points=nbr_points,
     )
 
     ax.plot_surface(
-        *vectors, rstride=3, cstride=3, linewidth=0.1, alpha=1, shade=True, **kwargs
+        *vectors,
+        rstride=3,
+        cstride=3,
+        linewidth=0.1,
+        alpha=1,
+        shade=True,
+        **kwargs,
     )
 
 

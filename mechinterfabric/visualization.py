@@ -36,20 +36,41 @@ class DistributionDensityTruncateAfter4:
         ) / (4.0 * np.pi)
 
 
-def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
-    vectors = get_unit_vectors(nbr_points=nbr_points)
-
-    distribution = DistributionDensityTruncateAfter4(N4=N4)
-
-    values = (
-        distribution.project_on_vectors(vectors)
-        + np.array(origin)[:, np.newaxis, np.newaxis]
-    )
-    return values
-
-
 def limit_scaling(scalars, limit_scalar):
     maximum_scalar = np.max(scalars)
     if np.max(scalars) > limit_scalar:
         scalars = scalars * (limit_scalar / maximum_scalar)
     return scalars
+
+
+def shift_b_origin(xyz, origin):
+    return xyz + np.array(origin)[:, np.newaxis, np.newaxis]
+
+
+def project_vectors_onto_N4(N4, vectors):
+    return np.einsum(
+        "ijkl, j..., k..., l...->i...", con.to_tensor(N4), vectors, vectors, vectors
+    )
+
+
+def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
+    vectors = get_unit_vectors(nbr_points=nbr_points)
+
+    distribution = DistributionDensityTruncateAfter4(N4=N4)
+
+    xyz = distribution.project_on_vectors(vectors)
+
+    shifted = shift_b_origin(xyz=xyz, origin=origin)
+
+    return shifted
+
+
+def get_glyph(N4, origin, nbr_points=100):
+
+    vectors = get_unit_vectors(nbr_points=nbr_points)
+
+    xyz = project_vectors_onto_N4(N4=N4, vectors=vectors)
+
+    shifted = shift_b_origin(xyz=xyz, origin=origin)
+
+    return shifted
