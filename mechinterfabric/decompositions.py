@@ -62,11 +62,12 @@ class SpectralDecompositionFOT2:
 
 
 class SpectralDecompositionDeviator4:
-    def __init__(self, FOT4_deviator=None, decimals_precision=4):
+    def __init__(self, FOT4=None, decimals_precision=4):
         self.decimals_precision = decimals_precision
-        if FOT4_deviator is not None:
-            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4_deviator)
-        self.deviator = FOT4_deviator
+        if FOT4 is not None:
+            self.eigen_values, self.eigen_vectors = np.linalg.eigh(FOT4.deviator)
+        self.FOT4 = FOT4
+        self.deviator = FOT4.deviator
 
     def _get_rounded_eigenvalues(self):
         self.eigen_values_rounded = np.around(
