@@ -23,8 +23,14 @@ fig = make_subplots(
         "Color corresponds to distance to origin",
     ],
 )
-
+offset = 5
 fig.add_trace(go.Surface(x=x, y=y, z=z, colorbar_x=-0.07), 1, 1)
-# fig.add_trace(go.Surface(x=x, y=y, z=z, surfacecolor=x**2 + y**2 + z**2), 1, 2)
+fig.add_trace(
+    go.Surface(
+        x=x + offset, y=y + offset, z=z + offset, surfacecolor=x**2 + y**2 + z**2
+    ),
+    1,
+    1,
+)
 fig.update_layout(title_text="Ring cyclide")
 fig.show()
