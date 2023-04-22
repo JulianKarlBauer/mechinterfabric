@@ -23,6 +23,14 @@ fig = make_subplots(
 fig.update_layout(scene_aspectmode="data")
 
 
+fig.update_layout(
+    scene=dict(
+        xaxis=dict(showticklabels=False),
+        yaxis=dict(showticklabels=False),
+        zaxis=dict(showticklabels=False),
+    )
+)
+
 ############################
 # Define colors
 
