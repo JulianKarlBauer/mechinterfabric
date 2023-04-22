@@ -25,12 +25,7 @@ def plot_N_COS_FODF_mayavi(
 
     scalars = distribution.calc_scalars(vectors)
 
-    maximum_scalar = np.max(scalars)
-    limit_scalar = 0.55
-    if np.max(scalars) > limit_scalar:
-        # print(maximum_scalar)
-        # print(limit_scalar / maximum_scalar)
-        scalars = scalars * (limit_scalar / maximum_scalar)
+    scalars = mechinterfabric.visualization.limit_scaling(scalars, limit_scalar=0.55)
 
     values = scalars * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
 

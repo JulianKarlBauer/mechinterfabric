@@ -46,3 +46,10 @@ def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
         + np.array(origin)[:, np.newaxis, np.newaxis]
     )
     return values
+
+
+def limit_scaling(scalars, limit_scalar):
+    maximum_scalar = np.max(scalars)
+    if np.max(scalars) > limit_scalar:
+        scalars = scalars * (limit_scalar / maximum_scalar)
+    return scalars

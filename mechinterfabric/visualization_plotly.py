@@ -4,13 +4,6 @@ import plotly.graph_objects as go
 import mechinterfabric
 
 
-def limit_scaling(scalars, limit_scalar):
-    maximum_scalar = np.max(scalars)
-    if np.max(scalars) > limit_scalar:
-        scalars = scalars * (limit_scalar / maximum_scalar)
-    return scalars
-
-
 def get_data(
     N4,
     origin=[0, 0, 0],
@@ -24,7 +17,9 @@ def get_data(
     )
 
     scalars = distribution.calc_scalars(vectors)
-    scalars_limited = limit_scaling(scalars, limit_scalar=0.55)
+    scalars_limited = mechinterfabric.visualization.limit_scaling(
+        scalars, limit_scalar=0.55
+    )
 
     xyz = scalars_limited * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
 
