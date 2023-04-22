@@ -80,4 +80,4 @@ visualization_plotly.plot_stepwise_interpolation_N4_along_x(
     nbr_vectors=300,
 )
 
-fig.show()
+# fig.show()
