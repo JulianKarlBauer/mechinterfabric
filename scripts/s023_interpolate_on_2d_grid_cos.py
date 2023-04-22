@@ -162,6 +162,9 @@ ax.set_xlabel("x")
 ax.set_ylabel("y")
 ax.set_zlabel("z")
 
+# Enable .cos3D for matplotlib axes with import
+import mechinterfabric.visualization_matplotlib
+
 length = 0.7
 for _, row in new.iterrows():
     ax.cos3D(
