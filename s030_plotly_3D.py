@@ -65,24 +65,27 @@ def lambdified_parametrization_triclinic():
     )
 
 
+N4 = lambdified_parametrization_triclinic()(
+    la1=1 / 2,
+    la2=1 / 4,
+    d1=0.05,
+    d2=0.033,
+    d3=0.011,
+    d4=0,
+    d5=0,
+    d6=0,
+    d7=0,
+    d8=0,
+    d9=0,
+)
+
 visualization_plotly.add_N4_plotly(
     fig=fig,
-    N4=lambdified_parametrization_triclinic()(
-        la1=1 / 2,
-        la2=1 / 4,
-        d1=0.05,
-        d2=0.033,
-        d3=0.011,
-        d4=0,
-        d5=0,
-        d6=0,
-        d7=0,
-        d8=0,
-        d9=0,
-    ),
+    N4=N4,
     origin=[0, 0, 0],
     options=options,
 )
+
 
 visualization_plotly.add_N4_plotly(
     fig=fig,
@@ -109,6 +112,11 @@ visualization_plotly.add_N4_plotly(
     origin=[-1, 0, 0],
     options=options,
 )
+
+# tmp = mechinterfabric.visualization.get_glyph(
+#     N4=N4,
+#     origin=[-0.5, 0, 0],
+# )
 
 
 # fig.show()

@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 import mechinterfabric
+from mechinterfabric import visualization
 
 
 def get_data(
@@ -10,18 +11,14 @@ def get_data(
     nbr_points=100,
 ):
 
-    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+    vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
 
-    distribution = mechinterfabric.visualization.DistributionDensityTruncateAfter4(
-        N4=N4
-    )
+    distribution = visualization.DistributionDensityTruncateAfter4(N4=N4)
 
     scalars = distribution.calc_scalars(vectors)
-    scalars_limited = mechinterfabric.visualization.limit_scaling(
-        scalars, limit_scalar=0.55
-    )
+    scalars_limited = visualization.limit_scaling(scalars, limit_scalar=0.55)
 
-    xyz = scalars_limited * vectors + np.array(origin)[:, np.newaxis, np.newaxis]
+    xyz = visualization.shift_b_origin(xyz=scalars_limited * vectors, origin=origin)
 
     return xyz, scalars_limited
 
