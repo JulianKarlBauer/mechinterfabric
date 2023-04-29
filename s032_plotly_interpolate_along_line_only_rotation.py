@@ -29,6 +29,7 @@ fig.update_layout(
         xaxis=dict(showticklabels=False, visible=False),
         yaxis=dict(showticklabels=False, visible=False),
         zaxis=dict(showticklabels=False, visible=False),
+        camera=dict(projection=dict(type="orthographic")),
     )
 )
 
