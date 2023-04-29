@@ -209,63 +209,27 @@ for interpolation_method in [
 
                 position = origin + np.array([0, -0.33, 0]) * scale
 
+                text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
+
+                print(text_color)
+                print(text_color_plotly_rgb)
+
                 self.annotation_bucket.append(
                     dict(
                         x=position[0],
                         y=position[1],
                         z=position[2],
                         showarrow=False,
-                        text="Point 1",
+                        text=f"({row['index_x']}, {row['index_y']})",
                         xanchor="left",
                         xshift=10,
                         opacity=0.7,
+                        font=dict(color=text_color_plotly_rgb, size=12),
                     )
                 )
 
         plotter = pyplot_3D_annotation_plotter()
         plot_tp_ensemble = plotter.plot_tp_ensemble
-
-        # def plot_tp_ensemble(row, text_color=(0, 0, 0), annotation_bucket=[]):
-
-        # mlab.text3d(
-        #     *(origin + np.array([0, -0.33, 0]) * scale),
-        #     text=f"({row['index_x']}, {row['index_y']})",
-        #     scale=0.1,
-        #     color=text_color,
-        # )
-
-        # position = origin + np.array([0, -0.33, 0]) * scale
-
-        # fig.update_layout(
-        #     scene=dict(
-        #         annotations=[
-        #             dict(
-        #                 x=position[0],
-        #                 y=position[1],
-        #                 z=position[2],
-        #                 showarrow=False,
-        #                 text="Point 1",
-        #                 xanchor="left",
-        #                 xshift=10,
-        #                 opacity=0.7,
-        #             )
-        #         ]
-        #     )
-        # )
-
-        # fig.layout.update(
-        #     # fig.layout.scene.annotations.append(
-        #     annotations=dict(
-        #         x=position[0],
-        #         y=position[1],
-        #         z=position[2],
-        #         showarrow=False,
-        #         text="Point 1",
-        #         xanchor="left",
-        #         xshift=10,
-        #         opacity=0.7,
-        #     )
-        # )
 
         for _, row in new.iterrows():
             plot_tp_ensemble(row=row)
@@ -276,18 +240,6 @@ for interpolation_method in [
         name = "image"
 
         fig.write_image(os.path.join(directory, name + ".png"))
-
-        # if True:
-        #     view = mlab.view()
-        #     (azimuth, elevation, distance, focalpoint) = view
-        #     mlab.view(*(0, 0, distance, focalpoint))
-
-        # mlab.gcf().scene.parallel_projection = True
-
-        # mlab.orientation_axes()
-        # mlab.savefig(filename=os.path.join(directory, "image.png"))
-
-        # mlab.show()
 
         fig.update_layout(scene=dict(annotations=plotter.annotation_bucket))
 
