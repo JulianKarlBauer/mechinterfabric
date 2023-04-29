@@ -196,7 +196,7 @@ for interpolation_method in [
 
             def plot_tp_ensemble(self, row, text_color=(0, 0, 0)):
                 origin = np.array(
-                    [row["index_x"] * scale, row["index_y"] * scale / 1.7, 0]
+                    [row["index_x"] * scale, row["index_y"] * scale / 1.8, 0]
                 )
 
                 visualization_method(
@@ -209,7 +209,7 @@ for interpolation_method in [
                     limit_scalar=0.4,
                 )
 
-                position = origin + np.array([0, -0.25, 0]) * scale
+                position = origin + np.array([0.05, -0.2, 0]) * scale
 
                 text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
 
@@ -221,7 +221,8 @@ for interpolation_method in [
                         showarrow=False,
                         text=f"({row['index_x']}, {row['index_y']})",
                         xanchor="left",
-                        xshift=10,
+                        # xshift=10,
+                        # yshift=-10,
                         opacity=0.7,
                         font=dict(color=text_color_plotly_rgb, size=18),
                     )
