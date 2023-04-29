@@ -5,15 +5,17 @@ import matplotlib.pyplot as plt
 import mechkit
 import numpy as np
 import pandas as pd
+import plotly.graph_objects as go
 import sympy as sp
-import vofotensors as vot
-from mayavi import mlab
+import vofotensors
+from plotly.subplots import make_subplots
 from scipy.spatial.transform import Rotation
 from vofotensors.abc import alpha1
 from vofotensors.abc import rho1
 
 import mechinterfabric
-
+from mechinterfabric import visualization_plotly
+from mechinterfabric.abc import *
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
@@ -24,6 +26,8 @@ os.makedirs(directory, exist_ok=True)
 
 converter = mechkit.notation.ExplicitConverter()
 con = mechkit.notation.Converter()
+
+
 #########################################################
 
 almost_zero = 1e-5
@@ -42,7 +46,7 @@ df = pd.DataFrame(
 )
 
 
-parameterizations = vot.fabric_tensors.N4s_parametric
+parameterizations = vofotensors.fabric_tensors.N4s_parametric
 parameterization = parameterizations["transv_isotropic"]["alpha1_rho1"]
 N4_func = sp.lambdify([alpha1, rho1], parameterization)
 
@@ -159,28 +163,57 @@ for interpolation_method in [
     # Plot
 
     for visualization_method in [
-        mechinterfabric.visualization.plot_N_COS_FODF_mayavi,
+        visualization_plotly.add_N4_plotly,
     ]:
 
-        fig = mlab.figure(
-            figure="ODF", size=(900, 900), bgcolor=(1, 1, 1), fgcolor=(0.0, 0.0, 0.0)
+        ############################
+        # Set figure
+
+        fig = make_subplots(
+            rows=1,
+            cols=1,
+            specs=[[{"is_3d": True}]],
+            subplot_titles=[
+                f"title",
+            ],
+        )
+        fig.update_layout(scene_aspectmode="data")
+
+        fig.update_layout(
+            scene=dict(
+                xaxis=dict(showticklabels=False, visible=False),
+                yaxis=dict(showticklabels=False, visible=False),
+                zaxis=dict(showticklabels=False, visible=False),
+                camera=dict(projection=dict(type="orthographic")),
+            )
         )
 
         scale = 1.1
 
         def plot_tp_ensemble(row, text_color=(0, 0, 0)):
             origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
+
             visualization_method(
                 fig=fig,
-                origin=origin,
                 N4=np.array(row["N4"]),
+                origin=origin,
+                nbr_points=100,
+                options=None,
+                method="fodf",
+                limit_scalar=0.55,
             )
-            mlab.text3d(
-                *(origin + np.array([0, -0.33, 0]) * scale),
-                text=f"({row['index_x']}, {row['index_y']})",
-                scale=0.1,
-                color=text_color,
-            )
+
+            # visualization_method(
+            #     fig=fig,
+            #     origin=origin,
+            #     N4=np.array(row["N4"]),
+            # )
+            # mlab.text3d(
+            #     *(origin + np.array([0, -0.33, 0]) * scale),
+            #     text=f"({row['index_x']}, {row['index_y']})",
+            #     scale=0.1,
+            #     color=text_color,
+            # )
 
         for _, row in new.iterrows():
             plot_tp_ensemble(row=row)
@@ -190,17 +223,19 @@ for interpolation_method in [
 
         name = "image"
 
-        if True:
-            view = mlab.view()
-            (azimuth, elevation, distance, focalpoint) = view
-            mlab.view(*(0, 0, distance, focalpoint))
+        fig.write_image(os.path.join(directory, name + ".png"))
 
-        mlab.gcf().scene.parallel_projection = True
+        # if True:
+        #     view = mlab.view()
+        #     (azimuth, elevation, distance, focalpoint) = view
+        #     mlab.view(*(0, 0, distance, focalpoint))
 
-        mlab.orientation_axes()
-        mlab.savefig(filename=os.path.join(directory, "image.png"))
+        # mlab.gcf().scene.parallel_projection = True
 
-        mlab.show()
+        # mlab.orientation_axes()
+        # mlab.savefig(filename=os.path.join(directory, "image.png"))
+
+        # mlab.show()
 
 
 # # Inspect unknown N4s
