@@ -57,6 +57,7 @@ dependencies:
       - fonttools==4.39.3
       - identify==2.5.22
       - idna==3.4
+      - kaleido==0.2.1
       - kiwisolver==1.4.4
       - matplotlib==3.7.1
       - mechkit==0.4.1
