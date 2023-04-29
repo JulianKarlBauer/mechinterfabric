@@ -188,14 +188,16 @@ for interpolation_method in [
             )
         )
 
-        scale = 1.1
+        scale = 0.9
 
         class pyplot_3D_annotation_plotter:
             def __init__(self):
                 self.annotation_bucket = []
 
             def plot_tp_ensemble(self, row, text_color=(0, 0, 0)):
-                origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
+                origin = np.array(
+                    [row["index_x"] * scale, row["index_y"] * scale / 1.7, 0]
+                )
 
                 visualization_method(
                     fig=fig,
@@ -204,15 +206,12 @@ for interpolation_method in [
                     nbr_points=100,
                     options=None,
                     method="fodf",
-                    limit_scalar=0.55,
+                    limit_scalar=0.4,
                 )
 
-                position = origin + np.array([0, -0.33, 0]) * scale
+                position = origin + np.array([0, -0.25, 0]) * scale
 
                 text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
-
-                print(text_color)
-                print(text_color_plotly_rgb)
 
                 self.annotation_bucket.append(
                     dict(
@@ -224,7 +223,7 @@ for interpolation_method in [
                         xanchor="left",
                         xshift=10,
                         opacity=0.7,
-                        font=dict(color=text_color_plotly_rgb, size=12),
+                        font=dict(color=text_color_plotly_rgb, size=18),
                     )
                 )
 
