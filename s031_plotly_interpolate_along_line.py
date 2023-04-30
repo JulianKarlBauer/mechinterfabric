@@ -32,6 +32,7 @@ for seed in [5]:  # [0 , 6, 14]:  # [5, 10]:
             xaxis=dict(showticklabels=False, visible=False),
             yaxis=dict(showticklabels=False, visible=False),
             zaxis=dict(showticklabels=False, visible=False),
+            camera=dict(projection=dict(type="orthographic")),
         )
     )
 
