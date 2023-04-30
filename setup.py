@@ -27,6 +27,7 @@ setuptools.setup(
         "pandas",
         "natsort",
         "plotly",
+        "kalaeido",
     ],
     classifiers=[
         "Programming Language :: Python",
