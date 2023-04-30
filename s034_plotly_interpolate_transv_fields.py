@@ -20,7 +20,7 @@ from mechinterfabric.abc import *
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s032")
+directory = os.path.join("output", "s034")
 os.makedirs(directory, exist_ok=True)
 
 
