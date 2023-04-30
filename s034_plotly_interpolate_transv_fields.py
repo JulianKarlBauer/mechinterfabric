@@ -231,10 +231,10 @@ for interpolation_method in [
         for _, row in df.iterrows():
             plot_tp_ensemble(row=row, text_color=(1, 0, 0))
 
-        name = "image"
+        name = "image" + "_" + str(visualization_method) + str(interpolation_method)
 
         fig.write_image(os.path.join(directory, name + ".png"))
 
         fig.update_layout(scene=dict(annotations=plotter.annotation_bucket))
 
-        fig.show()
+        # fig.show()
