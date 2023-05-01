@@ -1,16 +1,13 @@
 import itertools
 import operator
-from pprint import pprint
 
-import matplotlib.pyplot as plt
 import mechkit
 import numpy as np
-import sympy as sp
-import vofotensors
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 
 import mechinterfabric
-from mechinterfabric import symbolic
-from mechinterfabric.abc import *
+
 
 np.set_printoptions(linewidth=100000, precision=5)
 
@@ -84,8 +81,6 @@ def analyse(tensor):
 
 ###############################################
 
-print(f"\n{-1/15}< cubics <{2/45}\n")
-
 vec_min = cast_and_normalize([1, 0, 0])
 vec_max = cast_and_normalize([1, 1, 1])
 
@@ -99,13 +94,6 @@ experiments = {
     "max": [
         (1, 1, 1),
     ],
-    # **{
-    #     f"circles_{length_x}": [
-    #         (length_x, np.cos(phi), np.sin(phi))
-    #         for phi in np.deg2rad(np.linspace(0, 360, 6, endpoint=False))
-    #     ]
-    #     for length_x in [0.5, 1, 3, 5, 10]
-    # },
     **{
         f"linear_{factor:.2f}": [vec_min + factor * (vec_max - vec_min)]
         for factor in factors
@@ -121,68 +109,57 @@ experiments = {
 # Make cubic
 experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
 
-
-# Ingest tensor
-ingest = {}
-for name, fibers in experiments.items():
-    fot4 = mechkit.fabric_tensors.first_kind_discrete(orientations=fibers, order=4)
-    fot4_mandel = con.to_mandel6(fot4)
-    dev4 = mechkit.operators.dev(fot4)
-    dev4_mandel = con.to_mandel6(dev4)
-
-    ingest[name] = {
-        "fot4_mandel": fot4_mandel,
-        "dev4_mandel": dev4_mandel,
-        "d_1": dev4_mandel[0, 1],
-    }
-
-    # print(f"fot4_mandel=\n{fot4_mandel}")
-    print(f"\n\n{name}:")
-    print(f"dev4_mandel:\n{dev4_mandel}")
-
-    analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
-    ingest[name].update(
-        {
-            "analysis": analysis,
-        }
-    )
-    print(f"dev(analysis.reconstructed_dev):\n{analysis.reconstructed_dev}")
-
-
 # Plot
-for name, fibers in experiments.items():
 
-    import matplotlib.pyplot as plt
-    from mpl_toolkits.mplot3d import Axes3D
-
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection="3d")
-
-    origin = np.zeros(3)
-    for fiber in fibers:
-        ax.quiver(
-            *origin,
-            *fiber,
-            arrow_length_ratio=0.01,
-        )
-    ax.set_xlim([-1, 1])
-    ax.set_ylim([-1, 1])
-    ax.set_zlim([-1, 1])
-    ax.set_title(" ".join([name, f"{ingest[name]['d_1']:.3f}"]))
-
-# Plot grid
-fig, ax = plt.subplots()
-ax.set_yticks([0.0], minor=False)
-ax.yaxis.grid(True, which="major")
-
-ax.set_xticks(
-    [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
-    + [-1 / 15, 0, 2 / 45],
-    minor=False,
+fig = make_subplots(
+    rows=1,
+    cols=1,
+    specs=[[{"is_3d": True}]],
+    subplot_titles=[
+        f"title",
+    ],
 )
-ax.xaxis.grid(True, which="major")
-ax.set_xlabel("$d_1$")
-tol = 1 / 90
-ax.set_xlim([-1 / 15 - tol, 2 / 45 + tol])
-# ax.set_yticks([0.3, 0.55, 0.7], minor=True)
-# ax.yaxis.grid(True, which="minor")
+fig.update_layout(scene_aspectmode="data")
+
+fig.update_layout(
+    scene=dict(
+        xaxis=dict(showticklabels=False, visible=False),
+        yaxis=dict(showticklabels=False, visible=False),
+        zaxis=dict(showticklabels=False, visible=False),
+        camera=dict(projection=dict(type="orthographic")),
+    )
+)
+
+origin = [0, 0, 0]
+
+
+ratio = 20
+limit = 0.5 * ratio
+
+
+vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=300)
+vectors[0, ...] = vectors[0, ...] * ratio
+vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
+
+
+xyz = mechinterfabric.visualization.shift_b_origin(xyz=vectors, origin=origin)
+
+
+# import pygmsh
+# import numpy as np
+# import os
+
+# with pygmsh.occ.Geometry() as geom:
+#     geom.add_cylinder(x0=(0,0,0), axis=[1,1,1], radius=1)
+#     mesh = geom.generate_mesh()
+
+
+surface = go.Surface(
+    x=xyz[0],
+    y=xyz[1],
+    z=xyz[2],
+)
+
+fig.add_trace(surface)
+
+fig.add_trace(surface)
