@@ -217,7 +217,7 @@ color = "black"  # "#5D69B1"
 
 textfont = dict(
     family="Courier New, monospace",
-    size=26,
+    size=21,
     color="black",
 )
 
@@ -248,7 +248,7 @@ fig.update_layout(
                 textangle=0,
                 font=dict(
                     family="Courier New, monospace",
-                    # size=54,
+                    size=200,
                     color="black",
                 ),
                 # ax=60,
