@@ -6,7 +6,7 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 
-import mechinterfabric
+import mechinterfabric.visualization_plotly
 
 
 np.set_printoptions(linewidth=100000, precision=5)
@@ -109,6 +109,7 @@ experiments = {
 # Make cubic
 experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
 
+
 # Plot
 
 fig = make_subplots(
@@ -132,18 +133,38 @@ fig.update_layout(
 
 origin = [0, 0, 0]
 
-
-ratio = 20
-limit = 0.5 * ratio
+rotation = cubic_transformations[0]
 
 
-vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=300)
-vectors[0, ...] = vectors[0, ...] * ratio
-vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
+def add_pseudo_cylinder(fig, origin, rotation, nbr_points=300, ratio=20):
+
+    limit = 0.5 * ratio
+
+    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+    vectors[0, ...] = vectors[0, ...] * ratio
+    vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
+
+    xyz = mechinterfabric.visualization.shift_b_origin(xyz=vectors, origin=origin)
+
+    xyz = np.einsum("ji, i...->j...", rotation, xyz)
+
+    surface = go.Surface(
+        x=xyz[0],
+        y=xyz[1],
+        z=xyz[2],
+        # surfacecolor=surfacecolor,
+        showscale=False,
+        colorscale=[
+            [0, "rgb(0.2, 0.7, 0.2)"],
+            [1, "rgb(0.2, 0.7, 0.2)"],
+        ],
+        # **mechinterfabric.visualization_plotly.get_default_options(),
+    )
+
+    fig.add_trace(surface)
 
 
-xyz = mechinterfabric.visualization.shift_b_origin(xyz=vectors, origin=origin)
-
+add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
 
 # import pygmsh
 # import numpy as np
@@ -152,14 +173,3 @@ xyz = mechinterfabric.visualization.shift_b_origin(xyz=vectors, origin=origin)
 # with pygmsh.occ.Geometry() as geom:
 #     geom.add_cylinder(x0=(0,0,0), axis=[1,1,1], radius=1)
 #     mesh = geom.generate_mesh()
-
-
-surface = go.Surface(
-    x=xyz[0],
-    y=xyz[1],
-    z=xyz[2],
-)
-
-fig.add_trace(surface)
-
-fig.add_trace(surface)
