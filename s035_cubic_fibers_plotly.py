@@ -1,5 +1,6 @@
 import itertools
 import operator
+from fractions import Fraction
 
 import mechkit
 import numpy as np
@@ -131,6 +132,22 @@ for name, fibers in experiments.items():
         }
     )
 
+d1s = (
+    [-1 / 15]
+    + [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
+    + [2 / 45]
+)
+
+
+d1s_fracs = [Fraction(val).limit_denominator(1000) for val in d1s]
+d1s_strings = [f"{frac.numerator}/{frac.denominator}" for frac in d1s_fracs]
+
+#########################################
+
+
+offset = np.array([1, 0, 0])
+
+origins = [offset * d1 * 900 for d1 in d1s]
 
 #########################################
 
@@ -182,11 +199,6 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=20):
     fig.add_trace(surface)
 
 
-offset = np.array([1, 0, 0]) * 30
-origins = [index * offset for index in range(len(experiments))]
-
-rotation = cubic_transformations[0]
-
 for index, (key, fibers) in enumerate(experiments.items()):
 
     origin = origins[index]
@@ -198,17 +210,6 @@ for index, (key, fibers) in enumerate(experiments.items()):
 
         add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
 
-
-d1s = (
-    [-1 / 15]
-    + [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
-    + [2 / 45]
-)
-
-from fractions import Fraction
-
-d1s_fracs = [Fraction(val).limit_denominator(1000) for val in d1s]
-d1s_strings = [f"{frac.numerator} / {frac.denominator}" for frac in d1s_fracs]
 
 ones = np.ones_like(d1s)
 
