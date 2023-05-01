@@ -11,7 +11,7 @@ from mechinterfabric import visualization_plotly
 from mechinterfabric.abc import *
 
 
-for seed in [5]:  # [0 , 6, 14]:  # [5, 10]:
+for seed in [5, 12]:  # [5]:  # [0 , 6, 14]:  # [5, 10]:
     ############################
     # Set figure
 
@@ -83,4 +83,4 @@ for seed in [5]:  # [0 , 6, 14]:  # [5, 10]:
 
     print("##############\n\n")
 
-    # fig.show()
+    fig.show()
