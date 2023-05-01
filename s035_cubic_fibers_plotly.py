@@ -164,21 +164,27 @@ origin = [0, 0, 0]
 
 rotation = cubic_transformations[0]
 
-for key, fibers in experiments.items():
+# for key, fibers in experiments.items():
 
-    origin = origin + np.array([1, 0, 0]) * 30
+#     origin = origin + np.array([1, 0, 0]) * 30
 
-    for fiber in fibers:
-        rotation = mechkit.material.TransversalIsotropic._get_rotation_matrix(
-            None, start_vector=[1, 0, 0], end_vector=fiber
-        )
+#     for fiber in fibers:
+#         rotation = mechkit.material.TransversalIsotropic._get_rotation_matrix(
+#             None, start_vector=[1, 0, 0], end_vector=fiber
+#         )
 
-        add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
+#         add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
 
-# import pygmsh
-# import numpy as np
-# import os
+fig.update_traces(mode="lines+markers+text")
 
-# with pygmsh.occ.Geometry() as geom:
-#     geom.add_cylinder(x0=(0,0,0), axis=[1,1,1], radius=1)
-#     mesh = geom.generate_mesh()
+fig.add_trace(
+    go.Scatter3d(
+        x=["2017-01-01", "2017-02-10", "2017-03-20"],
+        y=["A", "B", "C"],
+        z=[1, 1000, 100000],
+        # name="z",
+        text=["Text A", "Text B", "Text C"],
+        textposition="top center",
+        hovertext=None,
+    )
+)
