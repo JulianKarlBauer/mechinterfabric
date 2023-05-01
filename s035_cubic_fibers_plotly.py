@@ -213,6 +213,8 @@ ones = np.ones_like(d1s)
 
 scale_z = 14
 
+color = "black"  # "#5D69B1"
+
 textfont = dict(
     family="Courier New, monospace",
     size=18,
@@ -230,8 +232,8 @@ fig.add_trace(
         textfont=textfont,
         hovertext=None,
         mode="lines+markers+text",
-        marker=dict(color="#5D69B1", size=6),
-        line=dict(color="#5D69B1", width=3),
+        marker=dict(color=color, size=6),
+        line=dict(color=color, width=3),
     )
 )
 
@@ -239,12 +241,16 @@ fig.update_layout(
     scene=dict(
         annotations=[
             dict(
-                x=origins[-1][0] + 20,
+                x=origins[-1][0] + 10,
                 y=0,
                 z=-scale_z,
                 text="$d_1$",
                 textangle=0,
-                font=textfont,
+                font=dict(
+                    family="Courier New, monospace",
+                    size=24,
+                    color="black",
+                ),
                 # ax=60,
                 # ay=0,
                 # az=0,
