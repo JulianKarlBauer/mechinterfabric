@@ -92,13 +92,13 @@ experiments = {
         (1, 0, 0),
     ],
     # "iso": evenly_distributed_vectors_on_sphere(100),
-    "max": [
-        (1, 1, 1),
-    ],
     **{
         f"linear_{factor:.2f}": [vec_min + factor * (vec_max - vec_min)]
         for factor in factors
     },
+    "max": [
+        (1, 1, 1),
+    ],
 }
 
 # Cast
@@ -211,22 +211,51 @@ ones = np.ones_like(d1s)
 
 # fig.update_traces(mode="lines+markers+text")
 
+scale_z = 14
+
+textfont = dict(
+    family="Courier New, monospace",
+    size=18,
+    color="black",
+)
+
 # Plot line
 fig.add_trace(
     go.Scatter3d(
         x=[origin[0] for origin in origins],
         y=ones * 0,
-        z=-ones * 14,
+        z=-ones * scale_z,
         text=d1s_strings,
         textposition="bottom center",
-        textfont=dict(
-            family="Courier New, monospace",
-            size=18,  # Set the font size here
-            color="#5D69B1",
-        ),
+        textfont=textfont,
         hovertext=None,
         mode="lines+markers+text",
         marker=dict(color="#5D69B1", size=6),
         line=dict(color="#5D69B1", width=3),
     )
+)
+
+fig.update_layout(
+    scene=dict(
+        annotations=[
+            dict(
+                x=origins[-1][0] + 20,
+                y=0,
+                z=-scale_z,
+                text="$d_1$",
+                textangle=0,
+                font=textfont,
+                # ax=60,
+                # ay=0,
+                # az=0,
+                showarrow=False,
+                # arrowcolor="#5D69B1",
+                # arrowsize=3,
+                # arrowwidth=3,
+                # arrowhead=1,
+                # xanchor="left",
+                # yanchor="bottom",
+            ),
+        ],
+    ),
 )
