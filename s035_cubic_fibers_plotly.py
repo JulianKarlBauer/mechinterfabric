@@ -109,8 +109,30 @@ experiments = {
 # Make cubic
 experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
 
-# fibers = experiments["min"]
-# Plot
+
+# Ingest tensor
+ingest = {}
+for name, fibers in experiments.items():
+    fot4 = mechkit.fabric_tensors.first_kind_discrete(orientations=fibers, order=4)
+    fot4_mandel = con.to_mandel6(fot4)
+    dev4 = mechkit.operators.dev(fot4)
+    dev4_mandel = con.to_mandel6(dev4)
+
+    ingest[name] = {
+        "fot4_mandel": fot4_mandel,
+        "dev4_mandel": dev4_mandel,
+        "d_1": dev4_mandel[0, 1],
+    }
+
+    analysis = mechinterfabric.FOT4Analysis(fot4_mandel).analyse()
+    ingest[name].update(
+        {
+            "analysis": analysis,
+        }
+    )
+
+
+#########################################
 
 fig = make_subplots(
     rows=1,
@@ -160,28 +182,45 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=20):
     fig.add_trace(surface)
 
 
-origin = [0, 0, 0]
+offset = np.array([1, 0, 0]) * 30
+origins = [index * offset for index in range(len(experiments))]
 
 rotation = cubic_transformations[0]
 
-# for key, fibers in experiments.items():
+for index, (key, fibers) in enumerate(experiments.items()):
 
-#     origin = origin + np.array([1, 0, 0]) * 30
+    origin = origins[index]
 
-#     for fiber in fibers:
-#         rotation = mechkit.material.TransversalIsotropic._get_rotation_matrix(
-#             None, start_vector=[1, 0, 0], end_vector=fiber
-#         )
+    for fiber in fibers:
+        rotation = mechkit.material.TransversalIsotropic._get_rotation_matrix(
+            None, start_vector=[1, 0, 0], end_vector=fiber
+        )
 
-#         add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
+        add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
 
-fig.update_traces(mode="lines+markers+text")
 
+d1s = (
+    [-1 / 15]
+    + [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
+    + [2 / 45]
+)
+
+from fractions import Fraction
+
+d1s_fracs = [Fraction(val).limit_denominator(1000) for val in d1s]
+d1s_strings = [f"{frac.numerator} / {frac.denominator}" for frac in d1s_fracs]
+
+ones = np.ones_like(d1s)
+
+# fig.update_traces(mode="lines+markers+text")
+
+
+# Plot line
 fig.add_trace(
     go.Scatter3d(
-        x=["2017-01-01", "2017-02-10", "2017-03-20"],
-        y=["A", "B", "C"],
-        z=[1, 1000, 100000],
+        x=[origin[0] for origin in origins],
+        y=ones * 2,
+        z=ones * 0,
         # name="z",
         text=["Text A", "Text B", "Text C"],
         textposition="top center",
