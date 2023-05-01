@@ -132,11 +132,7 @@ for name, fibers in experiments.items():
         }
     )
 
-d1s = (
-    [-1 / 15]
-    + [ing["d_1"] for name, ing in ingest.items() if name.startswith("linear")]
-    + [2 / 45]
-)
+d1s = [ing["d_1"] for name, ing in ingest.items()]
 
 
 d1s_fracs = [Fraction(val).limit_denominator(1000) for val in d1s]
@@ -171,9 +167,9 @@ fig.update_layout(
 )
 
 
-def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=20):
+def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=60, limit=10):
 
-    limit = 0.5 * ratio
+    # limit = 0.5 * ratio
 
     vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
     vectors[0, ...] = vectors[0, ...] * ratio
@@ -215,16 +211,22 @@ ones = np.ones_like(d1s)
 
 # fig.update_traces(mode="lines+markers+text")
 
-
 # Plot line
 fig.add_trace(
     go.Scatter3d(
         x=[origin[0] for origin in origins],
-        y=ones * 2,
-        z=ones * 0,
-        # name="z",
-        text=["Text A", "Text B", "Text C"],
-        textposition="top center",
+        y=ones * 0,
+        z=-ones * 14,
+        text=d1s_strings,
+        textposition="bottom center",
+        textfont=dict(
+            family="Courier New, monospace",
+            size=18,  # Set the font size here
+            color="#5D69B1",
+        ),
         hovertext=None,
+        mode="lines+markers+text",
+        marker=dict(color="#5D69B1", size=6),
+        line=dict(color="#5D69B1", width=3),
     )
 )
