@@ -90,7 +90,7 @@ experiments = {
     "min": [
         (1, 0, 0),
     ],
-    "iso": evenly_distributed_vectors_on_sphere(100),
+    # "iso": evenly_distributed_vectors_on_sphere(100),
     "max": [
         (1, 1, 1),
     ],
@@ -109,7 +109,7 @@ experiments = {
 # Make cubic
 experiments = {key: make_cubic(fibers=fibers) for key, fibers in experiments.items()}
 
-
+# fibers = experiments["min"]
 # Plot
 
 fig = make_subplots(
@@ -131,12 +131,8 @@ fig.update_layout(
     )
 )
 
-origin = [0, 0, 0]
 
-rotation = cubic_transformations[0]
-
-
-def add_pseudo_cylinder(fig, origin, rotation, nbr_points=300, ratio=20):
+def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=20):
 
     limit = 0.5 * ratio
 
@@ -144,9 +140,9 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=300, ratio=20):
     vectors[0, ...] = vectors[0, ...] * ratio
     vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
 
-    xyz = mechinterfabric.visualization.shift_b_origin(xyz=vectors, origin=origin)
+    xyz = np.einsum("ji, i...->j...", rotation, vectors)
 
-    xyz = np.einsum("ji, i...->j...", rotation, xyz)
+    xyz = mechinterfabric.visualization.shift_b_origin(xyz=xyz, origin=origin)
 
     surface = go.Surface(
         x=xyz[0],
@@ -164,7 +160,20 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=300, ratio=20):
     fig.add_trace(surface)
 
 
-add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
+origin = [0, 0, 0]
+
+rotation = cubic_transformations[0]
+
+for key, fibers in experiments.items():
+
+    origin = origin + np.array([1, 0, 0]) * 30
+
+    for fiber in fibers:
+        rotation = mechkit.material.TransversalIsotropic._get_rotation_matrix(
+            None, start_vector=[1, 0, 0], end_vector=fiber
+        )
+
+        add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
 
 # import pygmsh
 # import numpy as np
