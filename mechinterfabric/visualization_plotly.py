@@ -30,6 +30,35 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
     return xyz, scalars_limited
 
 
+def get_default_options():
+    ############################
+    # Define colors
+
+    colorscale = [
+        [0, "rgb(1.0, 0.5, 0.05)"],
+        [1, "rgb(0.2, 0.7, 0.2)"],
+    ]
+
+    options = dict(
+        showscale=False,
+        colorscale=colorscale,
+    )
+
+    return options
+
+
+def fake_data_for_color(scalars):
+    # Problem: If all signs of given FODF are homogeneous,
+    # the color is neither max nor min of colorscheme but middle
+    # Hacky solution: Set one single point to alternative color to
+    # get both +1 and -1 as limits of color mpa
+    surfacecolor = np.sign(scalars)
+    if np.all(surfacecolor == surfacecolor[0, 0]):
+        surfacecolor[0, 0] = -surfacecolor[0, 0]
+
+    return scalars
+
+
 def add_N4_plotly(
     fig,
     N4,
@@ -41,18 +70,7 @@ def add_N4_plotly(
 ):
 
     if options is None:
-        ############################
-        # Define colors
-
-        colorscale = [
-            [0, "rgb(1.0, 0.5, 0.05)"],
-            [1, "rgb(0.2, 0.7, 0.2)"],
-        ]
-
-        options = dict(
-            showscale=False,
-            colorscale=colorscale,
-        )
+        options = get_default_options()
 
     xyz, scalars = get_data(
         N4=N4,
@@ -62,13 +80,7 @@ def add_N4_plotly(
         limit_scalar=limit_scalar,
     )
 
-    # Problem: If all signs of given FODF are homogeneous,
-    # the color is neither max nor min of colorscheme but middle
-    # Hacky solution: Set one single point to alternative color to
-    # get both +1 and -1 as limits of color mpa
-    surfacecolor = np.sign(scalars)
-    if np.all(surfacecolor == surfacecolor[0, 0]):
-        surfacecolor[0, 0] = -surfacecolor[0, 0]
+    surfacecolor = fake_data_for_color(scalars)
 
     surface = go.Surface(
         x=xyz[0],
