@@ -56,7 +56,7 @@ def fake_data_for_color(scalars):
     if np.all(surfacecolor == surfacecolor[0, 0]):
         surfacecolor[0, 0] = -surfacecolor[0, 0]
 
-    return scalars
+    return surfacecolor
 
 
 def add_N4_plotly(
