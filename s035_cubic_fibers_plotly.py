@@ -217,7 +217,7 @@ color = "black"  # "#5D69B1"
 
 textfont = dict(
     family="Courier New, monospace",
-    size=18,
+    size=26,
     color="black",
 )
 
@@ -244,11 +244,11 @@ fig.update_layout(
                 x=origins[-1][0] + 10,
                 y=0,
                 z=-scale_z,
-                text="$d_1$",
+                text="$d_1$",  # r"\resizebox{10}{!}{$d_1$}",  # "$d_1$",
                 textangle=0,
                 font=dict(
                     family="Courier New, monospace",
-                    size=24,
+                    # size=54,
                     color="black",
                 ),
                 # ax=60,
