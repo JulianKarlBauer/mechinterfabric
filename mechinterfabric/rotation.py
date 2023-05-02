@@ -76,12 +76,13 @@ def average_Manton2004(matrices, weights):
             log = logm(mean_inverse @ matrix)
             if np.iscomplex(log).any():
                 message = "Attention, matrices are too far away from each other, returning eye"
-                print(weights)
+                # print(weights)
+                # raise utils.ExceptionMechinterfabric(message)
 
-                # print(message)
+                print(message)
+                log = np.real(log)
+
                 # return np.eye(3)
-
-                raise utils.ExceptionMechinterfabric(message)
 
             A += weight * log
 
