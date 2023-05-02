@@ -256,10 +256,6 @@ test_cases_passing = [
     ],
 ]
 
-# sp.Matrix(
-#     vofotensors.fabric_tensors.N2s_parametric["orthotropic"]["alpha1_alpha3"]
-# ).subs({alpha1: sp.S(1) / sp.S(6), alpha3: sp.S(0)})
-
 
 test_cases_failing = [
     *[
