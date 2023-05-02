@@ -448,9 +448,9 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
             raise Exception("Unknown type")
 
         condition = smaller <= larger
-        print(f"smaller={smaller}")
-        print(f"larger={larger}")
-        print(f"condition={condition}")
+        # print(f"smaller={smaller}")
+        # print(f"larger={larger}")
+        # print(f"condition={condition}")
 
         if not condition:
             optimized_angle += 90.0
