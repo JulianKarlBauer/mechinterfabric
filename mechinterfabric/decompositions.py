@@ -417,7 +417,7 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
             self.FOT2_spectral_decomposition._map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy()
         )
 
-        print(f"Type={type_transv_isotropy}")
+        # print(f"Type={type_transv_isotropy}")
 
         if type_transv_isotropy == "prolate":
             rotation_axis = [1, 0, 0]
