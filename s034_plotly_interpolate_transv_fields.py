@@ -141,14 +141,15 @@ def average_in_eigensystem(N4s, weights, func_interpolation_rotation=None):
 
 for interpolation_method in [
     # mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
-    average_in_eigensystem,
+    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_analysis_extended_return_values,
+    # average_in_eigensystem,
 ]:
 
     new["N4"] = new.apply(
         lambda row: interpolation_method(
             N4s=N4s[N4_indices[row.name]],
             weights=bcoords[row.name],
-            func_interpolation_rotation=do_not_rotate,
+            # func_interpolation_rotation=do_not_rotate,
         )[0],
         axis=1,
     )
