@@ -1,23 +1,25 @@
 import itertools
 import os
-import pprint
 
 import matplotlib.pyplot as plt
 import mechkit
 import numpy as np
 import pandas as pd
+from plotly.subplots import make_subplots
 from scipy.interpolate import interp1d
 
 import mechinterfabric
+from mechinterfabric import visualization_plotly
 
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s027")
+directory = os.path.join("output", "s037")
 os.makedirs(directory, exist_ok=True)
 
 
 converter = mechkit.notation.ExplicitConverter()
+
 
 #########################################################
 
@@ -158,8 +160,31 @@ N4_indices = tri.simplices[hidden_triangles]
 
 for interpolation_method in [
     mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values,
-    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
+    # mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
+    # mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_analysis_extended_return_values,
 ]:
+
+    ############################
+    # Set figure
+
+    fig = make_subplots(
+        rows=1,
+        cols=1,
+        specs=[[{"is_3d": True}]],
+        subplot_titles=[
+            f"title",
+        ],
+    )
+    fig.update_layout(scene_aspectmode="data")
+
+    fig.update_layout(
+        scene=dict(
+            xaxis=dict(showticklabels=False, visible=False),
+            yaxis=dict(showticklabels=False, visible=False),
+            zaxis=dict(showticklabels=False, visible=False),
+            camera=dict(projection=dict(type="orthographic")),
+        )
+    )
 
     new["N4"] = new.apply(
         lambda row: interpolation_method(
@@ -175,40 +200,32 @@ for interpolation_method in [
 
     for visualization_method in [
         # mechinterfabric.visualization_matplotlib.plot_projection_of_N4_onto_sphere,
-        mechinterfabric.visualization_matplotlib.plot_approx_FODF_by_N4,
+        # mechinterfabric.visualization_matplotlib.plot_approx_FODF_by_N4,
+        mechinterfabric.visualization_plotly.add_N4_plotly,
     ]:
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
-        ax.view_init(elev=90, azim=-90)
-
-        # Axes labels
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
 
         scale = 1.2
         for _, row in new.iterrows():
             visualization_method(
-                ax=ax,
+                fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
-                color="yellow",
+                # color="yellow",
             )
 
         for _, row in df.iterrows():
             visualization_method(
-                ax=ax,
+                fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
-                color="red",
+                # color="red",
             )
 
-        bbox_min = 0
-        bbox_max = 14 * scale
-        ax.auto_scale_xyz(
-            [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
-        )
+        # bbox_min = 0
+        # bbox_max = 14 * scale
+        # ax.auto_scale_xyz(
+        #     [bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_max]
+        # )
 
         name = (
             str(interpolation_method.__name__)
@@ -216,13 +233,9 @@ for interpolation_method in [
             + str(visualization_method.__name__)
         )
 
-        ax.set_title(name)
-        fig.tight_layout()
+        # ax.set_title(name)
 
         path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
-        plt.savefig(path_picture, dpi=300)
+        fig.write_image(path_picture)
 
-    # plt.close(fig)
-
-
-# plt.close(fig)
+        fig.show()
