@@ -200,7 +200,7 @@ for interpolation_method in [
                     origin=origin,
                     nbr_points=100,
                     options=None,
-                    method="fodf",
+                    # method="fodf",
                     limit_scalar=0.4,
                 )
 
