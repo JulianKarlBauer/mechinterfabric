@@ -417,7 +417,7 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
             self.FOT2_spectral_decomposition._map_equal_eigenvalue_pairs_to_type_of_transversely_isotropy()
         )
 
-        print(f"Type={type_transv_isotropy}")
+        # print(f"Type={type_transv_isotropy}")
 
         if type_transv_isotropy == "prolate":
             rotation_axis = [1, 0, 0]
@@ -448,9 +448,9 @@ class EigensystemLocatorTransvOrthotropicHigher(EigensystemLocator):
             raise Exception("Unknown type")
 
         condition = smaller <= larger
-        print(f"smaller={smaller}")
-        print(f"larger={larger}")
-        print(f"condition={condition}")
+        # print(f"smaller={smaller}")
+        # print(f"larger={larger}")
+        # print(f"condition={condition}")
 
         if not condition:
             optimized_angle += 90.0

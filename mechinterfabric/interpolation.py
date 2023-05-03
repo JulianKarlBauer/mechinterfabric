@@ -4,6 +4,7 @@ import mechkit
 import numpy as np
 from scipy.spatial.transform import Rotation
 
+import mechinterfabric
 from mechinterfabric import rotation
 from mechinterfabric import utils
 from mechinterfabric.utils import get_rotation_matrix_into_eigensystem
@@ -177,3 +178,44 @@ def interpolate_N4_decomp_unique_rotation_extended_return_values(
 
 def interpolate_N4_decomp_unique_rotation(N4s, weights):
     return interpolate_N4_decomp_unique_rotation_extended_return_values(N4s, weights)[0]
+
+
+def interpolate_N4_decomp_unique_rotation_analysis_extended_return_values(
+    N4s,
+    weights,
+    validate=True,
+    func_interpolation_rotation=rotation.average_Manton2004,
+    **kwargs,
+):
+
+    utils.assert_notation_N4(N4s, weights)
+
+    def get_eigensystem(N4):
+        analysis = mechinterfabric.FOT4Analysis(N4)
+        analysis.get_eigensystem()
+        return analysis.eigensystem
+
+    # Get rotations into eigensystem
+    rotations = np.array([get_eigensystem(N4) for N4 in N4s])
+
+    # Rotate each N4 into the eigensystem
+    N4s_eigen = utils.apply_rotation(rotations=rotations, tensors=N4s)
+
+    # Get average rotation
+    rotation_av = func_interpolation_rotation(
+        matrices=rotations, weights=weights, **kwargs
+    )
+
+    # Average components in eigensystems
+    N4_av_eigen = np.einsum("m, mijkl->ijkl", weights, N4s_eigen)
+
+    # Rotate back to world COS
+    N4_av = utils.apply_rotation(rotations=rotation_av.T, tensors=N4_av_eigen)
+
+    return N4_av, N4_av_eigen, rotation_av, N4s_eigen, rotations
+
+
+def interpolate_N4_decomp_unique_rotation_analysis(N4s, weights):
+    return interpolate_N4_decomp_unique_rotation_analysis_extended_return_values(
+        N4s, weights
+    )[0]
