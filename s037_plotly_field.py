@@ -159,9 +159,9 @@ N4_indices = tri.simplices[hidden_triangles]
 
 
 for interpolation_method in [
-    mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values,
+    # mechinterfabric.interpolation.interpolate_N4_decomp_extended_return_values,
     # mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_extended_return_values,
-    # mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_analysis_extended_return_values,
+    mechinterfabric.interpolation.interpolate_N4_decomp_unique_rotation_analysis_extended_return_values,
 ]:
 
     ############################
@@ -236,6 +236,6 @@ for interpolation_method in [
         # ax.set_title(name)
 
         path_picture = os.path.join(directory, name.replace("\n", "_") + ".png")
-        fig.write_image(path_picture)
+        # fig.write_image(path_picture)
 
         fig.show()
