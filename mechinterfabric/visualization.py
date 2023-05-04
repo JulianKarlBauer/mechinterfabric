@@ -71,8 +71,7 @@ def project_vectors_onto_N4_to_scalars(N4, vectors):
     )
 
 
-def get_approx_FODF_by_N4(N4, nbr_points=100):
-    vectors = get_unit_vectors(nbr_points=nbr_points)
+def get_approx_FODF_by_N4(N4, vectors):
 
     distribution = DistributionDensityTruncateAfter4(N4=N4)
 
@@ -81,9 +80,7 @@ def get_approx_FODF_by_N4(N4, nbr_points=100):
     return xyz
 
 
-def get_glyph(N4, nbr_points=100):
-
-    vectors = get_unit_vectors(nbr_points=nbr_points)
+def get_glyph(N4, vectors):
 
     xyz = project_vectors_onto_N4(N4=N4, vectors=vectors)
 

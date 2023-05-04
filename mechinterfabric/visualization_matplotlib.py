@@ -133,10 +133,12 @@ def plot_ellipsoid(
 
 def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **kwargs):
 
+    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+
     # Project
     xyz = mechinterfabric.visualization.get_glyph(
         N4=N4,
-        nbr_points=nbr_points,
+        vectors=vectors,
     )
 
     vectors = mechinterfabric.visualization.shift_by_origin(xyz=xyz, origin=origin)
@@ -154,8 +156,11 @@ def plot_projection_of_N4_onto_sphere(ax, origin, N4, *args, nbr_points=100, **k
 
 def plot_approx_FODF_by_N4(ax, origin, N4, *args, nbr_points=100, **kwargs):
 
+    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+
     xyz = mechinterfabric.visualization.get_approx_FODF_by_N4(
-        N4=N4, nbr_points=nbr_points
+        N4=N4,
+        vectors=vectors,
     )
 
     values = mechinterfabric.visualization.shift_by_origin(xyz=xyz, origin=origin)
