@@ -43,7 +43,7 @@ def limit_scaling(scalars, limit_scalar):
     return scalars
 
 
-def shift_b_origin(xyz, origin):
+def shift_by_origin(xyz, origin):
     return xyz + np.array(origin)[:, np.newaxis, np.newaxis]
 
 

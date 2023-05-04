@@ -177,7 +177,7 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=60, limit=10
 
     xyz = np.einsum("ji, i...->j...", rotation, vectors)
 
-    xyz = mechinterfabric.visualization.shift_b_origin(xyz=xyz, origin=origin)
+    xyz = mechinterfabric.visualization.shift_by_origin(xyz=xyz, origin=origin)
 
     surface = go.Surface(
         x=xyz[0],
