@@ -27,7 +27,7 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
 
     xyz = visualization.shift_b_origin(xyz=scalars_limited * vectors, origin=origin)
 
-    return xyz, scalars_limited
+    return xyz
 
 
 def get_default_options():
@@ -72,13 +72,15 @@ def add_N4_plotly(
     if options is None:
         options = get_default_options()
 
-    xyz, scalars = get_data(
+    xyz = get_data(
         N4=N4,
         origin=origin,
         nbr_points=nbr_points,
         method=method,
         limit_scalar=limit_scalar,
     )
+
+    scalars = np.linalg.norm(xyz, axis=0)
 
     surfacecolor = fake_data_for_color(scalars)
 
