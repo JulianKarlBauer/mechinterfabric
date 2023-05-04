@@ -85,3 +85,10 @@ def get_glyph(N4, vectors):
     xyz = project_vectors_onto_N4(N4=N4, vectors=vectors)
 
     return xyz
+
+
+def get_quartics(N4, vectors):
+
+    xyz = vectors * project_vectors_onto_N4_to_scalars(N4=N4, vectors=vectors)
+
+    return xyz
