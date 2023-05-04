@@ -43,6 +43,13 @@ def limit_scaling(scalars, limit_scalar):
     return scalars
 
 
+def limit_vectors(vectors, limit_scalar):
+    maximum_scalar = np.max(np.linalg.norm(vectors, axis=0))
+    if maximum_scalar > limit_scalar:
+        vectors = vectors * (limit_scalar / maximum_scalar)
+    return vectors
+
+
 def shift_by_origin(xyz, origin):
     return xyz + np.array(origin)[:, np.newaxis, np.newaxis]
 
@@ -64,24 +71,20 @@ def project_vectors_onto_N4_to_scalars(N4, vectors):
     )
 
 
-def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
+def get_approx_FODF_by_N4(N4, nbr_points=100):
     vectors = get_unit_vectors(nbr_points=nbr_points)
 
     distribution = DistributionDensityTruncateAfter4(N4=N4)
 
     xyz = distribution.project_on_vectors(vectors)
 
-    shifted = shift_b_origin(xyz=xyz, origin=origin)
-
-    return shifted
+    return xyz
 
 
-def get_glyph(N4, origin, nbr_points=100):
+def get_glyph(N4, nbr_points=100):
 
     vectors = get_unit_vectors(nbr_points=nbr_points)
 
     xyz = project_vectors_onto_N4(N4=N4, vectors=vectors)
 
-    shifted = shift_b_origin(xyz=xyz, origin=origin)
-
-    return shifted
+    return xyz
