@@ -25,7 +25,7 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
         )
     scalars_limited = visualization.limit_scaling(scalars, limit_scalar=limit_scalar)
 
-    xyz = visualization.shift_b_origin(xyz=scalars_limited * vectors, origin=origin)
+    xyz = visualization.shift_by_origin(xyz=scalars_limited * vectors, origin=origin)
 
     return xyz
 
