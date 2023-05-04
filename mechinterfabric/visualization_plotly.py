@@ -13,19 +13,26 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
     vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
 
     if method == "fodf":
-        distribution = visualization.DistributionDensityTruncateAfter4(N4=N4)
-        scalars = distribution.calc_scalars(vectors)
-    elif method == "glyph":
-        scalars = visualization.project_vectors_onto_N4_to_scalars(
+        xyz = mechinterfabric.visualization.get_approx_FODF_by_N4(
             N4=N4, vectors=vectors
         )
+
+    elif method == "glyph":
+        xyz = mechinterfabric.visualization.get_glyph(N4=N4, vectors=vectors)
+
+    elif method == "quartic":
+        xyz = mechinterfabric.visualization.get_quartics(N4=N4, vectors=vectors)
+
     else:
         raise mechinterfabric.utils.ExceptionMechinterfabric(
             "Unknown projection method requested"
         )
-    scalars_limited = visualization.limit_scaling(scalars, limit_scalar=limit_scalar)
 
-    xyz = visualization.shift_by_origin(xyz=scalars_limited * vectors, origin=origin)
+    # raise Exception()
+
+    xyz = visualization.limit_vectors(vectors=xyz, limit_scalar=limit_scalar)
+
+    xyz = visualization.shift_by_origin(xyz=xyz, origin=origin)
 
     return xyz
 
