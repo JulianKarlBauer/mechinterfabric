@@ -8,9 +8,7 @@ from mechinterfabric import visualization
 con = mechkit.notation.Converter()
 
 
-def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
-
-    vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
+def get_data(N4, method, vectors, origin=[0, 0, 0], limit_scalar=0.55):
 
     if method == "fodf":
         xyz = mechinterfabric.visualization.get_approx_FODF_by_N4(
@@ -29,12 +27,15 @@ def get_data(N4, method, origin=[0, 0, 0], nbr_points=100, limit_scalar=0.55):
         )
 
     # raise Exception()
+    scalars = np.linalg.norm(xyz, axis=0) * np.sign(
+        np.einsum("i..., i...->...", vectors, xyz)
+    )
 
     xyz = visualization.limit_vectors(vectors=xyz, limit_scalar=limit_scalar)
 
     xyz = visualization.shift_by_origin(xyz=xyz, origin=origin)
 
-    return xyz
+    return xyz, scalars
 
 
 def get_default_options():
@@ -79,15 +80,15 @@ def add_N4_plotly(
     if options is None:
         options = get_default_options()
 
-    xyz = get_data(
+    vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
+
+    xyz, scalars = get_data(
         N4=N4,
         origin=origin,
-        nbr_points=nbr_points,
         method=method,
+        vectors=vectors,
         limit_scalar=limit_scalar,
     )
-
-    scalars = np.linalg.norm(xyz, axis=0)
 
     surfacecolor = fake_data_for_color(scalars)
 
