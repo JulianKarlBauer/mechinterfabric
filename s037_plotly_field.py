@@ -20,6 +20,20 @@ os.makedirs(directory, exist_ok=True)
 
 converter = mechkit.notation.ExplicitConverter()
 
+#########################################################
+datasets = [
+    {
+        "path_N2": os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+        "path_N4": os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+        "indices": [i + 1 for i in range(13)],
+    },
+    {
+        "path_N2": os.path.join("data", "FOT_field_GF_new_N2.csv"),
+        "path_N4": os.path.join("data", "FOT_field_GF_new_N4.csv"),
+        "indices": [i + 2 for i in range(11)],
+    },
+]
+dataset = datasets[1]
 
 #########################################################
 
@@ -64,7 +78,7 @@ def N4_from_row(row):
 #########################################################
 # Read N2
 df_N2 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+    dataset["path_N2"],
     header=0,
     sep=",",
 )
@@ -72,7 +86,7 @@ df_N2.columns = df_N2.columns.str.strip()
 
 # Read N4
 df_N4 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+    dataset["path_N4"],
     header=0,
     sep=",",
 )
@@ -84,6 +98,23 @@ df = df_N2.merge(df_N4)
 
 df["N2"] = df.apply(N2_from_row, axis=1)
 df["N4"] = df.apply(N4_from_row, axis=1)
+
+
+def analyse(row):
+    analysis = mechinterfabric.FOT4Analysis(FOT4=np.array(row["N4"]))
+    analysis.analyse()
+    return analysis.parameters
+
+
+names = ["la1", "la2", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9"]
+
+df[names] = df.apply(
+    analyse,
+    axis=1,
+    result_type="expand",
+)
+
+print(df[["index_x", "index_y"] + names])
 
 N2s = np.array(df["N2"].to_list())
 N4s = np.array(df["N4"].to_list())
@@ -98,8 +129,7 @@ N4s_df = np.array(df["N4"].to_list())
 
 
 # New points
-indices = [i + 1 for i in range(13)]
-# indices = [i + 1 for i in range(13) if i in [0, 3, 6, 9, 12]]
+indices = dataset["indices"]
 
 indices_points = list(itertools.product(indices, repeat=2))
 indices_points = [index for index in indices_points if index not in df_index]
