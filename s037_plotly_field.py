@@ -33,7 +33,7 @@ datasets = [
         "indices": [i + 2 for i in range(11)],
     },
 ]
-dataset = datasets[1]
+dataset = datasets[0]
 
 #########################################################
 
@@ -148,21 +148,21 @@ tri = scipy.spatial.Delaunay(points)
 # targets = np.array([[2, 3], [3, 4], [4, 5], [10, 10]])
 targets = new[["index_x", "index_y"]].to_numpy()
 
-# Plot triangulation
-fig = plt.figure()
-plt.triplot(points[:, 0], points[:, 1], tri.simplices)
+# # Plot triangulation
+# fig = plt.figure()
+# plt.triplot(points[:, 0], points[:, 1], tri.simplices)
 
-plt.plot(points[:, 0], points[:, 1], "o", label="points")
-for index, point in enumerate(points):
-    plt.text(*point, str(index))
+# plt.plot(points[:, 0], points[:, 1], "o", label="points")
+# for index, point in enumerate(points):
+#     plt.text(*point, str(index))
 
-plt.plot(targets[:, 0], targets[:, 1], "x", label="targets")
-for index, point in enumerate(targets):
-    plt.text(*point, str(index))
+# plt.plot(targets[:, 0], targets[:, 1], "x", label="targets")
+# for index, point in enumerate(targets):
+#     plt.text(*point, str(index))
 
-plt.legend()
-path_picture = os.path.join(directory, "triangulation" + ".png")
-plt.savefig(path_picture, dpi=300)
+# plt.legend()
+# path_picture = os.path.join(directory, "triangulation" + ".png")
+# plt.savefig(path_picture, dpi=300)
 
 # Get barycentric coordinates
 simplices = tri.find_simplex(targets)
@@ -225,6 +225,45 @@ for interpolation_method in [
         axis=1,
     )
 
+    class pyplot_3D_annotation_plotter:
+        def __init__(self):
+            self.annotation_bucket = []
+
+        def plot_tp_ensemble(self, visualization_method, row, scale):
+
+            origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
+
+            visualization_method(
+                fig=fig,
+                N4=np.array(row["N4"]),
+                origin=origin,
+                # nbr_points=20,
+            )
+
+            position = origin + np.array([0.05, -0.4, 0]) * scale
+
+            # text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
+
+            self.annotation_bucket.append(
+                dict(
+                    x=position[0],
+                    y=position[1],
+                    z=position[2],
+                    showarrow=False,
+                    text=f"({row['index_x']}, {row['index_y']})",
+                    xanchor="left",
+                    # xshift=10,
+                    # yshift=-10,
+                    opacity=0.7,
+                    font=dict(
+                        # color=text_color_plotly_rgb,
+                        size=18,
+                    ),
+                )
+            )
+
+    plotter = pyplot_3D_annotation_plotter()
+
     #############################
     # Plot
 
@@ -240,16 +279,26 @@ for interpolation_method in [
                 fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
+                # nbr_points=20,
                 # color="yellow",
             )
 
+        # for _, row in df.iterrows():
+        #     visualization_method(
+        #         fig=fig,
+        #         origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        #         N4=np.array(row["N4"]),
+        #         # color="red",
+        #     )
+
         for _, row in df.iterrows():
-            visualization_method(
-                fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-                N4=np.array(row["N4"]),
-                # color="red",
+            plotter.plot_tp_ensemble(
+                row=row,
+                visualization_method=visualization_method,
+                scale=scale,
             )
+
+        fig.update_layout(scene=dict(annotations=plotter.annotation_bucket))
 
         # bbox_min = 0
         # bbox_max = 14 * scale
