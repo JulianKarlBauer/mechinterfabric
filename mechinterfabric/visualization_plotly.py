@@ -73,7 +73,7 @@ def add_N4_plotly(
     origin=[0, 0, 0],
     nbr_points=100,
     options=None,
-    method="fodf",
+    method="glyph",
     limit_scalar=0.55,
 ):
 
@@ -104,7 +104,15 @@ def add_N4_plotly(
 
 
 def plot_stepwise_interpolation_N4_along_x(
-    fig, N1, N2, nbr_points=5, scale=1, method=None, nbr_vectors=100, limit_scalar=0.55
+    fig,
+    N1,
+    N2,
+    nbr_points=5,
+    scale=1,
+    method=None,
+    nbr_vectors=100,
+    limit_scalar=0.55,
+    method_visualization="fodf",
 ):
 
     if method is None:
@@ -135,6 +143,7 @@ def plot_stepwise_interpolation_N4_along_x(
             origin=origin,
             nbr_points=nbr_vectors,
             limit_scalar=limit_scalar,
+            method=method_visualization,
         )
 
     return fig
