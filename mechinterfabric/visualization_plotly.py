@@ -73,7 +73,7 @@ def add_N4_plotly(
     origin=[0, 0, 0],
     nbr_points=100,
     options=None,
-    method="glyph",
+    method="fodf",
     limit_scalar=0.55,
 ):
 
