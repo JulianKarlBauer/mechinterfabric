@@ -73,7 +73,7 @@ def add_N4_plotly(
     origin=[0, 0, 0],
     nbr_points=100,
     options=None,
-    method="fodf",
+    method="glyph",
     limit_scalar=0.55,
     vectors=None,
 ):
@@ -157,6 +157,35 @@ def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=60, limit=10
 
     vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
     vectors[0, ...] = vectors[0, ...] * ratio
+    vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
+
+    xyz = np.einsum("ji, i...->j...", rotation, vectors)
+
+    xyz = mechinterfabric.visualization.shift_by_origin(xyz=xyz, origin=origin)
+
+    surface = go.Surface(
+        x=xyz[0],
+        y=xyz[1],
+        z=xyz[2],
+        # surfacecolor=surfacecolor,
+        showscale=False,
+        colorscale=[
+            [0, "rgb(0.2, 0.7, 0.2)"],
+            [1, "rgb(0.2, 0.7, 0.2)"],
+        ],
+        # **mechinterfabric.visualization_plotly.get_default_options(),
+    )
+
+    fig.add_trace(surface)
+
+
+def add_pseudo_cylinder_2(fig, origin, rotation, nbr_points=50, ratio=60, limit=10):
+
+    # limit = 0.5 * ratio
+
+    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
+    vectors[0, ...] = vectors[0, ...] * ratio
+    vectors = vectors / ratio
     vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
 
     xyz = np.einsum("ji, i...->j...", rotation, vectors)
