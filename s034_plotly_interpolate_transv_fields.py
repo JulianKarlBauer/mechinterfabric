@@ -191,7 +191,12 @@ for interpolation_method in [
 
             def plot_tp_ensemble(self, row, text_color=(0, 0, 0)):
                 origin = np.array(
-                    [row["index_x"] * scale, row["index_y"] * scale / 1.8, 0]
+                    [
+                        row["index_x"] * scale,
+                        row["index_y"] * scale / 1.2,  # fits glyphs
+                        # row["index_y"] * scale / 1.8, 0] # fits truncated fodf
+                        0,
+                    ]
                 )
 
                 visualization_method(
