@@ -75,12 +75,14 @@ def add_N4_plotly(
     options=None,
     method="fodf",
     limit_scalar=0.55,
+    vectors=None,
 ):
 
     if options is None:
         options = get_default_options()
 
-    vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
+    if vectors is None:
+        vectors = visualization.get_unit_vectors(nbr_points=nbr_points)
 
     xyz, scalars = get_data(
         N4=N4,

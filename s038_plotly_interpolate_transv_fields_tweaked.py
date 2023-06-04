@@ -14,6 +14,7 @@ from vofotensors.abc import alpha1
 from vofotensors.abc import rho1
 
 import mechinterfabric
+from mechinterfabric import visualization
 from mechinterfabric import visualization_plotly
 from mechinterfabric.abc import *
 
@@ -185,19 +186,22 @@ for interpolation_method in [
 
         scale = 0.9
 
+        def get_origin(row):
+            return np.array(
+                [
+                    row["index_x"] * scale,
+                    row["index_y"] * scale / 1.2,  # fits glyphs
+                    # row["index_y"] * scale / 1.8, 0] # fits truncated fodf
+                    0,
+                ]
+            )
+
         class pyplot_3D_annotation_plotter:
             def __init__(self):
                 self.annotation_bucket = []
 
-            def plot_tp_ensemble(self, row, text_color=(0, 0, 0)):
-                origin = np.array(
-                    [
-                        row["index_x"] * scale,
-                        row["index_y"] * scale / 1.2,  # fits glyphs
-                        # row["index_y"] * scale / 1.8, 0] # fits truncated fodf
-                        0,
-                    ]
-                )
+            def plot_tp_ensemble(self, row, text_color=(0, 0, 0), vectors=None):
+                origin = get_origin(row)
 
                 visualization_method(
                     fig=fig,
@@ -207,6 +211,7 @@ for interpolation_method in [
                     options=None,
                     # method="fodf",
                     limit_scalar=0.4,
+                    vectors=vectors,
                 )
 
                 position = origin + np.array([0.05, -0.2, 0]) * scale
@@ -231,11 +236,71 @@ for interpolation_method in [
         plotter = pyplot_3D_annotation_plotter()
         plot_tp_ensemble = plotter.plot_tp_ensemble
 
-        for _, row in new.iterrows():
-            plot_tp_ensemble(row=row)
+        # for _, row in new.iterrows():
+        #     plot_tp_ensemble(row=row)
 
         for _, row in df.iterrows():
-            plot_tp_ensemble(row=row, text_color=(1, 0, 0))
+            if (row["index_x"] == 5) and (row["index_y"] == 1):
+                plot_tp_ensemble(
+                    row=row,
+                    vectors=visualization.get_unit_vectors(),
+                )  # Actually does only plot index annotation
+
+                sn = 0.1 * 10
+                limit_scalar = 0.4
+
+                phi = np.linspace(0.0, 2.0 * np.pi, 3)
+                theta = np.linspace(0.0, np.pi, 10)
+                x = np.outer(np.cos(phi), np.sin(theta))
+                y = np.outer(np.sin(phi), np.sin(theta))
+                z = np.outer(np.ones_like(phi), np.cos(theta))
+                xyz = np.array([x, y, z])
+
+                # xyz = np.array(
+                #     [
+                #         [
+                #             [0.00000000e000, 1.00000000e000, 1.83667602e-048],
+                #             [0.00000000e000, -1.00000000e000, -1.83667602e-048],
+                #             [0.00000000e000, 1.00000000e000, 1.83667602e-048],
+                #         ],
+                #         [
+                #             [sn, sn, sn],
+                #             [0, 0, 0],
+                #             [-sn, -sn, -sn],
+                #         ],
+                #         [
+                #             [sn, sn, sn],
+                #             [0, 0, 0],
+                #             [-sn, -sn, -sn],
+                #         ],
+                #     ]
+                # )
+
+                origin = get_origin(row)
+
+                xyz = visualization.limit_vectors(
+                    vectors=xyz, limit_scalar=limit_scalar
+                )
+
+                xyz = visualization.shift_by_origin(xyz=xyz, origin=origin)
+
+                scalars = np.ones_like(xyz)
+
+                surfacecolor = visualization_plotly.fake_data_for_color(scalars)
+
+                surface = go.Surface(
+                    x=xyz[0],
+                    y=xyz[1],
+                    z=xyz[2],
+                    surfacecolor=surfacecolor,
+                )
+
+                fig.add_trace(surface)
+
+                fig.show()
+                raise Exception()
+            else:
+                plot_tp_ensemble(row=row, text_color=(1, 0, 0))
 
         name = "image" + "_" + str(visualization_method) + str(interpolation_method)
 
