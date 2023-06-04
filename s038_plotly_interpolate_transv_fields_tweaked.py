@@ -244,6 +244,7 @@ for interpolation_method in [
                 plot_tp_ensemble(
                     row=row,
                     vectors=visualization.get_unit_vectors(),
+                    text_color=(1, 0, 0),
                 )  # Actually does only plot index annotation
 
                 origin = get_origin(row)
@@ -257,7 +258,10 @@ for interpolation_method in [
                     limit=0.4,
                 )
             else:
-                plot_tp_ensemble(row=row, text_color=(1, 0, 0))
+                plot_tp_ensemble(
+                    row=row,
+                    text_color=(1, 0, 0),
+                )
 
         name = "image" + "_" + str(visualization_method) + str(interpolation_method)
 
