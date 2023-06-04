@@ -236,8 +236,8 @@ for interpolation_method in [
         plotter = pyplot_3D_annotation_plotter()
         plot_tp_ensemble = plotter.plot_tp_ensemble
 
-        # for _, row in new.iterrows():
-        #     plot_tp_ensemble(row=row)
+        for _, row in new.iterrows():
+            plot_tp_ensemble(row=row)
 
         for _, row in df.iterrows():
             if (row["index_x"] == 5) and (row["index_y"] == 1):
@@ -246,59 +246,16 @@ for interpolation_method in [
                     vectors=visualization.get_unit_vectors(),
                 )  # Actually does only plot index annotation
 
-                sn = 0.1 * 10
-                limit_scalar = 0.4
-
-                phi = np.linspace(0.0, 2.0 * np.pi, 3)
-                theta = np.linspace(0.0, np.pi, 10)
-                x = np.outer(np.cos(phi), np.sin(theta))
-                y = np.outer(np.sin(phi), np.sin(theta))
-                z = np.outer(np.ones_like(phi), np.cos(theta))
-                xyz = np.array([x, y, z])
-
-                # xyz = np.array(
-                #     [
-                #         [
-                #             [0.00000000e000, 1.00000000e000, 1.83667602e-048],
-                #             [0.00000000e000, -1.00000000e000, -1.83667602e-048],
-                #             [0.00000000e000, 1.00000000e000, 1.83667602e-048],
-                #         ],
-                #         [
-                #             [sn, sn, sn],
-                #             [0, 0, 0],
-                #             [-sn, -sn, -sn],
-                #         ],
-                #         [
-                #             [sn, sn, sn],
-                #             [0, 0, 0],
-                #             [-sn, -sn, -sn],
-                #         ],
-                #     ]
-                # )
-
                 origin = get_origin(row)
 
-                xyz = visualization.limit_vectors(
-                    vectors=xyz, limit_scalar=limit_scalar
+                visualization_plotly.add_pseudo_cylinder_2(
+                    fig=fig,
+                    rotation=np.eye(3),
+                    origin=origin,
+                    nbr_points=15,
+                    ratio=200,
+                    limit=0.4,
                 )
-
-                xyz = visualization.shift_by_origin(xyz=xyz, origin=origin)
-
-                scalars = np.ones_like(xyz)
-
-                surfacecolor = visualization_plotly.fake_data_for_color(scalars)
-
-                surface = go.Surface(
-                    x=xyz[0],
-                    y=xyz[1],
-                    z=xyz[2],
-                    surfacecolor=surfacecolor,
-                )
-
-                fig.add_trace(surface)
-
-                fig.show()
-                raise Exception()
             else:
                 plot_tp_ensemble(row=row, text_color=(1, 0, 0))
 
