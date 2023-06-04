@@ -15,6 +15,15 @@ def get_unit_vectors(nbr_points=40):
     return np.array([x, y, z])
 
 
+def get_special_unit_vectors():
+    phi = np.linspace(0.0, 2.0 * np.pi, 3)
+    theta = np.linspace(0.0, np.pi, 3)
+    x = np.outer(np.cos(phi), np.sin(theta))
+    y = np.outer(np.sin(phi), np.sin(theta))
+    z = np.outer(np.ones_like(phi), np.cos(theta))
+    return np.array([x, y, z])
+
+
 class DistributionDensityTruncateAfter4:
     def __init__(self, N4):
         N4 = con.to_tensor(N4)
