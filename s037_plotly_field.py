@@ -242,7 +242,8 @@ for interpolation_method in [
 
             position = origin + np.array([0.05, -0.4, 0]) * scale
 
-            # text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
+            text_color = (1, 0, 0)  # Red
+            text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
 
             self.annotation_bucket.append(
                 dict(
@@ -256,11 +257,49 @@ for interpolation_method in [
                     # yshift=-10,
                     opacity=0.7,
                     font=dict(
-                        # color=text_color_plotly_rgb,
+                        color=text_color_plotly_rgb,
                         size=18,
                     ),
                 )
             )
+
+            ## Add hollow box around fix points
+            import plotly.graph_objects as go
+            from itertools import product
+
+            offset = 0.45 * scale
+
+            # structure = np.array(list(product([-1, 1], repeat=3)))
+            structure = np.array(
+                [
+                    [-1, -1, -1],
+                    [-1, 1, -1],
+                    [1, 1, -1],
+                    [1, -1, -1],
+                    [-1, -1, 1],
+                    [-1, 1, 1],
+                    [1, 1, 1],
+                    [1, -1, 1],
+                ]
+            )
+
+            corners = origin + structure * offset
+
+            # raise Exception()
+
+            mesh = go.Mesh3d(
+                # 8 vertices of a cube
+                x=corners[:, 0],
+                y=corners[:, 1],
+                z=corners[:, 2],
+                i=[7, 0, 0, 0, 4, 4, 6, 6, 4, 0, 3, 2],
+                j=[3, 4, 1, 2, 5, 6, 5, 2, 0, 1, 6, 3],
+                k=[0, 7, 2, 3, 6, 7, 1, 1, 5, 5, 7, 6],
+                opacity=0.05,
+                color="black",
+                flatshading=True,
+            )
+            fig.add_trace(mesh)
 
     plotter = pyplot_3D_annotation_plotter()
 
@@ -274,6 +313,7 @@ for interpolation_method in [
     ]:
 
         scale = 1.2
+
         for _, row in new.iterrows():
             visualization_method(
                 fig=fig,
