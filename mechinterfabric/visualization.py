@@ -15,6 +15,15 @@ def get_unit_vectors(nbr_points=40):
     return np.array([x, y, z])
 
 
+def get_special_unit_vectors():
+    phi = np.linspace(0.0, 2.0 * np.pi, 3)
+    theta = np.linspace(0.0, np.pi, 3)
+    x = np.outer(np.cos(phi), np.sin(theta))
+    y = np.outer(np.sin(phi), np.sin(theta))
+    z = np.outer(np.ones_like(phi), np.cos(theta))
+    return np.array([x, y, z])
+
+
 class DistributionDensityTruncateAfter4:
     def __init__(self, N4):
         N4 = con.to_tensor(N4)
@@ -43,7 +52,14 @@ def limit_scaling(scalars, limit_scalar):
     return scalars
 
 
-def shift_b_origin(xyz, origin):
+def limit_vectors(vectors, limit_scalar):
+    maximum_scalar = np.max(np.linalg.norm(vectors, axis=0))
+    if maximum_scalar > limit_scalar:
+        vectors = vectors * (limit_scalar / maximum_scalar)
+    return vectors
+
+
+def shift_by_origin(xyz, origin):
     return xyz + np.array(origin)[:, np.newaxis, np.newaxis]
 
 
@@ -64,24 +80,24 @@ def project_vectors_onto_N4_to_scalars(N4, vectors):
     )
 
 
-def get_approx_FODF_by_N4(N4, origin, nbr_points=100):
-    vectors = get_unit_vectors(nbr_points=nbr_points)
+def get_approx_FODF_by_N4(N4, vectors):
 
     distribution = DistributionDensityTruncateAfter4(N4=N4)
 
     xyz = distribution.project_on_vectors(vectors)
 
-    shifted = shift_b_origin(xyz=xyz, origin=origin)
-
-    return shifted
+    return xyz
 
 
-def get_glyph(N4, origin, nbr_points=100):
-
-    vectors = get_unit_vectors(nbr_points=nbr_points)
+def get_glyph(N4, vectors):
 
     xyz = project_vectors_onto_N4(N4=N4, vectors=vectors)
 
-    shifted = shift_b_origin(xyz=xyz, origin=origin)
+    return xyz
 
-    return shifted
+
+def get_quartics(N4, vectors):
+
+    xyz = vectors * project_vectors_onto_N4_to_scalars(N4=N4, vectors=vectors)
+
+    return xyz

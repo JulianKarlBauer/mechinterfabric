@@ -167,34 +167,6 @@ fig.update_layout(
 )
 
 
-def add_pseudo_cylinder(fig, origin, rotation, nbr_points=50, ratio=60, limit=10):
-
-    # limit = 0.5 * ratio
-
-    vectors = mechinterfabric.visualization.get_unit_vectors(nbr_points=nbr_points)
-    vectors[0, ...] = vectors[0, ...] * ratio
-    vectors[0, ...] = np.clip(vectors[0, ...], -limit, limit)
-
-    xyz = np.einsum("ji, i...->j...", rotation, vectors)
-
-    xyz = mechinterfabric.visualization.shift_b_origin(xyz=xyz, origin=origin)
-
-    surface = go.Surface(
-        x=xyz[0],
-        y=xyz[1],
-        z=xyz[2],
-        # surfacecolor=surfacecolor,
-        showscale=False,
-        colorscale=[
-            [0, "rgb(0.2, 0.7, 0.2)"],
-            [1, "rgb(0.2, 0.7, 0.2)"],
-        ],
-        # **mechinterfabric.visualization_plotly.get_default_options(),
-    )
-
-    fig.add_trace(surface)
-
-
 for index, (key, fibers) in enumerate(experiments.items()):
 
     origin = origins[index]
@@ -204,7 +176,9 @@ for index, (key, fibers) in enumerate(experiments.items()):
             None, start_vector=[1, 0, 0], end_vector=fiber
         )
 
-        add_pseudo_cylinder(fig=fig, origin=origin, rotation=rotation)
+        mechinterfabric.visualization_plotly.add_pseudo_cylinder(
+            fig=fig, origin=origin, rotation=rotation
+        )
 
 
 ones = np.ones_like(d1s)
