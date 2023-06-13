@@ -20,6 +20,20 @@ os.makedirs(directory, exist_ok=True)
 
 converter = mechkit.notation.ExplicitConverter()
 
+#########################################################
+datasets = [
+    {
+        "path_N2": os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+        "path_N4": os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+        "indices": [i + 1 for i in range(13)],
+    },
+    {
+        "path_N2": os.path.join("data", "FOT_field_GF_new_N2.csv"),
+        "path_N4": os.path.join("data", "FOT_field_GF_new_N4.csv"),
+        "indices": [i + 2 for i in range(11)],
+    },
+]
+dataset = datasets[0]
 
 #########################################################
 
@@ -64,7 +78,7 @@ def N4_from_row(row):
 #########################################################
 # Read N2
 df_N2 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+    dataset["path_N2"],
     header=0,
     sep=",",
 )
@@ -72,7 +86,7 @@ df_N2.columns = df_N2.columns.str.strip()
 
 # Read N4
 df_N4 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+    dataset["path_N4"],
     header=0,
     sep=",",
 )
@@ -84,6 +98,23 @@ df = df_N2.merge(df_N4)
 
 df["N2"] = df.apply(N2_from_row, axis=1)
 df["N4"] = df.apply(N4_from_row, axis=1)
+
+
+def analyse(row):
+    analysis = mechinterfabric.FOT4Analysis(FOT4=np.array(row["N4"]))
+    analysis.analyse()
+    return analysis.parameters
+
+
+names = ["la1", "la2", "d1", "d2", "d3", "d4", "d5", "d6", "d7", "d8", "d9"]
+
+df[names] = df.apply(
+    analyse,
+    axis=1,
+    result_type="expand",
+)
+
+print(df[["index_x", "index_y"] + names])
 
 N2s = np.array(df["N2"].to_list())
 N4s = np.array(df["N4"].to_list())
@@ -98,8 +129,7 @@ N4s_df = np.array(df["N4"].to_list())
 
 
 # New points
-indices = [i + 1 for i in range(13)]
-# indices = [i + 1 for i in range(13) if i in [0, 3, 6, 9, 12]]
+indices = dataset["indices"]
 
 indices_points = list(itertools.product(indices, repeat=2))
 indices_points = [index for index in indices_points if index not in df_index]
@@ -118,21 +148,21 @@ tri = scipy.spatial.Delaunay(points)
 # targets = np.array([[2, 3], [3, 4], [4, 5], [10, 10]])
 targets = new[["index_x", "index_y"]].to_numpy()
 
-# Plot triangulation
-fig = plt.figure()
-plt.triplot(points[:, 0], points[:, 1], tri.simplices)
+# # Plot triangulation
+# fig = plt.figure()
+# plt.triplot(points[:, 0], points[:, 1], tri.simplices)
 
-plt.plot(points[:, 0], points[:, 1], "o", label="points")
-for index, point in enumerate(points):
-    plt.text(*point, str(index))
+# plt.plot(points[:, 0], points[:, 1], "o", label="points")
+# for index, point in enumerate(points):
+#     plt.text(*point, str(index))
 
-plt.plot(targets[:, 0], targets[:, 1], "x", label="targets")
-for index, point in enumerate(targets):
-    plt.text(*point, str(index))
+# plt.plot(targets[:, 0], targets[:, 1], "x", label="targets")
+# for index, point in enumerate(targets):
+#     plt.text(*point, str(index))
 
-plt.legend()
-path_picture = os.path.join(directory, "triangulation" + ".png")
-plt.savefig(path_picture, dpi=300)
+# plt.legend()
+# path_picture = os.path.join(directory, "triangulation" + ".png")
+# plt.savefig(path_picture, dpi=300)
 
 # Get barycentric coordinates
 simplices = tri.find_simplex(targets)
@@ -195,6 +225,45 @@ for interpolation_method in [
         axis=1,
     )
 
+    class pyplot_3D_annotation_plotter:
+        def __init__(self):
+            self.annotation_bucket = []
+
+        def plot_tp_ensemble(self, visualization_method, row, scale):
+
+            origin = np.array([row["index_x"] * scale, row["index_y"] * scale, 0])
+
+            visualization_method(
+                fig=fig,
+                N4=np.array(row["N4"]),
+                origin=origin,
+                # nbr_points=20,
+            )
+
+            position = origin + np.array([0.05, -0.4, 0]) * scale
+
+            # text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
+
+            self.annotation_bucket.append(
+                dict(
+                    x=position[0],
+                    y=position[1],
+                    z=position[2],
+                    showarrow=False,
+                    text=f"({row['index_x']}, {row['index_y']})",
+                    xanchor="left",
+                    # xshift=10,
+                    # yshift=-10,
+                    opacity=0.7,
+                    font=dict(
+                        # color=text_color_plotly_rgb,
+                        size=18,
+                    ),
+                )
+            )
+
+    plotter = pyplot_3D_annotation_plotter()
+
     #############################
     # Plot
 
@@ -210,16 +279,26 @@ for interpolation_method in [
                 fig=fig,
                 origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
                 N4=np.array(row["N4"]),
+                # nbr_points=20,
                 # color="yellow",
             )
 
+        # for _, row in df.iterrows():
+        #     visualization_method(
+        #         fig=fig,
+        #         origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
+        #         N4=np.array(row["N4"]),
+        #         # color="red",
+        #     )
+
         for _, row in df.iterrows():
-            visualization_method(
-                fig=fig,
-                origin=[row["index_x"] * scale, row["index_y"] * scale, 0],
-                N4=np.array(row["N4"]),
-                # color="red",
+            plotter.plot_tp_ensemble(
+                row=row,
+                visualization_method=visualization_method,
+                scale=scale,
             )
+
+        fig.update_layout(scene=dict(annotations=plotter.annotation_bucket))
 
         # bbox_min = 0
         # bbox_max = 14 * scale
