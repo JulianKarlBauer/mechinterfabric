@@ -1,39 +1,37 @@
-import setuptools
+import sys
 from os import path
 
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, "README.md"), encoding="utf-8") as f:
-    long_description = f.read()
+import setuptools
 
-name = "mechinterfabric"
+description = "Interpolation of fabric and fiber-orientation tensors"
 
 
 setuptools.setup(
-    name=name,
-    version="0.0.0",
+    name="mechinterfabric",
+    version="0.0.1",
     author="Julian Karl Bauer",
     author_email="juliankarlbauer@gmx.de",
-    description="Interpolate fabric tensors",
-    long_description=long_description,
-    long_description_content_type="text/markdown",
-    url="https://github.com/JulianKarlBauer/mechinterfabric/",
-    packages=[name],
-    package_dir={name: name},
+    description=description,
+    long_description=description,
+    url="https://github.com/JulianKarlBauer/mechinterfabric",
+    packages=setuptools.find_packages(),
     install_requires=[
+        "setuptools",
         "numpy",
+        "mechkit",
         "scipy",
-        "matplotlib",
-        "mechkit>=0.3.7",
+        "vofotensors >= 1.0.7",
         "natsort",
+        "sympy",
+        "matplotlib",
         "pandas",
-        "vtk",
-        "mayavi",
-        "PyQt5",
+        "natsort",
+        "plotly",
+        "kaleido",
     ],
-    # setup_requires=["pybind11>=2.3", "libcgal-dev", "libeigen3-dev"],
-    # extras_require={"test": required_packages + ["pytest", "natsort"]},
     classifiers=[
-        "Programming Language :: Python :: 3",
+        "Programming Language :: Python",
+        "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
 )

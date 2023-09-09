@@ -31,9 +31,9 @@
 # "Understanding Slerp, Then Not Using It", February 2004
 # http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
 #
+import warnings
 
 import numpy
-import warnings
 
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=PendingDeprecationWarning)

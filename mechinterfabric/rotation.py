@@ -1,7 +1,9 @@
 import numpy as np
 import scipy
-from scipy.linalg import expm, logm
+from scipy.linalg import expm
+from scipy.linalg import logm
 from scipy.spatial.transform import Rotation
+
 from mechinterfabric import utils
 
 
@@ -73,11 +75,14 @@ def average_Manton2004(matrices, weights):
 
             log = logm(mean_inverse @ matrix)
             if np.iscomplex(log).any():
-                raise utils.ExceptionMechinterfabric(
-                    "Attention, matrices are too far away from each other, returning eye"
-                )
-                print(weights)
-                return np.eye(3)
+                message = "Attention, matrices are too far away from each other, returning eye"
+                # print(weights)
+                # raise utils.ExceptionMechinterfabric(message)
+
+                print(message)
+                log = np.real(log)
+
+                # return np.eye(3)
 
             A += weight * log
 
