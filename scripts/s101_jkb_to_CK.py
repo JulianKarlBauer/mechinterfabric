@@ -140,7 +140,7 @@ ax.auto_scale_xyz([bbox_min, bbox_max], [bbox_min, bbox_max], [bbox_min, bbox_ma
 key = "cubic"
 
 ax.set_title(key)
-directory = os.path.join("output", "s001")
+directory = os.path.join("output", "s101")
 os.makedirs(directory, exist_ok=True)
 path_picture = os.path.join(directory, key + ".png")
 plt.savefig(path_picture)
