@@ -64,7 +64,7 @@ def N4_from_row(row):
 #########################################################
 # Read N2
 df_N2 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N2.csv"),
+    os.path.join("data", "jb_mail_2022_01_31_1124_N2.csv"),
     header=0,
     sep=",",
 )
@@ -72,7 +72,7 @@ df_N2.columns = df_N2.columns.str.strip()
 
 # Read N4
 df_N4 = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_01_31_1124_N4.csv"),
+    os.path.join("data", "jb_mail_2022_01_31_1124_N4.csv"),
     header=0,
     sep=",",
 )
@@ -169,7 +169,7 @@ assert check_if_all_weight_sets_are_normalized(weights=new["weights"])
 
 # Load reference weights
 df_weights = pd.read_csv(
-    os.path.join("data", "juliane_blarr_mail_2022_02_01_1322_weight_data.csv"),
+    os.path.join("data", "jb_mail_2022_02_01_1322_weight_data.csv"),
     header=0,
     sep=",",
 )
