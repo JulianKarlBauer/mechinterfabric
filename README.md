@@ -1,4 +1,4 @@
-# About `mechinterfabric`
+# `mechinterfabric`
 
 This repository contains a Python package called `mechinterfabric`
 which contains a collection of algorithms and scripts on
