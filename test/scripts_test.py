@@ -22,20 +22,13 @@ def get_paths_of_scripts(path_glob, exclude_sub_strings):
     return plot_script_paths_sorted_reduced
 
 
-class Test_scripts:
+class Test_scripts_in_main_dir:
     @pytest.mark.parametrize(
         "path_script",
         get_paths_of_scripts(
             path_glob=os.path.join(PROJECT_DIR, "s*.py"),
             exclude_sub_strings=[
                 "setup",
-                "s001",
-                "s003",
-                "s004",
-                "s005",
-                "s007",
-                "s012",
-                "s037",
             ],
         ),
     )
@@ -45,7 +38,7 @@ class Test_scripts:
         runpy.run_path(path_script, init_globals={}, run_name="__main__")
 
 
-class Test_scripts_interpolation:
+class Test_scripts_in_scripts_dir:
     @pytest.mark.parametrize(
         "path_script",
         get_paths_of_scripts(
@@ -54,7 +47,18 @@ class Test_scripts_interpolation:
                 "scripts",
                 "s*.py",
             ),
-            exclude_sub_strings=["s021", "s022", "s040"],
+            exclude_sub_strings=[
+                "s021",
+                "s022",
+                "s040",
+                "s101",
+                "s103",
+                "s104",
+                "s105",
+                "s107",
+                "s112",
+                "s137",
+            ],
         ),
     )
     def test_execute_scripts(self, path_script):

@@ -11,7 +11,7 @@ import mechinterfabric
 
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s007")
+directory = os.path.join("output", "s010")
 os.makedirs(directory, exist_ok=True)
 
 np.random.seed(seed=100)
