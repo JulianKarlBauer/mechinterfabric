@@ -15,6 +15,8 @@ This package has been used in the paper
 }
 ```
 
+If you reuse or get inspired by parts of this repositories content, please consider citing the paper.
+
 ## Install
 
 Your options:
