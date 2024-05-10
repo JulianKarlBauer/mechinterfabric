@@ -14,7 +14,7 @@ from mechinterfabric import visualization_plotly
 np.random.seed(seed=100)
 np.set_printoptions(linewidth=100000)
 
-directory = os.path.join("output", "s037")
+directory = os.path.join("output", "s137")
 os.makedirs(directory, exist_ok=True)
 
 
