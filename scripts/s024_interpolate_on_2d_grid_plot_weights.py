@@ -25,7 +25,7 @@ converter = mechkit.notation.ExplicitConverter()
 
 # Load reference weights
 df = pd.read_csv(
-    os.path.join("data", "jb_mail_2022_02_01_1322_weight_data.csv"),
+    os.path.join("data", "mail_2022_02_01_1322_weight_data.csv"),
     header=0,
     sep=",",
 )

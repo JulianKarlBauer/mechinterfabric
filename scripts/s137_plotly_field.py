@@ -23,8 +23,8 @@ converter = mechkit.notation.ExplicitConverter()
 #########################################################
 datasets = [
     {
-        "path_N2": os.path.join("data", "jb_mail_2022_01_31_1124_N2.csv"),
-        "path_N4": os.path.join("data", "jb_mail_2022_01_31_1124_N4.csv"),
+        "path_N2": os.path.join("data", "mail_2022_01_31_1124_N2.csv"),
+        "path_N4": os.path.join("data", "mail_2022_01_31_1124_N4.csv"),
         "indices": [i + 1 for i in range(13)],
     },
     {

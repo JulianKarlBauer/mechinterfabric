@@ -62,7 +62,7 @@ def N4_from_row(row):
 #########################################################
 # Read N2
 df_N2 = pd.read_csv(
-    os.path.join("data", "jb_mail_2022_01_31_1124_N2.csv"),
+    os.path.join("data", "mail_2022_01_31_1124_N2.csv"),
     header=0,
     sep=",",
 )
@@ -70,7 +70,7 @@ df_N2.columns = df_N2.columns.str.strip()
 
 # Read N4
 df_N4 = pd.read_csv(
-    os.path.join("data", "jb_mail_2022_01_31_1124_N4.csv"),
+    os.path.join("data", "mail_2022_01_31_1124_N4.csv"),
     header=0,
     sep=",",
 )
