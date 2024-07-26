@@ -5,7 +5,7 @@ description = "Interpolation of fabric and fiber-orientation tensors"
 
 setuptools.setup(
     name="mechinterfabric",
-    version="0.0.1",
+    version="1.0.0",
     author="Julian Karl Bauer",
     author_email="juliankarlbauer@gmx.de",
     description=description,
