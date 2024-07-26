@@ -243,7 +243,7 @@ for interpolation_method in [
             position = origin + np.array([0.05, -0.4, 0]) * scale
 
             text_color = (1, 0, 0)  # Red
-            text_color_plotly_rgb = "rgb" + str(tuple(np.array(text_color) * 255))
+            text_color_plotly_rgb = "rgb" + str((np.array(text_color) * 255).tolist())
 
             self.annotation_bucket.append(
                 dict(
